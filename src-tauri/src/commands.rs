@@ -38,9 +38,11 @@ pub fn get_settings(state: State<'_, Arc<AppState>>) -> Settings {
 }
 
 #[tauri::command]
-pub fn save_settings(app: tauri::AppHandle, state: State<'_, Arc<AppState>>, settings: Settings) -> Res<()> {
+pub fn save_settings(app: tauri::AppHandle, state: State<'_, Arc<AppState>>, mut settings: Settings) -> Res<()> {
     // Keys are sent to these URLs: reject plain http (except Custom URL on localhost/LAN).
     crate::providers::http::validate_urls(&settings)?;
+    // Owned by set_autostart; the UI's copy may be stale.
+    settings.start_with_windows = state.settings.read().unwrap().start_with_windows;
     state.db.save_settings(&settings).map_err(e)?;
     let accent_changed = state.settings.read().unwrap().accent != settings.accent;
     let accent = settings.accent.clone();

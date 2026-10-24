@@ -14,12 +14,15 @@ pub fn get_autostart(app: AppHandle) -> Res<bool> {
 
 #[tauri::command]
 pub fn set_autostart(app: AppHandle, state: State<'_, Arc<AppState>>, on: bool) -> Res<()> {
-    let l = app.autolaunch();
-    if on { l.enable() } else { l.disable() }.map_err(|e| e.to_string())?;
     let mut g = state.settings.write().unwrap();
     let mut s = g.clone();
     s.start_with_windows = on;
     state.db.save_settings(&s).map_err(|e| format!("{e:#}"))?;
+    let l = app.autolaunch();
+    if let Err(e) = if on { l.enable() } else { l.disable() } {
+        let _ = state.db.save_settings(&g);
+        return Err(e.to_string());
+    }
     *g = s;
     Ok(())
 }

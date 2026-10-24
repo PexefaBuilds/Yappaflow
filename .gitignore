@@ -25,3 +25,4 @@ Thumbs.db
 # llama-server sidecar, fetched by the release workflow
 /src-tauri/binaries/
 /src-tauri/tauri.llama.conf.json
+__pycache__/

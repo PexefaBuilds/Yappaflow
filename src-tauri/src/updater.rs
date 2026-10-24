@@ -40,7 +40,11 @@ pub fn spawn(app: AppHandle) {
 async fn find(app: &AppHandle) -> anyhow::Result<Option<Update>> {
     let beta = app.state::<Arc<AppState>>().settings.read().unwrap().update_channel == "beta";
     let url = if beta { BETA } else { STABLE };
-    Ok(app.updater_builder().endpoints(vec![url.parse()?])?.build()?.check().await?)
+    match app.updater_builder().endpoints(vec![url.parse()?])?.build()?.check().await {
+        // No manifest at the URL (e.g. the latest release was built without the signing key).
+        Err(tauri_plugin_updater::Error::ReleaseNotFound) => Ok(None),
+        r => Ok(r?),
+    }
 }
 
 async fn background(app: &AppHandle) -> anyhow::Result<()> {
@@ -92,12 +96,19 @@ pub async fn check_update(app: AppHandle) -> Result<Option<String>, String> {
 /// install and restart. On Windows the installer closes the app and starts the new version.
 #[tauri::command]
 pub async fn install_update(app: AppHandle) -> Result<(), String> {
-    let taken = app.state::<Pending>().0.lock().unwrap().take();
-    let (u, bytes) = taken.ok_or("No update is waiting. Check for updates first.")?;
+    // Installing exits the app: a dictation still recording or transcribing would be lost.
+    if crate::hotkey::SESSION_ACTIVE.load(std::sync::atomic::Ordering::Relaxed) {
+        return Err("Finish your dictation first, then update.".into());
+    }
+    let pending = app.state::<Pending>();
+    let (u, bytes) = pending.0.lock().unwrap().clone().ok_or("No update is waiting. Check for updates first.")?;
     let bytes = match bytes {
         Some(b) => b,
         None => u.download(|_, _| {}, || {}).await.map_err(|e| format!("Download failed: {e}"))?,
     };
+    if crate::hotkey::SESSION_ACTIVE.load(std::sync::atomic::Ordering::Relaxed) {
+        return Err("Finish your dictation first, then update.".into());
+    }
     u.install(&bytes).map_err(|e| format!("Couldn't install the update: {e}"))?;
     app.restart()
 }
