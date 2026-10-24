@@ -24,16 +24,16 @@ Updated 2026-10-24. `PLAN.md` §0 stays the product source of truth; this file i
 - Never type or store API keys: the owner enters them in Settings › Models.
 
 ## Current task
-None in flight; no open branches or worktrees.
+None in flight. **v0.9.0 public beta released 24 Oct 2026**: https://github.com/PexefaBuilds/yappaflow/releases/tag/v0.9.0 (unsigned `Yappaflow_0.9.0_x64-setup.exe` + universal ad-hoc-signed `.dmg`, `SHA256SUMS`). Repo is public under PexefaBuilds: one squashed commit (noreply author), secret scanning, push protection and private vulnerability reporting on, labels created. CI (incl. local-engines builds, gitleaks, cargo-deny) is green.
 
 ## Next steps (in order)
 1. Before filling the llama-server pins in `release.yml`: settle Phase 7 item 7 (CUDA DLL size/licence; the only Windows build bundled is CUDA, so check it runs without NVIDIA). Also open: `docs/providers.md` lacks the llama-server flags / `-ngl 0` fallback; macOS watchdog trusts PID liveness (PID reuse); create repo labels `bug`, `enhancement`, `provider` for the issue forms.
 2. Owner: on-screen acceptance tests for Phases 1–8 (lists in `docs/phases/phase-N.md`; paste results there). Evals 4.5/5.5 cost cents with the saved key.
 3. Owner: rotate the OpenAI key (old one was pasted in chat); add a Groq key; run `stt_bench` / `cleanup_eval` with `STT_PROVIDER`/`EVAL_PROVIDER` and pick defaults.
-4. Owner: release items in `docs/RELEASE_CHECKLIST.md` (licence name, contacts, employer sign-off, trademark, repo, signing, updater key). Test builds on request: unsigned NSIS here, `.dmg` on the Mac.
+4. Owner: remaining items in `docs/RELEASE_CHECKLIST.md` (trademark/domain searches, Windows + Apple Developer ID signing, updater key, a required reviewer on the `release` environment). Test builds on request: unsigned NSIS here, `.dmg` on the Mac.
 
 ## Open questions for the owner
-- Git repo URL (no off-machine backup yet). Default providers after benchmarks. Very wide settings pages: cap line length?
+- Default providers after benchmarks. Very wide settings pages: cap line length?
 
 ## Gotchas
 - `cargo` isn't on PATH in new shells: Git Bash `export PATH="$PATH:$HOME/.cargo/bin"`. Owner's terminal is **PowerShell**: give PowerShell syntax (e.g. `Remove-Item -Recurse -Force`), not bash.

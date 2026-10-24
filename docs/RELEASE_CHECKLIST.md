@@ -25,13 +25,13 @@ Record findings and dates in phase-9.md Results.
 - [ ] WIPO Global Brand Database.
 - [ ] UAE Ministry of Economy trademark register.
 - [ ] Domains: `yappaflow.com`, `.app`, `.dev`.
-- [ ] GitHub: `<owner>/yappaflow` free; reserve the `yappaflow` org.
+- [x] GitHub: `PexefaBuilds/yappaflow` created; reserve the `yappaflow` org.
 - [ ] winget ID `<Publisher>.Yappaflow` (search `microsoft/winget-pkgs`); Homebrew cask `yappaflow` (search `homebrew/homebrew-cask`).
 
 ## GitHub repo settings
-- [ ] Secret scanning **on**.
-- [ ] Push protection **on**.
-- [ ] Private vulnerability reporting **on** (Security tab).
+- [x] Secret scanning **on**.
+- [x] Push protection **on**.
+- [x] Private vulnerability reporting **on** (Security tab).
 - [ ] `release` environment created with you as required reviewer; signing secrets stored there, not at repo level.
 - [x] Before going public: drop `continue-on-error` from the fmt and clippy steps in `.github/workflows/ci.yml` once they're green.
 
@@ -44,5 +44,5 @@ Record findings and dates in phase-9.md Results.
 - [ ] Phases 1–8 acceptance tests pass on clean machines; results pasted.
 - [x] `CHANGELOG.md` and release notes with known issues.
 - [x] Version bumped in `tauri.conf.json`, `Cargo.toml`, `package.json`.
-- [ ] Release built by CI only; installers downloaded from the draft and smoke-tested; `SHA256SUMS` checked.
-- [ ] Repo switched to public; secret scanning and push protection confirmed on.
+- [x] Release built by CI only; installers downloaded from the draft and smoke-tested; `SHA256SUMS` checked.
+- [x] Repo switched to public; secret scanning and push protection confirmed on.

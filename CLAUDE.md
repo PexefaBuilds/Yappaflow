@@ -16,7 +16,7 @@ Yappaflow is a hold-to-talk dictation app. Hold a hotkey, speak, release, and po
 
 ## Current status
 - Phases 1–8 are **built** and Phase 9 groundwork is done (141 unit tests pass on Windows; the Mac build links and passes its tests). **No acceptance test has been run on screen**, so no phase box is checked yet. Prompts live in `docs/prompts/*.md` + `src-tauri/src/providers/prompts/*.txt` (keep identical; re-run the eval after any change).
-- **Read `WORK_PLAN.md` next**: what's done, decisions, exact next steps, open questions, gotchas. It's a local git repo (`main`) with no remote yet.
+- **Read `WORK_PLAN.md` next**: what's done, decisions, exact next steps, open questions, gotchas. Public repo: https://github.com/PexefaBuilds/yappaflow (`main`); v0.9.0 beta is released.
 - The next phase is set by the first unchecked box in `docs/phases/README.md`.
 
 ## Commands (Windows, PowerShell)
@@ -29,7 +29,7 @@ npm run tauri build             # NSIS installer → src-tauri/target/release/bu
 ```
 Prerequisites: Rust (MSVC toolchain), VS Build Tools 2022 with "Desktop development with C++", Node 22 LTS or newer.
 
-**The project lives locally at `D:\Claude-Related\ClaudeFiles_Personal\Yappaflow`.** It's a local git repo with no remote yet (the owner will create the GitHub repo later). At the start of a session run `git status`; commit after each work chunk. Once a remote exists, also `git pull` at the start and push at the end. Never write large generated files (models, recordings) into the project folder.
+**The project lives locally at `D:\Claude-Related\ClaudeFiles_Personal\Yappaflow`.** Remote: `origin` = https://github.com/PexefaBuilds/yappaflow (public). At the start of a session run `git pull` and `git status`; commit after each work chunk and push at the end. The pre-publish history is only on the local branch `pre-public-history` (never push it). Releases: bump the version in `package.json`, `src-tauri/tauri.conf.json` and `src-tauri/Cargo.toml`, add `docs/release-notes/vX.Y.Z.md`, push a `vX.Y.Z` tag; `release.yml` builds an unsigned NSIS `.exe` and a universal `.dmg` into a draft, which the owner publishes.
 
 ## Non-negotiable rules
 1. **Clean room.** Never decompile, inspect, download or copy any other dictation product's binaries, assets, prompts or UI, and never use another product's name or branding. Build only from public docs and our own designs.
