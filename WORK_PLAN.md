@@ -24,7 +24,7 @@ Updated 2026-10-24. `PLAN.md` §0 stays the product source of truth; this file i
 - Never type or store API keys: the owner enters them in Settings › Models.
 
 ## Current task
-None in flight. **v0.9.0 public beta released 24 Oct 2026**: https://github.com/PexefaBuilds/yappaflow/releases/tag/v0.9.0 (unsigned `Yappaflow_0.9.0_x64-setup.exe` + universal ad-hoc-signed `.dmg`, `SHA256SUMS`). Repo is public under PexefaBuilds: one squashed commit (noreply author), secret scanning, push protection and private vulnerability reporting on, labels created. CI (incl. local-engines builds, gitleaks, cargo-deny) is green.
+None in flight. **v0.9.1 released 25 Oct 2026** (onboarding fits the screen, Next below content, mic test auto-allowed via `WEBVIEW_ARGS`). **v0.9.0 public beta released 24 Oct 2026**: https://github.com/PexefaBuilds/yappaflow/releases/tag/v0.9.0 (unsigned `Yappaflow_0.9.0_x64-setup.exe` + universal ad-hoc-signed `.dmg`, `SHA256SUMS`). Repo is public under PexefaBuilds: one squashed commit (noreply author), secret scanning, push protection and private vulnerability reporting on, labels created. CI (incl. local-engines builds, gitleaks, cargo-deny) is green.
 
 ## Next steps (in order)
 1. Before filling the llama-server pins in `release.yml`: settle Phase 7 item 7 (CUDA DLL size/licence; the only Windows build bundled is CUDA, so check it runs without NVIDIA). Also open: `docs/providers.md` lacks the llama-server flags / `-ngl 0` fallback; macOS watchdog trusts PID liveness (PID reuse); create repo labels `bug`, `enhancement`, `provider` for the issue forms.
