@@ -260,8 +260,12 @@ pub fn run() {
             app.manage(pill::CtlTx(std::sync::Mutex::new(ctl_tx.clone())));
             pill::create(app.handle())?;
             toast::create(app.handle())?;
-            let accent = app.state::<Arc<AppState>>().settings.read().unwrap().accent.clone();
+            let (accent, autostart) = {
+                let s = app.state::<Arc<AppState>>().settings.read().unwrap().clone();
+                (s.accent, s.start_with_windows)
+            };
             appicon::apply(app.handle(), &accent);
+            system_cmds::restore_autostart(app.handle(), autostart);
             models::keep::spawn(state.clone());
             pipeline::spawn(app.handle().clone(), state, ctl_tx, ctl_rx)?;
             models::download::resume_all(app.handle());

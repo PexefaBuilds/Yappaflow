@@ -31,9 +31,9 @@ export function general() {
   };
   drawAccents();
 
-  // The Windows Run entry is the source of truth, not a setting.
+  // The toggle shows the real Run entry; set_autostart also saves the choice so a reinstall can't undo it.
   const autostart = sw(false, async (v) => {
-    try { await invoke("set_autostart", { on: v }); } catch (e) { autostart.checked = !v; ctx.toast(`Couldn't change ${isMac ? "open at login" : "start with Windows"}: ${e}`, true); }
+    try { await invoke("set_autostart", { on: v }); ctx.settings.start_with_windows = v; } catch (e) { autostart.checked = !v; ctx.toast(`Couldn't change ${isMac ? "open at login" : "start with Windows"}: ${e}`, true); }
   }, true, "g-auto");
   invoke<boolean>("get_autostart").then((on) => { autostart.checked = on; autostart.disabled = false; }).catch(() => {});
 

@@ -13,9 +13,26 @@ pub fn get_autostart(app: AppHandle) -> Res<bool> {
 }
 
 #[tauri::command]
-pub fn set_autostart(app: AppHandle, on: bool) -> Res<()> {
+pub fn set_autostart(app: AppHandle, state: State<'_, Arc<AppState>>, on: bool) -> Res<()> {
     let l = app.autolaunch();
-    if on { l.enable() } else { l.disable() }.map_err(|e| e.to_string())
+    if on { l.enable() } else { l.disable() }.map_err(|e| e.to_string())?;
+    let mut g = state.settings.write().unwrap();
+    let mut s = g.clone();
+    s.start_with_windows = on;
+    state.db.save_settings(&s).map_err(|e| format!("{e:#}"))?;
+    *g = s;
+    Ok(())
+}
+
+/// Startup: put the Run entry back if the setting is on and something (a reinstall) removed it.
+/// Not in dev builds: it would register the debug exe to run at login.
+pub fn restore_autostart(app: &AppHandle, on: bool) {
+    let l = app.autolaunch();
+    if on && !cfg!(debug_assertions) && !l.is_enabled().unwrap_or(true) {
+        if let Err(e) = l.enable() {
+            log::warn!("couldn't re-enable start with Windows: {e}");
+        }
+    }
 }
 
 /// macOS permission ticks for onboarding (polled every second). Always all-true on Windows.

@@ -56,6 +56,9 @@ pub struct Settings {
     pub custom_rules: Vec<String>,
     /// "Work in admin windows": relaunch elevated at startup (UAC prompt).
     pub admin_mode: bool,
+    /// "Start with Windows" / "Open at login". Re-applied at every launch: reinstalling over an
+    /// older version runs its uninstaller, which deletes the Run entry.
+    pub start_with_windows: bool,
     /// llama-server binary for local cleanup; empty = next to the app exe (Tauri sidecar spot).
     pub llama_server_path: String,
     /// Local models: always | idle (unload after 15 min idle) | after_use. Default: always on a GPU build.
@@ -89,10 +92,20 @@ impl Default for Settings {
             disabled_rules: Vec::new(),
             custom_rules: Vec::new(),
             admin_mode: false,
+            start_with_windows: true,
             llama_server_path: String::new(),
             keep_models_loaded: if crate::models::GPU_BUILD { "always" } else { "idle" }.into(),
             theme: "system".into(),
             sounds_enabled: true,
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    #[test]
+    fn start_with_windows_is_on_for_settings_saved_before_it_existed() {
+        let s: super::Settings = serde_json::from_str(r#"{"onboarded": true}"#).unwrap();
+        assert!(s.start_with_windows);
     }
 }

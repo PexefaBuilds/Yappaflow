@@ -44,15 +44,8 @@ pub fn finish_onboarding(app: AppHandle, state: State<'_, Arc<AppState>>) -> Res
 }
 
 /// Shared by the Finish button and closing the window with X.
-/// The first time, "Start with Windows" is switched on (the user can turn it off in General).
 pub fn finish(app: &AppHandle, state: &AppState) -> Result<(), String> {
-    // Not in dev builds: it would register the debug exe to run at login.
-    if mark_onboarded(state)? && !cfg!(debug_assertions) {
-        use tauri_plugin_autostart::ManagerExt;
-        if let Err(e) = app.autolaunch().enable() {
-            log::warn!("couldn't enable start with Windows: {e}");
-        }
-    }
+    mark_onboarded(state)?;
     if let Some(w) = app.get_webview_window("onboarding") {
         let _ = w.hide();
     }
