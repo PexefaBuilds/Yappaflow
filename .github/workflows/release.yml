@@ -1,0 +1,231 @@
+name: Release
+
+# Builds installers on a version tag and attaches them to a DRAFT GitHub release.
+# A human reviews and publishes the draft; nothing here publishes on its own.
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write # create the draft release and upload assets
+
+# Third-party actions pinned by full commit SHA (verified 2026-10-24).
+jobs:
+  # One draft per tag, created before the build legs so they don't race to make duplicates.
+  draft:
+    name: Create draft release
+    runs-on: ubuntu-latest
+    outputs:
+      id: ${{ steps.create.outputs.id }}
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Create the draft
+        id: create
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          notes="docs/release-notes/$TAG.md"
+          [ -f "$notes" ] || notes=/dev/null
+          gh release create "$TAG" --draft --verify-tag --title "Yappaflow $TAG" --notes-file "$notes" \
+            $([[ "$TAG" == *-beta.* ]] && echo --prerelease)
+          id=$(gh api "repos/$GITHUB_REPOSITORY/releases" --jq ".[] | select(.tag_name == \"$TAG\") | .id" | head -n 1)
+          echo "id=$id" >> "$GITHUB_OUTPUT"
+
+  # ── Phase 9: THIRD_PARTY_NOTICES.md (Rust via cargo-about, npm via license-checker-rseidelsohn).
+  # Uploaded as an artifact; the build job bundles it into the installers (tauri.conf.json resources).
+  notices:
+    name: Third-party notices
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 22
+          cache: npm
+
+      - uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec # stable
+
+      - name: Install cargo-about
+        run: cargo install cargo-about --locked
+
+      - name: Install npm dependencies
+        run: npm ci
+
+      - name: Generate THIRD_PARTY_NOTICES.md
+        run: |
+          (cd src-tauri && cargo about generate about.hbs) > rust-notices.md
+          npx --yes license-checker-rseidelsohn@4 --production --excludePrivatePackages --plainVertical > npm-notices.txt
+          {
+            cat rust-notices.md
+            printf '\n## npm packages (bundled into the app UI)\n\n```\n'
+            cat npm-notices.txt
+            printf '```\n'
+          } > THIRD_PARTY_NOTICES.md
+          wc -c THIRD_PARTY_NOTICES.md
+
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: third-party-notices
+          path: THIRD_PARTY_NOTICES.md
+          if-no-files-found: error
+
+  build:
+    name: Build (${{ matrix.name }})
+    needs: [draft, notices]
+    # Protected environment: add a required reviewer in repo settings before the first tag.
+    # Signing secrets (below) live in this environment, not at repo level.
+    environment: release
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: windows
+            os: windows-latest
+            args: --bundles nsis
+          # Local speech (whisper.cpp) is off in release builds until the CI local-engines job is
+          # green: then add `--features local-stt` here (plus the LLVM step from ci.yml) and
+          # `--features local-stt,metal` on the macOS leg.
+          # Unsigned beta: ad-hoc signed (tauri.macos.conf.json signingIdentity "-"), not notarised.
+          - name: macos
+            os: macos-14
+            args: --target universal-apple-darwin --bundles dmg
+    runs-on: ${{ matrix.os }}
+    env:
+      # llama-server sidecar for local cleanup (phase-7.md item 8), from the official llama.cpp
+      # release. TODO before the first release: pick a tag on
+      # https://github.com/ggml-org/llama.cpp/releases and copy each asset's SHA256 from that
+      # page. Not verified yet. While a value is empty, the sidecar isn't bundled and users
+      # place llama-server next to the app themselves.
+      LLAMA_TAG: "" # TODO, e.g. b6xxx
+      # Windows: space-separated "asset=sha256" pairs, e.g. the CUDA zip plus its cudart zip.
+      LLAMA_WIN_ASSETS: "" # TODO "llama-<tag>-bin-win-cuda-12.4-x64.zip=<sha256> cudart-llama-bin-win-cuda-12.4-x64.zip=<sha256>"
+      LLAMA_MAC_ARM_ASSET: "" # TODO llama-<tag>-bin-macos-arm64.zip
+      LLAMA_MAC_ARM_SHA256: "" # TODO
+      LLAMA_MAC_X64_ASSET: "" # TODO llama-<tag>-bin-macos-x64.zip
+      LLAMA_MAC_X64_SHA256: "" # TODO
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 22
+          cache: npm
+
+      - uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec # stable
+        with:
+          targets: ${{ matrix.os == 'macos-14' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
+
+      - uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
+        with:
+          workspaces: src-tauri -> target
+
+      - name: Install npm dependencies
+        run: npm ci
+
+      # Downloads the pinned llama-server, checks its sha256 and adds it as a Tauri externalBin
+      # (installed next to Yappaflow.exe, where llama_cpp.rs looks). Its DLLs go in as resources,
+      # which NSIS puts in the install dir too (UNVERIFIED on a real install).
+      - name: Bundle llama-server (Windows)
+        id: llama_win
+        if: runner.os == 'Windows' && env.LLAMA_TAG != '' && env.LLAMA_WIN_ASSETS != ''
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $dir = 'src-tauri/binaries'
+          $tmp = Join-Path $env:RUNNER_TEMP 'llama'
+          New-Item -ItemType Directory -Force "$dir/llama", $tmp | Out-Null
+          foreach ($pair in $env:LLAMA_WIN_ASSETS.Split(' ', [StringSplitOptions]::RemoveEmptyEntries)) {
+            $name, $sha = $pair.Split('=')
+            $zip = Join-Path $env:RUNNER_TEMP $name
+            Invoke-WebRequest "https://github.com/ggml-org/llama.cpp/releases/download/$env:LLAMA_TAG/$name" -OutFile $zip
+            $got = (Get-FileHash $zip -Algorithm SHA256).Hash.ToLower()
+            if ($got -ne $sha.ToLower()) { throw "${name}: sha256 $got doesn't match the pinned $sha" }
+            Expand-Archive $zip -DestinationPath $tmp -Force
+          }
+          $server = Get-ChildItem $tmp -Recurse -Filter llama-server.exe | Select-Object -First 1
+          if (-not $server) { throw 'llama-server.exe not found in the release zips' }
+          Copy-Item $server.FullName "$dir/llama-server-x86_64-pc-windows-msvc.exe"
+          Get-ChildItem $tmp -Recurse -Filter *.dll | Copy-Item -Destination "$dir/llama" -Force
+          '{"bundle":{"externalBin":["binaries/llama-server"],"resources":{"binaries/llama/*":"./"}}}' | Set-Content src-tauri/tauri.llama.conf.json
+          "config=--config src-tauri/tauri.llama.conf.json" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+
+      # macOS (Phase 8, runs once the macOS leg above is enabled): both architectures, joined
+      # with lipo for the universal build. Its dylibs are lipo'd too and placed next to it in
+      # Contents/MacOS (UNVERIFIED: that the release binaries find them via @loader_path/@rpath).
+      # Signing: tauri-action signs externalBin and macOS.files with the app's identity.
+      - name: Bundle llama-server (macOS)
+        id: llama_mac
+        if: runner.os == 'macOS' && env.LLAMA_TAG != '' && env.LLAMA_MAC_ARM_SHA256 != '' && env.LLAMA_MAC_X64_SHA256 != ''
+        shell: bash
+        run: |
+          set -euo pipefail
+          dir=src-tauri/binaries
+          mkdir -p "$dir/llama"
+          fetch() {
+            curl -fsSL -o "$RUNNER_TEMP/$1" "https://github.com/ggml-org/llama.cpp/releases/download/$LLAMA_TAG/$1"
+            echo "$2  $RUNNER_TEMP/$1" | shasum -a 256 -c - >&2 || exit 1
+            mkdir -p "$RUNNER_TEMP/$3" && unzip -q "$RUNNER_TEMP/$1" -d "$RUNNER_TEMP/$3"
+            dirname "$(find "$RUNNER_TEMP/$3" -name llama-server -type f | head -n 1)"
+          }
+          arm=$(fetch "$LLAMA_MAC_ARM_ASSET" "$LLAMA_MAC_ARM_SHA256" arm)
+          x64=$(fetch "$LLAMA_MAC_X64_ASSET" "$LLAMA_MAC_X64_SHA256" x64)
+          lipo -create "$arm/llama-server" "$x64/llama-server" -output "$dir/llama-server-universal-apple-darwin"
+          files='{}'
+          for lib in "$arm"/*.dylib; do
+            [ -e "$lib" ] || continue
+            n=$(basename "$lib")
+            if [ -f "$x64/$n" ]; then lipo -create "$lib" "$x64/$n" -output "$dir/llama/$n"; else cp -L "$lib" "$dir/llama/$n"; fi
+            files=$(jq --arg k "MacOS/$n" --arg v "binaries/llama/$n" '. + {($k): $v}' <<<"$files")
+          done
+          jq -n --argjson f "$files" '{bundle: {externalBin: ["binaries/llama-server"], macOS: {files: $f}}}' > src-tauri/tauri.llama.conf.json
+          echo "config=--config src-tauri/tauri.llama.conf.json" >> "$GITHUB_OUTPUT"
+
+      # Replaces the placeholder THIRD_PARTY_NOTICES.md at the repo root (job `notices`).
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: third-party-notices
+          path: .
+
+      - uses: tauri-apps/tauri-action@84b9d35b5fc46c1e45415bdb6144030364f7ebc5 # v0 (2026-10-24)
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # ── Updater signing (Phase 6). Uncomment once the updater plugin is configured
+          # and the secrets exist in the `release` environment. Never print these.
+          # TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          # TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+          # ── macOS signing + notarisation (Phase 8).
+          # APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
+          # APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+          # APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
+          # APPLE_API_ISSUER: ${{ secrets.APPLE_API_ISSUER }}
+          # APPLE_API_KEY: ${{ secrets.APPLE_API_KEY }}
+          # APPLE_API_KEY_PATH: (write the .p8 from a secret to a temp file in an earlier step)
+          # ── Windows code signing (Phase 6): configure bundle.windows signing in
+          # tauri.conf.json (certificate thumbprint or a signCommand for Azure Trusted Signing),
+          # and import the certificate in a step before this one, gated on the secret existing.
+        with:
+          releaseId: ${{ needs.draft.outputs.id }}
+          # TODO (Phase 6): publish a separate beta updater manifest for the beta channel.
+          # TODO (Phase 6): set to true once the updater is configured.
+          includeUpdaterJson: false
+          args: ${{ matrix.args }} ${{ steps.llama_win.outputs.config }}${{ steps.llama_mac.outputs.config }}
+
+  checksums:
+    name: SHA256SUMS
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Hash release assets and upload SHA256SUMS
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          mkdir assets && cd assets
+          gh release download "$TAG" --repo "$GITHUB_REPOSITORY" --pattern '*'
+          rm -f SHA256SUMS
+          sha256sum * > SHA256SUMS
+          cat SHA256SUMS
+          gh release upload "$TAG" SHA256SUMS --repo "$GITHUB_REPOSITORY" --clobber

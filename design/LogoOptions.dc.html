@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Logo options</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;400;500;600;700&amp;family=Reem+Kufi:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div style="width: 1600px; height: 1180px; box-sizing: border-box; padding: 48px 56px; background: #ECEBE6; font-family: 'Unbounded', 'Reem Kufi', sans-serif; color: #1B1B1F; display: flex; flex-direction: column; gap: 28px">
+  <div style="display: flex; justify-content: space-between; align-items: flex-end; gap: 32px">
+    <div style="display: flex; flex-direction: column; gap: 8px">
+      <span style="font-size: 12px; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase; color: #5E5E66">Six directions</span>
+      <h1 style="margin: 0; font-size: 34px; font-weight: 600; letter-spacing: -0.01em">Logo &amp; app icon</h1>
+    </div>
+    <p style="margin: 0; max-width: 600px; font-size: 12px; line-height: 1.7; font-weight: 300; color: #3A3A42">Each one shown as the app icon (dark and light), at tray sizes (32 and 16 px), and next to the wordmark. All are original geometric marks drawn on a 64-unit grid. Click a card to mark your pick, or tell me which two to combine.</p>
+  </div>
+
+  <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; flex-grow: 1" role="radiogroup" aria-label="Logo direction">
+    <sc-for list="{{opts}}" as="o" hint-placeholder-count="6">
+      <button type="button" role="radio" aria-checked="{{o.checked}}" onClick="{{o.pick}}" style="display: flex; flex-direction: column; gap: 16px; padding: 22px; border-radius: 22px; border: 2px solid {{o.ring}}; background: #F7F6F2; font-family: inherit; color: #1B1B1F; text-align: left; cursor: pointer">
+        <div style="display: flex; justify-content: space-between; align-items: baseline; width: 100%">
+          <span style="font-size: 14px; font-weight: 600">{{o.num}} · {{o.name}}</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 22px">
+          <svg width="120" height="120" viewBox="0 0 64 64" aria-hidden="true" style="flex: none">
+            <defs><linearGradient id="gd{{o.num}}" gradientUnits="userSpaceOnUse" x1="8" y1="0" x2="56" y2="0"><stop offset="0.42" stop-color="#5AB0FF"></stop><stop offset="0.58" stop-color="#F4F4F0"></stop></linearGradient></defs>
+            <rect width="64" height="64" rx="16" fill="#141417"></rect>
+            <path d="{{o.base}}" fill="none" stroke="#F4F4F0" stroke-width="{{o.sw}}" stroke-linecap="round" stroke-linejoin="round"></path>
+            <path d="{{o.accent}}" fill="none" stroke="#5AB0FF" stroke-width="{{o.sw}}" stroke-linecap="round" stroke-linejoin="round"></path>
+            <path d="{{o.grad}}" fill="none" stroke="url(#gd{{o.num}})" stroke-width="{{o.sw}}" stroke-linecap="round" stroke-linejoin="round"></path>
+          </svg>
+          <div style="display: flex; flex-direction: column; gap: 14px">
+            <svg width="64" height="64" viewBox="0 0 64 64" aria-hidden="true">
+              <rect x="0.5" y="0.5" width="63" height="63" rx="16" fill="#FFFFFF" stroke="#D9D8D1"></rect>
+              <path d="{{o.base}}" fill="none" stroke="#17171A" stroke-width="{{o.sw}}" stroke-linecap="round" stroke-linejoin="round"></path>
+              <path d="{{o.accent}}" fill="none" stroke="#0B5FB3" stroke-width="{{o.sw}}" stroke-linecap="round" stroke-linejoin="round"></path>
+              <defs><linearGradient id="gl{{o.num}}" gradientUnits="userSpaceOnUse" x1="8" y1="0" x2="56" y2="0"><stop offset="0.42" stop-color="#0B5FB3"></stop><stop offset="0.58" stop-color="#17171A"></stop></linearGradient></defs><path d="{{o.grad}}" fill="none" stroke="url(#gl{{o.num}})" stroke-width="{{o.sw}}" stroke-linecap="round" stroke-linejoin="round"></path>
+            </svg>
+            <div style="display: flex; align-items: center; gap: 10px">
+              <span style="display: flex; align-items: center; justify-content: center; width: 40px; height: 32px; border-radius: 6px; background: #202024">
+                <svg width="20" height="20" viewBox="0 0 64 64" aria-hidden="true"><path d="{{o.base}} {{o.accent}} {{o.grad}}" fill="none" stroke="#FFFFFF" stroke-width="{{o.swTray}}" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+              </span>
+              <span style="display: flex; align-items: center; justify-content: center; width: 28px; height: 24px; border-radius: 5px; background: #202024">
+                <svg width="16" height="16" viewBox="0 0 64 64" aria-hidden="true"><path d="{{o.base}} {{o.accent}} {{o.grad}}" fill="none" stroke="#FFFFFF" stroke-width="{{o.swTiny}}" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+              </span>
+              <span style="display: flex; align-items: center; justify-content: center; width: 28px; height: 24px; border-radius: 5px; background: #DAD9D3">
+                <svg width="16" height="16" viewBox="0 0 64 64" aria-hidden="true"><path d="{{o.base}} {{o.accent}} {{o.grad}}" fill="none" stroke="#17171A" stroke-width="{{o.swTiny}}" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+              </span>
+            </div>
+          </div>
+        </div>
+        <div style="display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-radius: 14px; background: #141417">
+          <svg width="30" height="30" viewBox="0 0 64 64" aria-hidden="true">
+            <path d="{{o.base}}" fill="none" stroke="#F4F4F0" stroke-width="{{o.swTray}}" stroke-linecap="round" stroke-linejoin="round"></path>
+            <path d="{{o.accent}}" fill="none" stroke="#5AB0FF" stroke-width="{{o.swTray}}" stroke-linecap="round" stroke-linejoin="round"></path>
+            <defs><linearGradient id="gw{{o.num}}" gradientUnits="userSpaceOnUse" x1="8" y1="0" x2="56" y2="0"><stop offset="0.42" stop-color="#5AB0FF"></stop><stop offset="0.58" stop-color="#F4F4F0"></stop></linearGradient></defs><path d="{{o.grad}}" fill="none" stroke="url(#gw{{o.num}})" stroke-width="{{o.swTray}}" stroke-linecap="round" stroke-linejoin="round"></path>
+          </svg>
+          <span style="font-size: 20px; font-weight: 600; letter-spacing: -0.01em; color: #F4F4F0">Yappaflow</span>
+        </div>
+        <span style="font-size: 11px; font-weight: 300; line-height: 1.6; color: #3A3A42">{{o.idea}}</span>
+      </button>
+    </sc-for>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1600,"height":1180}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { picked: -1 };
+  }
+  renderVals() {
+    const list = [
+      { name: 'Voice bars', sw: 5.5, base: '', accent: 'M16 27v10 M24 21v22 M32 14v36 M40 21v22 M48 27v10',
+        idea: 'The refined current mark: a burst of speech. Instantly reads as "audio" and stays crisp at 16 px. Safe, but common for voice apps.' },
+      { name: 'Talk bubble', sw: 4, base: 'M16 14h32a7 7 0 0 1 7 7v17a7 7 0 0 1-7 7H31l-10 8v-8h-5a7 7 0 0 1-7-7V21a7 7 0 0 1 7-7z', accent: 'M20 24h22 M20 30.5h16 M20 37h24',
+        idea: 'A speech bubble already full of typed lines. Says "you talk, it writes" in one glance. Friendly; slightly busy at 16 px.' },
+      { name: 'Wave → line', sw: 5, base: '', accent: '', grad: 'M8 32c2-11 5-11 7 0s5 9 7 0 4-6 6 0c1.2 2.5 2.6 0 4 0h24',
+        idea: 'One continuous stroke: a sound wave calms and becomes a line of text right at the centre, fading from accent to white.' },
+      { name: 'Yap Y', sw: 5.5, base: 'M32 34v18', accent: 'M12 14c6 0 7 7 11 10s7 6 9 10 M52 14c-6 0-7 7-11 10s-7 6-9 10',
+        idea: 'A Y whose arms are two voice waves merging into one stem. A monogram that can carry the brand alone.' },
+      { name: 'Chatter mouth', sw: 5, base: 'M35 21a15 15 0 1 0 0 22', accent: 'M42 26h12 M45 32h10 M42 38h8',
+        idea: 'An open, talking mouth with words streaming out. The most playful option, and it leans into "yap".' },
+      { name: 'Voice cursor', sw: 4, base: 'M32 16v32 M27 16h10 M27 48h10', accent: 'M21 25a10 10 0 0 0 0 14 M14 20a17 17 0 0 0 0 24 M43 25a10 10 0 0 1 0 14 M50 20a17 17 0 0 1 0 24',
+        idea: 'A text cursor with sound around it: your voice, wherever your cursor is. Precise and tool-like.' },
+    ];
+    const picked = this.state.picked;
+    const opts = list.map((o, i) => ({
+      ...o,
+      grad: o.grad || '',
+      num: String(i + 1).padStart(2, '0'),
+      swTray: o.sw * 1.25,
+      swTiny: o.sw * 1.6,
+      checked: i === picked ? 'true' : 'false',
+      ring: i === picked ? '#141417' : 'transparent',
+      pick: () => this.setState({ picked: i }),
+    }));
+    return { opts };
+  }
+}
+</script>
+</body>
+</html>

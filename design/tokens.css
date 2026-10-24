@@ -1,0 +1,151 @@
+/* Yappaflow design tokens, extracted from the design canvas (design/*.dc.html).
+ * Import once at the top of the UI stylesheet. Use the variables, never raw hexes.
+ *
+ * Theme:  <html data-theme="dark|light">  (default follows prefers-color-scheme)
+ * Accent: <html data-accent="azure|coral|tangerine|sunflower|mint|violet|chalk">  (default azure)
+ */
+
+/* ── Type ─────────────────────────────────────────────── */
+:root {
+  --font-ui: "Unbounded", "Reem Kufi", system-ui, sans-serif; /* Latin: Unbounded; Arabic falls back to Reem Kufi */
+  --font-mono: ui-monospace, "Cascadia Mono", Consolas, monospace; /* "Literal" style preview only */
+
+  /* size / weight / line-height */
+  --text-hero: 700 46px/1.05 var(--font-ui);       /* onboarding welcome */
+  --text-title: 600 28px/1.2 var(--font-ui);       /* onboarding step titles */
+  --text-h1: 600 24px/1.2 var(--font-ui);          /* settings page title */
+  --text-h2: 500 11px/1.4 var(--font-ui);          /* section caps: uppercase + tracking */
+  --text-body: 400 12px/1.6 var(--font-ui);
+  --text-body-light: 300 12px/1.7 var(--font-ui);  /* subtitles, transcripts */
+  --text-help: 300 10px/1.6 var(--font-ui);        /* helper text under labels */
+  --text-meta: 400 10px/1.4 var(--font-ui);        /* "slack.exe · 2 min ago" */
+  --text-button: 600 12px/1 var(--font-ui);
+  --text-kbd: 600 11px/1 var(--font-ui);
+  --tracking-caps: 0.12em;
+  --tracking-title: -0.01em;
+}
+
+/* ── Shape, space, motion ─────────────────────────────── */
+:root {
+  --radius-pill: 999px;
+  --radius-card: 18px;    /* settings sections, onboarding panels */
+  --radius-tile: 14px;    /* list items, toasts, option cards */
+  --radius-field: 12px;   /* inputs, selects, primary buttons */
+  --radius-small: 10px;   /* small buttons, segmented items */
+  --radius-kbd: 8px;
+
+  --space-1: 4px;  --space-2: 8px;  --space-3: 12px; --space-4: 16px;
+  --space-5: 20px; --space-6: 24px; --space-8: 32px; --space-10: 40px;
+  --page-pad: 34px 40px;         /* settings main area */
+  --card-pad: 6px 22px;          /* settings card (rows add their own 15px vertical) */
+  --row-pad: 15px 0;
+  --control-h: 40px;             /* inputs, buttons */
+  --control-h-sm: 34px;
+  --touch-min: 44px;             /* onboarding CTAs: 48px */
+
+  --sidebar-w: 240px;
+  --settings-w: 1040px; --settings-h: 800px;
+  --onboarding-w: 760px; --onboarding-h: 560px;
+
+  --pill-h: 48px;
+  --pill-offset: 24px;          /* above the taskbar / dock */
+
+  --dur-fast: 150ms;            /* switches, hovers */
+  --dur-wave: 900ms;            /* waveform bar loop */
+  --dur-pulse: 1200ms;          /* listening dot */
+  --dur-shimmer: 1300ms;        /* processing bar */
+  --dur-done: 900ms;            /* "Pasted" pill before fading */
+  --dur-toast: 6000ms;          /* toasts auto-hide (paused on hover) */
+  --ease: cubic-bezier(.2, .8, .2, 1);
+}
+
+/* ── Dark theme (default) ─────────────────────────────── */
+:root, :root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #121215;           /* window */
+  --sidebar: #0E0E11;
+  --surface: #1A1A1F;      /* cards */
+  --raised: #1E1E24;       /* chips, logo tile, active nav */
+  --field: #121215;        /* inputs sit "into" the card */
+  --line: #2E2E36;         /* input / button borders */
+  --divider: #26262D;      /* row separators */
+  --seg-on: #2A2A31;       /* selected segment */
+  --kbd: #26262D; --kbd-shadow: #0E0E11;
+  --text: #F4F4F0;
+  --text-2: #C9C9CF;       /* secondary body */
+  --muted: #A3A3AD;        /* help / meta: 7:1 on --bg */
+  --pill-bg: #141417;
+  --pill-ring: rgba(255,255,255,0.07);
+  --pill-shadow: 0 10px 30px rgba(20,20,23,0.28);
+  --toast-bg: #141417;
+  --warn: #FF8A5B;
+  --command: #B9A6FF;      /* command-mode pill */
+  --on-accent: #141417;    /* text on any accent fill */
+}
+
+/* ── Light theme ──────────────────────────────────────── */
+:root[data-theme="light"] {
+  color-scheme: light;
+  --bg: #F4F3EE;
+  --sidebar: #EAE9E3;
+  --surface: #FFFFFF;
+  --raised: #EFEEE8;
+  --field: #F7F6F2;
+  --line: #D9D8D1;
+  --divider: #ECEBE5;
+  --seg-on: #FFFFFF;       /* + shadow 0 1px 3px rgba(20,20,23,.12) */
+  --kbd: #EFEEE8; --kbd-shadow: #D9D8D1;
+  --text: #17171A;
+  --text-2: #3A3A42;
+  --muted: #5E5E66;        /* 5.6:1 on --bg */
+  --pill-bg: #FFFFFF;
+  --pill-ring: rgba(20,20,23,0.08);
+  --pill-shadow: 0 10px 30px rgba(20,20,23,0.16);
+  --toast-bg: #141417;     /* toasts stay dark in both themes */
+  --warn: #B4471C;
+  --command: #5B47C9;
+  --on-accent: #141417;
+}
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    color-scheme: light;
+    --bg: #F4F3EE; --sidebar: #EAE9E3; --surface: #FFFFFF; --raised: #EFEEE8; --field: #F7F6F2;
+    --line: #D9D8D1; --divider: #ECEBE5; --seg-on: #FFFFFF; --kbd: #EFEEE8; --kbd-shadow: #D9D8D1;
+    --text: #17171A; --text-2: #3A3A42; --muted: #5E5E66;
+    --pill-bg: #FFFFFF; --pill-ring: rgba(20,20,23,0.08); --pill-shadow: 0 10px 30px rgba(20,20,23,0.16);
+    --toast-bg: #141417; --warn: #B4471C; --command: #5B47C9; --on-accent: #141417;
+  }
+}
+
+/* ── Accents ──────────────────────────────────────────────
+ * --accent        fills: buttons, switches, pill bars (both themes)
+ * --accent-text   accent-coloured TEXT and thin strokes. Dark: same as fill. Light: the deep shade (≥5:1 on white).
+ * --accent-hover  hover state of fills
+ * --accent-tint   selected-row background (dark theme)
+ * --accent-ring   selected-card border
+ */
+:root, :root[data-accent="azure"] {
+  --accent: #5AB0FF; --accent-deep: #0B5FB3; --accent-hover: #8CC8FF;
+  --accent-tint: #151B23; --accent-soft: rgba(90,176,255,0.12);
+}
+:root[data-accent="coral"]     { --accent: #FF7A59; --accent-deep: #B23A1C; --accent-hover: #FF9C82; --accent-tint: #231815; --accent-soft: rgba(255,122,89,0.12); --warn: #FF5A6A; }
+:root[data-accent="tangerine"] { --accent: #FF9A3D; --accent-deep: #A84E00; --accent-hover: #FFB56E; --accent-tint: #231B13; --accent-soft: rgba(255,154,61,0.12); --warn: #FF5A6A; }
+:root[data-accent="sunflower"] { --accent: #FFC94D; --accent-deep: #8A5A00; --accent-hover: #FFD97F; --accent-tint: #221E13; --accent-soft: rgba(255,201,77,0.12); }
+:root[data-accent="mint"]      { --accent: #5EE3B0; --accent-deep: #0B7A50; --accent-hover: #8EECC8; --accent-tint: #13201B; --accent-soft: rgba(94,227,176,0.12); }
+:root[data-accent="violet"]    { --accent: #9A88FF; --accent-deep: #5B47C9; --accent-hover: #B8ABFF; --accent-tint: #19172A; --accent-soft: rgba(154,136,255,0.12); --command: #FF7A59; }
+:root[data-accent="chalk"]     { --accent: #ECEAE3; --accent-deep: #17171A; --accent-hover: #FFFFFF; --accent-tint: #1E1E22; --accent-soft: rgba(236,234,227,0.10); }
+
+/* text/ring use the fill in dark, the deep shade in light */
+:root { --accent-text: var(--accent); --accent-ring: var(--accent); }
+:root[data-theme="light"] { --accent-text: var(--accent-deep); --accent-ring: var(--accent-deep); --accent-tint: #FFFFFF; }
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) { --accent-text: var(--accent-deep); --accent-ring: var(--accent-deep); --accent-tint: #FFFFFF; }
+}
+
+/* Light theme + warm accents: warnings need a darker red to stay readable on white */
+:root[data-theme="light"][data-accent="coral"],
+:root[data-theme="light"][data-accent="tangerine"] { --warn: #C4162A; }
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"])[data-accent="coral"],
+  :root:not([data-theme="dark"])[data-accent="tangerine"] { --warn: #C4162A; }
+}

@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Settings · Models · Cloud</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;400;500;600;700&amp;family=Reem+Kufi:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#5AB0FF}a:hover{color:#A9D4FF}
+.yf-cap{margin:0 0 10px;font-size:11px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:#A3A3AD}
+.yf-in{height:40px;padding:0 12px;border-radius:12px;border:1px solid #2E2E36;background:#121215;color:#F4F4F0;font-family:inherit;font-size:11px;box-sizing:border-box;min-width:0;width:100%}
+.yf-btn{height:40px;padding:0 14px;border-radius:12px;font-family:inherit;font-size:11px;cursor:pointer;border:1px solid #2E2E36;background:transparent;color:#F4F4F0;font-weight:500;flex:none}
+.yf-tab{display:flex;align-items:center;height:36px;padding:0 16px;border-radius:10px;font-size:11px;text-decoration:none;color:#A3A3AD}
+.yf-tab:hover{color:#F4F4F0}
+.yf-in:focus-visible,.yf-btn:focus-visible,.yf-prov:focus-visible,.yf-tab:focus-visible{outline:2px solid #5AB0FF;outline-offset:2px}
+.yf-prov{display:flex;flex-direction:column;gap:6px;padding:12px 14px;border-radius:14px;font-family:inherit;text-align:left;cursor:pointer;color:#F4F4F0}
+</style>
+</helmet>
+<div style="width: 1040px; height: 800px; display: flex; background: #121215; color: #F4F4F0; font-family: 'Unbounded', 'Reem Kufi', sans-serif">
+  <dc-import name="Sidebar" active="models" theme="dark" hint-size="240px,800px"></dc-import>
+  <main style="flex-grow: 1; min-width: 0; padding: 34px 40px; display: flex; flex-direction: column; gap: 18px; box-sizing: border-box">
+    <div style="display: flex; justify-content: space-between; align-items: flex-end; gap: 20px">
+      <div>
+        <h1 style="margin: 0; font-size: 24px; font-weight: 600; letter-spacing: -0.01em">Models</h1>
+        <p style="margin: 8px 0 0; font-size: 12px; font-weight: 300; color: #A3A3AD">Who turns your voice into text, and who tidies it up.</p>
+      </div>
+      <nav style="display: flex; gap: 3px; padding: 3px; border-radius: 13px; background: #1A1A1F" aria-label="Model location">
+        <a class="yf-tab" href="SetModels.dc.html" aria-current="page" style="background: #2A2A31; color: #F4F4F0; font-weight: 500">Cloud</a>
+        <a class="yf-tab" href="SetModelsLocal.dc.html">On this PC</a>
+      </nav>
+    </div>
+
+    <section>
+      <h2 class="yf-cap">Speech to text</h2>
+      <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px" role="radiogroup" aria-label="Speech to text provider">
+        <sc-for list="{{providers}}" as="pv" hint-placeholder-count="8">
+          <button type="button" role="radio" aria-checked="{{pv.checked}}" class="yf-prov" onClick="{{pv.pick}}" style="border: 1.5px solid {{pv.border}}; background: {{pv.bg}}">
+            <span style="font-size: 12px; font-weight: 500">{{pv.name}}</span>
+            <span style="font-size: 9px; color: {{pv.statusColor}}">{{pv.status}}</span>
+          </button>
+        </sc-for>
+      </div>
+    </section>
+
+    <section style="background: #1A1A1F; border-radius: 18px; padding: 20px 22px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px 18px">
+      <div style="display: flex; flex-direction: column; gap: 8px; grid-column: 1 / -1">
+        <label for="mc-key" style="font-size: 12px">{{sel.name}} API key</label>
+        <div style="display: flex; gap: 8px">
+          <input id="mc-key" class="yf-in" type="password" placeholder="{{sel.keyPlaceholder}}">
+          <button type="button" class="yf-btn">Test</button>
+        </div>
+        <span style="font-size: 10px; font-weight: 300; color: #A3A3AD">Stored in Windows Credential Manager. Sent only to {{sel.name}}.</span>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 8px">
+        <label for="mc-model" style="font-size: 12px">Model</label>
+        <select id="mc-model" class="yf-in"><sc-for list="{{sel.models}}" as="m" hint-placeholder-count="3"><option>{{m}}</option></sc-for></select>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 8px">
+        <span style="font-size: 12px">Price</span>
+        <div style="height: 40px; display: flex; align-items: center; font-size: 11px; color: #C9C9CF">{{sel.price}}</div>
+        <span style="font-size: 10px; font-weight: 300; line-height: 1.5; color: #A3A3AD">{{sel.note}}</span>
+      </div>
+    </section>
+
+    <section style="background: #1A1A1F; border-radius: 18px; padding: 20px 22px; display: flex; flex-direction: column; gap: 14px">
+      <h2 class="yf-cap" style="margin: 0">Cleanup · removes ums, fixes corrections, adds punctuation</h2>
+      <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px 18px">
+        <div style="display: flex; flex-direction: column; gap: 8px">
+          <label for="mc-cp" style="font-size: 12px">Provider</label>
+          <select id="mc-cp" class="yf-in"><option>OpenAI · uses your key above</option><option>Anthropic</option><option>Google Gemini</option><option>Groq</option><option>Mistral</option><option>OpenRouter</option><option>On this PC</option><option>Custom URL</option><option>Off</option></select>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 8px">
+          <label for="mc-cm" style="font-size: 12px">Model</label>
+          <select id="mc-cm" class="yf-in"><option>gpt-6-luna · fast, ≈ $0.0001 per dictation</option></select>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1040,"height":800}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { picked: 0 };
+  }
+  renderVals() {
+    const list = [
+      { name: 'OpenAI', saved: true, models: ['gpt-transcribe', 'gpt-4o-transcribe', 'gpt-4o-mini-transcribe'], price: '$0.0045 / min (gpt-transcribe)', ph: 'sk-…a9F2 (saved)', note: 'Best with names and mixed languages; uses your dictionary as keyword hints.' },
+      { name: 'Groq', models: ['whisper-large-v3-turbo', 'whisper-large-v3'], price: '$0.04 / hour (turbo)', ph: 'gsk_…', note: 'Fastest and cheapest. Dictionary goes in as a short prompt.' },
+      { name: 'Deepgram', models: ['nova-3'], price: '$0.0043 / min', ph: 'Paste your Deepgram key', note: 'Arabic must be chosen in Language; it is not auto-detected.' },
+      { name: 'ElevenLabs', models: ['scribe_v2'], price: '$0.22 / hour', ph: 'Paste your ElevenLabs key', note: 'Strong multilingual auto-detect, including Arabic.' },
+      { name: 'AssemblyAI', models: ['universal-3-5-pro', 'universal-2'], price: '$0.21 / hour', ph: 'Paste your AssemblyAI key', note: 'Slower (processes in the background). Auto-detect needs 15 s+ of speech.' },
+      { name: 'Mistral', models: ['voxtral-mini-2602', 'voxtral-mini-transcribe-3-0'], price: '$0.003 / min', ph: 'Paste your Mistral key', note: 'Voxtral 3 is in preview.' },
+      { name: 'Google Gemini', models: ['gemini-3.5-flash-lite', 'gemini-3.1-flash-lite'], price: '≈ $0.0006 / min of audio', ph: 'Paste your Gemini key', note: 'A general AI model listening to your audio. Very cheap.' },
+      { name: 'Custom URL', models: ['any OpenAI-compatible model'], price: 'Set by your server', ph: 'Optional key for your server', note: 'For self-hosted Whisper servers.' },
+    ];
+    const picked = this.state.picked;
+    const providers = list.map((p, i) => {
+      const on = i === picked;
+      return {
+        name: p.name,
+        status: p.saved ? 'Key saved' : 'Add key',
+        statusColor: p.saved ? '#5AB0FF' : '#A3A3AD',
+        checked: on ? 'true' : 'false',
+        border: on ? '#5AB0FF' : '#26262D',
+        bg: on ? '#151B23' : '#1A1A1F',
+        pick: () => this.setState({ picked: i }),
+      };
+    });
+    const s = list[picked];
+    return { providers, sel: { name: s.name, models: s.models, price: s.price, keyPlaceholder: s.ph, note: s.note } };
+  }
+}
+</script>
+</body>
+</html>

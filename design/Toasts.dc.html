@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Toasts and notices</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;400;500;600;700&amp;family=Reem+Kufi:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div style="width: 1280px; height: 720px; box-sizing: border-box; padding: 48px 56px; background: #ECEBE6; font-family: 'Unbounded', 'Reem Kufi', sans-serif; color: #1B1B1F; display: flex; flex-direction: column; gap: 30px">
+  <div style="display: flex; justify-content: space-between; align-items: flex-end; gap: 32px">
+    <div style="display: flex; flex-direction: column; gap: 8px">
+      <span style="font-size: 12px; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase; color: #5E5E66">Toasts</span>
+      <h1 style="margin: 0; font-size: 32px; font-weight: 600; letter-spacing: -0.01em">Quiet notes above the pill</h1>
+    </div>
+    <p style="margin: 0; max-width: 470px; font-size: 12px; line-height: 1.7; font-weight: 300; color: #3A3A42">They rise out of the pill, never take focus, and fade after 6 s. Hovering keeps them open. Each one has at most one action, and the action always says what happens.</p>
+  </div>
+
+  <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 18px">
+    <sc-for list="{{toasts}}" as="t" hint-placeholder-count="8">
+      <div style="display: flex; flex-direction: column; gap: 10px">
+        <span style="font-size: 10px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: #5E5E66">{{t.kind}}</span>
+        <div style="display: flex; flex-direction: column; gap: 12px; padding: 16px; border-radius: 16px; background: #141417; color: #F4F4F0; box-shadow: 0 12px 30px rgba(20,20,23,0.22); min-height: 132px; box-sizing: border-box">
+          <div style="display: flex; gap: 10px; align-items: flex-start">
+            <span style="width: 8px; height: 8px; border-radius: 50%; background: {{t.dot}}; margin-top: 4px; flex: none; display: block"></span>
+            <div style="display: flex; flex-direction: column; gap: 5px">
+              <span style="font-size: 12px; font-weight: 500; line-height: 1.4">{{t.title}}</span>
+              <span style="font-size: 10px; font-weight: 300; line-height: 1.6; color: #A3A3AD">{{t.body}}</span>
+            </div>
+          </div>
+          <div style="display: flex; gap: 6px; margin-top: auto">
+            <button type="button" style="height: 32px; padding: 0 12px; border: 0; border-radius: 9px; background: {{t.btnBg}}; color: {{t.btnFg}}; font-family: inherit; font-size: 10px; font-weight: 600; cursor: pointer">{{t.action}}</button>
+            <sc-if value="{{t.hasSecondary}}" hint-placeholder-val="{{ false }}">
+              <button type="button" style="height: 32px; padding: 0 12px; border: 0; border-radius: 9px; background: transparent; color: #A3A3AD; font-family: inherit; font-size: 10px; cursor: pointer">{{t.secondary}}</button>
+            </sc-if>
+          </div>
+        </div>
+      </div>
+    </sc-for>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":720}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const lime = '#5AB0FF', warn = '#FF8A5B', grey = '#A3A3AD', violet = '#B9A6FF';
+    const list = [
+      { kind: 'Learned a word', dot: lime, title: 'Add "Kubernetes" to your dictionary?', body: 'You fixed it twice after dictating.', action: 'Add', secondary: 'Not now' },
+      { kind: 'Admin window', dot: warn, title: 'Copied, press Ctrl+V', body: "This window runs as admin, so Windows won't let us paste into it.", action: 'How to fix', secondary: '' },
+      { kind: 'Offline', dot: warn, title: "You're offline · audio saved", body: 'We kept the recording. Retry once you have internet, or switch to the on-device model.', action: 'Retry', secondary: 'Use on-device' },
+      { kind: 'Key problem', dot: warn, title: 'OpenAI rejected your key', body: 'It may have been revoked or run out of credit. Your recording is saved.', action: 'Update key', secondary: '' },
+      { kind: 'No microphone', dot: warn, title: "Can't hear anything", body: 'No microphone is connected, or Windows blocked access to it.', action: 'Choose mic', secondary: '' },
+      { kind: 'Local model', dot: grey, title: 'Local model still downloading · 62%', body: 'Use the cloud for this one, or wait about 40 s.', action: 'Use cloud once', secondary: 'Wait' },
+      { kind: 'Command mode', dot: violet, title: 'Select some text first', body: 'Or keep holding and say what to write at the cursor.', action: 'Got it', secondary: '' },
+      { kind: 'Update', dot: lime, title: 'Yappaflow 1.1 is ready', body: 'Faster local transcription and two new providers.', action: 'Restart now', secondary: 'Later' },
+    ];
+    const toasts = list.map((t) => ({
+      ...t,
+      hasSecondary: !!t.secondary,
+      btnBg: t.dot === warn ? '#2A2A31' : (t.dot === violet ? violet : (t.dot === grey ? '#2A2A31' : lime)),
+      btnFg: (t.dot === lime || t.dot === violet) ? '#141417' : '#F4F4F0',
+    }));
+    return { toasts };
+  }
+}
+</script>
+</body>
+</html>

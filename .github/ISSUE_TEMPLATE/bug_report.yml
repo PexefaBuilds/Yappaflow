@@ -1,0 +1,60 @@
+name: Bug report
+description: Something doesn't work as it should.
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **Never paste your API key**, in this form or anywhere else on GitHub. Logs never contain keys, but check before you paste.
+        Security problems (key handling, updater, text typed that you didn't say): report them privately, see SECURITY.md.
+  - type: dropdown
+    id: os
+    attributes:
+      label: Operating system
+      options: ["Windows 11", "Windows 10", "macOS 15 or newer", "macOS 14", "Other"]
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Yappaflow version
+      description: Settings › About shows it.
+      placeholder: "0.9.0"
+    validations:
+      required: true
+  - type: dropdown
+    id: where
+    attributes:
+      label: Cloud or local models?
+      options: ["Cloud (my own API key)", "Local (on this computer)", "Both / not sure"]
+    validations:
+      required: true
+  - type: input
+    id: provider
+    attributes:
+      label: Provider and model
+      description: For speech and for cleanup, as shown in Settings › Models.
+      placeholder: "Speech: Groq whisper-large-v3-turbo · Cleanup: OpenAI gpt-..."
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Which app you dictated into, what you pressed, what you said (roughly).
+      placeholder: |
+        1. Open Notepad
+        2. Hold the hotkey and say ...
+        3. ...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What happened, and what you expected
+    validations:
+      required: true
+  - type: textarea
+    id: log
+    attributes:
+      label: Log (redacted)
+      description: Settings › Advanced › Open log folder. Paste the relevant lines; remove anything private.
+      render: text

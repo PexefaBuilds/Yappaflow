@@ -1,0 +1,30 @@
+name: Feature request
+description: An idea that would make dictation better.
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: "**Never paste your API key** in an issue."
+  - type: textarea
+    id: problem
+    attributes:
+      label: What are you trying to do?
+      description: The problem or situation, not the solution yet.
+    validations:
+      required: true
+  - type: textarea
+    id: idea
+    attributes:
+      label: What would help?
+    validations:
+      required: true
+  - type: dropdown
+    id: os
+    attributes:
+      label: Which systems does it matter on?
+      multiple: true
+      options: ["Windows", "macOS"]
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Anything you tried instead?

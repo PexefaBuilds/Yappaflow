@@ -1,0 +1,101 @@
+@import "../design/tokens.css";
+@import "@fontsource/unbounded/300.css";
+@import "@fontsource/unbounded/400.css";
+@import "@fontsource/unbounded/500.css";
+@import "@fontsource/reem-kufi/400.css";
+
+html, body {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+  background: transparent;
+  font-family: "Unbounded", "Reem Kufi", system-ui, sans-serif;
+  color: var(--text);
+  user-select: none;
+}
+body { display: flex; align-items: flex-end; justify-content: center; padding-bottom: 14px; }
+
+/* Smaller than the 48 px design size on request: every size is N × --u (not CSS zoom, so JS can
+   measure real pixels for the morph animation). */
+.pill {
+  --u: 0.72px;
+  box-sizing: border-box;
+  height: calc(48 * var(--u));
+  padding: 0 calc(22 * var(--u));
+  border-radius: var(--radius-pill);
+  justify-content: center;
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  align-items: center;
+  gap: calc(14 * var(--u));
+  max-width: 400px;
+  white-space: nowrap;
+}
+.pill[hidden] { display: none; }
+/* The shape lives on ::before so the morph stretches only the background. The text is laid out
+   once at its final place and never scaled, so it stays sharp and still while the pill grows. */
+.pill::before {
+  content: ""; position: absolute; z-index: -1; top: 0; bottom: 0; left: 50%; width: 100%;
+  transform: translateX(-50%); transform-origin: center bottom; border-radius: inherit;
+  background: var(--pill-bg); box-shadow: var(--pill-shadow), inset 0 0 0 1px var(--pill-ring);
+}
+.pill.fade { animation: yf-fade 250ms ease-in 900ms forwards; }
+.pill .label { font-size: calc(17 * var(--u)); font-weight: 400; flex: none; }
+/* Only error text may truncate; "Transcribing" and "Pasted" always show whole. */
+.pill .label.trunc { flex: 0 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.pill .label.strong { font-weight: 500; }
+.pill .meta { font-size: calc(16 * var(--u)); font-weight: 300; color: var(--muted); font-variant-numeric: tabular-nums; }
+.pill .timer { font-size: calc(16 * var(--u)); font-weight: 500; font-variant-numeric: tabular-nums; min-width: calc(40 * var(--u)); }
+
+.dot { width: calc(8 * var(--u)); height: calc(8 * var(--u)); border-radius: 50%; background: var(--accent); flex: none; animation: yf-pulse 1.2s ease-in-out infinite; }
+.dot.warn { background: var(--warn); animation: none; }
+.dot.muted { background: var(--muted); animation: none; }
+
+.bars { display: flex; align-items: center; gap: calc(4 * var(--u)); height: calc(26 * var(--u)); }
+.bar { width: calc(3 * var(--u)); border-radius: 2px; background: var(--accent); height: calc(6 * var(--u)); transition: height 60ms linear; }
+
+.track { width: calc(64 * var(--u)); height: calc(4 * var(--u)); border-radius: calc(999 * var(--u)); background: var(--accent-soft); overflow: hidden; flex: none; }
+.sheen { width: calc(28 * var(--u)); height: calc(4 * var(--u)); border-radius: calc(999 * var(--u)); background: var(--accent); animation: yf-sheen 1.3s linear infinite; }
+
+.tick { color: var(--on-accent); width: calc(26 * var(--u)); height: calc(26 * var(--u)); border-radius: 50%; background: var(--accent); display: flex; align-items: center; justify-content: center; flex: none; }
+.pill.has-tick { padding-left: calc(14 * var(--u)); gap: calc(12 * var(--u)); }
+
+.pill.has-stop { padding: 0 calc(6 * var(--u)) 0 calc(18 * var(--u)); }
+.stop { width: calc(36 * var(--u)); height: calc(36 * var(--u)); border: 0; border-radius: 50%; background: var(--accent); display: flex; align-items: center; justify-content: center; cursor: pointer; padding: 0; }
+.stop span { width: calc(11 * var(--u)); height: calc(11 * var(--u)); border-radius: 2px; background: var(--on-accent); display: block; }
+/* PillExtras 11: the small resting handle while paused; the whole thing is the resume button. */
+.pill.paused { height: calc(32 * var(--u)); padding: 0; opacity: 0.85; }
+.resume { all: unset; display: flex; align-items: center; gap: calc(8 * var(--u)); height: 100%; padding: 0 calc(14 * var(--u)); cursor: pointer; font-size: calc(13 * var(--u)); color: var(--muted); }
+.resume svg { width: calc(10 * var(--u)); height: calc(10 * var(--u)); }
+.resume:focus-visible { outline: 2px solid var(--text); outline-offset: -2px; border-radius: inherit; }
+.stop:focus-visible { outline: 2px solid var(--text); outline-offset: 2px; }
+
+/* PillExtras 09 Command: --command (violet; coral when the accent is Violet) replaces the accent. */
+.pill.command::before { box-shadow: var(--pill-shadow), inset 0 0 0 1px color-mix(in srgb, var(--command) 35%, transparent); }
+.pill.command .bar, .pill.command .sheen, .pill.command .stop { background: var(--command); }
+.pill.command .track { background: color-mix(in srgb, var(--command) 14%, transparent); }
+.pill.has-spark { padding-left: calc(12 * var(--u)); gap: calc(12 * var(--u)); }
+.pill .spark { color: var(--on-accent); width: calc(26 * var(--u)); height: calc(26 * var(--u)); border-radius: 50%; background: var(--command); display: flex; align-items: center; justify-content: center; flex: none; }
+.pill .spark svg { width: calc(14 * var(--u)); height: calc(14 * var(--u)); }
+
+/* CommandMode.dc.html: the spoken instruction, just above the pill. */
+.bubble {
+  position: fixed; left: 50%; bottom: calc(14px + 48 * 0.72px + 8px); transform: translateX(-50%);
+  box-sizing: border-box; max-width: calc(100% - 16px); width: max-content; margin: 0;
+  padding: 6px 11px; border-radius: 10px; background: var(--pill-bg); color: var(--text);
+  box-shadow: var(--pill-shadow); font-size: 11px; font-weight: 300; line-height: 1.5;
+  white-space: normal; overflow-wrap: anywhere;
+  display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+}
+.bubble[hidden] { display: none; }
+
+@keyframes yf-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+@keyframes yf-sheen { 0% { transform: translateX(-100%); } 100% { transform: translateX(260%); } }
+@keyframes yf-fade { to { opacity: 0; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .dot, .sheen { animation: none; }
+  .bar { transition: none; }
+  .pill.fade { animation-duration: 1ms; }
+}

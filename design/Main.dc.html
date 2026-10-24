@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Pill overlay states</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;400;500;600;700&amp;family=Reem+Kufi:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#0B5FB3}a:hover{color:#084A8C}
+@keyframes yfwave{0%,100%{transform:scaleY(.35)}50%{transform:scaleY(1)}}
+@keyframes yfpulse{0%,100%{opacity:1}50%{opacity:.35}}
+@keyframes yfshimmer{0%{transform:translateX(-100%)}100%{transform:translateX(260%)}}
+.yf-bar{display:block;width:3px;border-radius:2px;background:#5AB0FF;transform-origin:center;animation:yfwave 900ms ease-in-out infinite}
+.yf-bar:nth-child(2){animation-delay:-120ms}.yf-bar:nth-child(3){animation-delay:-260ms}
+.yf-bar:nth-child(4){animation-delay:-380ms}.yf-bar:nth-child(5){animation-delay:-500ms}
+.yf-bar:nth-child(6){animation-delay:-620ms}.yf-bar:nth-child(7){animation-delay:-740ms}
+.yf-bar:nth-child(8){animation-delay:-200ms}.yf-bar:nth-child(9){animation-delay:-560ms}
+.yf-dot{animation:yfpulse 1.2s ease-in-out infinite}
+.yf-sheen{animation:yfshimmer 1.3s linear infinite}
+</style>
+</helmet>
+<div style="width: 1280px; height: 760px; box-sizing: border-box; padding: 56px 64px; background: #ECEBE6; font-family: 'Unbounded', 'Reem Kufi', sans-serif; color: #1B1B1F; display: flex; flex-direction: column; gap: 36px">
+
+  <div style="display: flex; justify-content: space-between; align-items: flex-end; gap: 32px">
+    <div style="display: flex; flex-direction: column; gap: 10px">
+      <div style="font-size: 12px; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase; color: #5E5E66">Yappaflow · overlay</div>
+      <h1 style="margin: 0; font-size: 40px; font-weight: 600; letter-spacing: -0.01em">The pill</h1>
+    </div>
+    <p style="margin: 0; max-width: 470px; font-size: 13px; line-height: 1.7; font-weight: 300; color: #3A3A42">Bottom-centre, 12 px above the taskbar. Always on top, click-through, never takes focus, so the cursor stays exactly where the text will land.</p>
+  </div>
+
+  <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; flex-grow: 1">
+
+    <!-- Idle -->
+    <div style="background: #F7F6F2; border-radius: 20px; padding: 22px 24px; display: flex; flex-direction: column; gap: 12px">
+      <div style="display: flex; justify-content: space-between; font-size: 11px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase"><span>01 Idle</span><span style="color: #5E5E66">optional</span></div>
+      <div style="flex-grow: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; min-height: 150px">
+        <div style="width: 44px; height: 6px; border-radius: 999px; background: #141417; opacity: 0.55"></div>
+      </div>
+      <div style="font-size: 11px; line-height: 1.6; font-weight: 300; color: #4A4A52">A resting handle shows the app is alive. Settings can hide it completely.</div>
+    </div>
+
+    <!-- Listening -->
+    <div style="background: #F7F6F2; border-radius: 20px; padding: 22px 24px; display: flex; flex-direction: column; gap: 12px">
+      <div style="display: flex; justify-content: space-between; font-size: 11px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase"><span>02 Listening</span><span style="color: #5E5E66">hold</span></div>
+      <div style="flex-grow: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; min-height: 150px">
+        <div style="height: 48px; padding: 0 20px 0 18px; border-radius: 999px; background: #141417; box-shadow: 0 10px 30px rgba(20,20,23,0.28), inset 0 0 0 1px rgba(255,255,255,0.07); display: flex; align-items: center; gap: 14px">
+          <span class="yf-dot" style="width: 8px; height: 8px; border-radius: 50%; background: #5AB0FF; display: block"></span>
+          <div style="display: flex; align-items: center; gap: 4px; height: 26px" aria-hidden="true">
+            <span class="yf-bar" style="height: 10px"></span><span class="yf-bar" style="height: 18px"></span><span class="yf-bar" style="height: 26px"></span><span class="yf-bar" style="height: 16px"></span><span class="yf-bar" style="height: 22px"></span><span class="yf-bar" style="height: 12px"></span><span class="yf-bar" style="height: 20px"></span><span class="yf-bar" style="height: 14px"></span><span class="yf-bar" style="height: 8px"></span>
+          </div>
+        </div>
+        <div style="font-size: 10px; font-weight: 400; color: #5E5E66; letter-spacing: 0.04em">Release to paste · Esc cancels</div>
+      </div>
+      <div style="font-size: 11px; line-height: 1.6; font-weight: 300; color: #4A4A52">Bars follow the real mic level at 20 fps. The dot pulses even in silence, so you know it's recording.</div>
+    </div>
+
+    <!-- Hands-free -->
+    <div style="background: #F7F6F2; border-radius: 20px; padding: 22px 24px; display: flex; flex-direction: column; gap: 12px">
+      <div style="display: flex; justify-content: space-between; font-size: 11px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase"><span>03 Hands-free</span><span style="color: #5E5E66">double-tap</span></div>
+      <div style="flex-grow: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; min-height: 150px">
+        <div style="height: 48px; padding: 0 6px 0 18px; border-radius: 999px; background: #141417; box-shadow: 0 10px 30px rgba(20,20,23,0.28), inset 0 0 0 1px rgba(255,255,255,0.07); display: flex; align-items: center; gap: 14px">
+          <span style="font-size: 12px; font-weight: 500; color: #F4F4F0; font-variant-numeric: tabular-nums; min-width: 32px">0:12</span>
+          <div style="display: flex; align-items: center; gap: 4px; height: 26px" aria-hidden="true">
+            <span class="yf-bar" style="height: 14px"></span><span class="yf-bar" style="height: 22px"></span><span class="yf-bar" style="height: 12px"></span><span class="yf-bar" style="height: 24px"></span><span class="yf-bar" style="height: 16px"></span><span class="yf-bar" style="height: 10px"></span><span class="yf-bar" style="height: 20px"></span>
+          </div>
+          <button type="button" aria-label="Stop and paste" style="width: 36px; height: 36px; border: 0; border-radius: 50%; background: #5AB0FF; display: flex; align-items: center; justify-content: center; cursor: pointer; padding: 0">
+            <span style="width: 11px; height: 11px; border-radius: 2px; background: #141417; display: block"></span>
+          </button>
+        </div>
+        <div style="font-size: 10px; font-weight: 400; color: #5E5E66; letter-spacing: 0.04em">Tap Ctrl + Win again to finish</div>
+      </div>
+      <div style="font-size: 11px; line-height: 1.6; font-weight: 300; color: #4A4A52">The only state that takes clicks. The stop button is the one hit target; the rest stays click-through.</div>
+    </div>
+
+    <!-- Processing -->
+    <div style="background: #F7F6F2; border-radius: 20px; padding: 22px 24px; display: flex; flex-direction: column; gap: 12px">
+      <div style="display: flex; justify-content: space-between; font-size: 11px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase"><span>04 Processing</span><span style="color: #5E5E66">&lt; 1.2 s</span></div>
+      <div style="flex-grow: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; min-height: 150px">
+        <div style="height: 48px; padding: 0 22px; border-radius: 999px; background: #141417; box-shadow: 0 10px 30px rgba(20,20,23,0.28), inset 0 0 0 1px rgba(255,255,255,0.07); display: flex; align-items: center; gap: 14px">
+          <div style="width: 64px; height: 4px; border-radius: 999px; background: rgba(90,176,255,0.18); overflow: hidden" aria-hidden="true">
+            <div class="yf-sheen" style="width: 28px; height: 4px; border-radius: 999px; background: #5AB0FF"></div>
+          </div>
+          <span style="font-size: 12px; font-weight: 400; color: #F4F4F0">Transcribing</span>
+        </div>
+        <div style="font-size: 10px; font-weight: 400; color: #5E5E66; letter-spacing: 0.04em">Esc still cancels</div>
+      </div>
+      <div style="font-size: 11px; line-height: 1.6; font-weight: 300; color: #4A4A52">From Phase 2 it reads "Polishing" while the cleanup model runs.</div>
+    </div>
+
+    <!-- Done -->
+    <div style="background: #F7F6F2; border-radius: 20px; padding: 22px 24px; display: flex; flex-direction: column; gap: 12px">
+      <div style="display: flex; justify-content: space-between; font-size: 11px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase"><span>05 Done</span><span style="color: #5E5E66">fades in 900 ms</span></div>
+      <div style="flex-grow: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; min-height: 150px">
+        <div style="height: 48px; padding: 0 22px 0 14px; border-radius: 999px; background: #141417; box-shadow: 0 10px 30px rgba(20,20,23,0.28), inset 0 0 0 1px rgba(255,255,255,0.07); display: flex; align-items: center; gap: 12px">
+          <span style="width: 26px; height: 26px; border-radius: 50%; background: #5AB0FF; display: flex; align-items: center; justify-content: center">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#141417" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>
+          </span>
+          <span style="font-size: 12px; font-weight: 500; color: #F4F4F0">Pasted</span>
+          <span style="font-size: 12px; font-weight: 300; color: #A3A3AD; font-variant-numeric: tabular-nums">0.84 s</span>
+        </div>
+        <div style="font-size: 10px; font-weight: 400; color: #5E5E66; letter-spacing: 0.04em">Your clipboard is back as it was</div>
+      </div>
+      <div style="font-size: 11px; line-height: 1.6; font-weight: 300; color: #4A4A52">The time is measured from key release to paste. It's the number we tune against.</div>
+    </div>
+
+    <!-- Error -->
+    <div style="background: #F7F6F2; border-radius: 20px; padding: 22px 24px; display: flex; flex-direction: column; gap: 12px">
+      <div style="display: flex; justify-content: space-between; font-size: 11px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase"><span>06 Failed</span><span style="color: #5E5E66">nothing lost</span></div>
+      <div style="flex-grow: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; min-height: 150px">
+        <div style="height: 48px; padding: 0 6px 0 18px; border-radius: 999px; background: #141417; box-shadow: 0 10px 30px rgba(20,20,23,0.28), inset 0 0 0 1px rgba(255,255,255,0.07); display: flex; align-items: center; gap: 12px">
+          <span style="width: 8px; height: 8px; border-radius: 50%; background: #FF8A5B; display: block"></span>
+          <span style="font-size: 12px; font-weight: 400; color: #F4F4F0">Offline · audio saved</span>
+          <button type="button" style="height: 36px; padding: 0 16px; border: 0; border-radius: 999px; background: #2A2A30; color: #F4F4F0; font-family: 'Unbounded', 'Reem Kufi', sans-serif; font-size: 11px; font-weight: 500; cursor: pointer">Retry</button>
+        </div>
+        <div style="font-size: 10px; font-weight: 400; color: #5E5E66; letter-spacing: 0.04em">Also in Settings › Recent</div>
+      </div>
+      <div style="font-size: 11px; line-height: 1.6; font-weight: 300; color: #4A4A52">The WAV is on disk before any network call. For an elevated window it reads "Copied, press Ctrl+V".</div>
+    </div>
+
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":760}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {};
+  }
+}
+</script>
+</body>
+</html>

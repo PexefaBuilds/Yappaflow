@@ -1,0 +1,28 @@
+{
+  "checked": "2026-10-24",
+  "about": "Prices copied from docs/providers.md only. A provider or model missing here shows as 'price unknown'. Re-check before a release.",
+  "free_providers": ["none", "whisper_cpp", "llama_cpp"],
+  "stt": [
+    { "provider": "openai", "model": "gpt-transcribe", "unit": "minute", "price": 0.0045, "source": "https://developers.openai.com/api/docs/pricing" },
+    { "provider": "openai", "model": "gpt-4o-transcribe", "unit": "minute", "price": 0.006, "source": "https://developers.openai.com/api/docs/pricing" },
+    { "provider": "openai", "model": "gpt-4o-mini-transcribe", "unit": "minute", "price": 0.003, "source": "https://developers.openai.com/api/docs/pricing" },
+    { "provider": "groq", "model": "whisper-large-v3-turbo", "unit": "hour", "price": 0.04, "min_seconds": 10, "note": "Clips under 10 s are billed as 10 s.", "source": "https://console.groq.com/docs/speech-to-text" },
+    { "provider": "groq", "model": "whisper-large-v3", "unit": "hour", "price": 0.111, "min_seconds": 10, "note": "Clips under 10 s are billed as 10 s.", "source": "https://console.groq.com/docs/speech-to-text" },
+    { "provider": "deepgram", "model": "nova-3", "unit": "minute", "price": 0.0043, "note": "Pre-recorded mono, promo price. Keyterm add-on ($0.0013/min) not included.", "source": "https://deepgram.com/pricing" },
+    { "provider": "elevenlabs", "model": "scribe_v2", "unit": "hour", "price": 0.22, "note": "Keyterms add $0.05/hour, not included.", "source": "https://elevenlabs.io/pricing/api" },
+    { "provider": "assemblyai", "model": "universal-3-5-pro", "unit": "hour", "price": 0.21, "note": "Keyterms add $0.05/hour, not included.", "source": "https://www.assemblyai.com/pricing" },
+    { "provider": "assemblyai", "model": "universal-2", "unit": "hour", "price": 0.15, "source": "https://www.assemblyai.com/pricing" },
+    { "provider": "mistral", "model": "voxtral-mini-2602", "unit": "minute", "price": 0.003, "source": "https://docs.mistral.ai/models/voxtral-mini-transcribe-26-02" },
+    { "provider": "mistral", "model": "voxtral-mini-transcribe-3-0", "unit": "minute", "price": 0.0035, "source": "https://docs.mistral.ai/models/voxtral-mini-transcribe-3-0" },
+    { "provider": "gemini", "model": "gemini-3.5-flash-lite", "unit": "1m_audio_tokens", "price": 0.30, "note": "Audio is 32 tokens/s. Output tokens not included.", "source": "https://ai.google.dev/gemini-api/docs/pricing" },
+    { "provider": "gemini", "model": "gemini-3.1-flash-lite", "unit": "1m_audio_tokens", "price": 0.50, "note": "Audio is 32 tokens/s. Output tokens not included.", "source": "https://ai.google.dev/gemini-api/docs/pricing" }
+  ],
+  "cleanup": [
+    { "provider": "openai", "model": "gpt-6-luna", "unit": "1m_tokens", "input": 0.10, "output": 0.50, "source": "https://developers.openai.com/api/docs/models/gpt-6-luna" },
+    { "provider": "anthropic", "model": "claude-haiku-5-5", "unit": "1m_tokens", "input": 0.10, "output": 0.50, "note": "Prompts up to 100K tokens.", "source": "https://platform.claude.com/docs/en/about-claude/pricing" },
+    { "provider": "gemini", "model": "gemini-3.1-flash-lite", "unit": "1m_tokens", "input": 0.25, "output": 1.50, "source": "https://ai.google.dev/gemini-api/docs/pricing" },
+    { "provider": "groq", "model": "openai/gpt-oss-20b", "unit": "1m_tokens", "input": 0.075, "output": 0.30, "note": "Reasoning tokens not counted.", "source": "https://console.groq.com/docs/model/openai/gpt-oss-20b" },
+    { "provider": "mistral", "model": "ministral-3b-2512", "unit": "1m_tokens", "input": 0.10, "output": 0.10, "note": "Listed as $0.10/M; the input/output split is unverified.", "source": "https://docs.mistral.ai/models/ministral-3-3b-25-12" },
+    { "provider": "openrouter", "model": "openai/gpt-6-luna", "unit": "1m_tokens", "input": 0.10, "output": 0.50, "source": "https://openrouter.ai/openai/gpt-6-luna" }
+  ]
+}

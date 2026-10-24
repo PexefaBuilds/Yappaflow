@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Settings · About</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;400;500;600;700&amp;family=Reem+Kufi:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#5AB0FF}a:hover{color:#A9D4FF}
+.yf-card{background:#1A1A1F;border-radius:18px;padding:4px 22px}
+.yf-row{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:13px 0;border-top:1px solid #26262D}
+.yf-row:first-child{border-top:0}
+.yf-lbl{font-size:12px;font-weight:400;color:#F4F4F0}
+.yf-btn{height:38px;padding:0 16px;border-radius:11px;font-family:inherit;font-size:11px;cursor:pointer;border:1px solid #2E2E36;background:transparent;color:#F4F4F0;font-weight:500;flex:none}
+.yf-sw{appearance:none;-webkit-appearance:none;width:42px;height:24px;border-radius:999px;background:#2E2E36;position:relative;cursor:pointer;margin:0;flex:none}
+.yf-sw::after{content:"";position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#A3A3AD;transition:left .15s}
+.yf-sw:checked{background:#5AB0FF}.yf-sw:checked::after{left:21px;background:#141417}
+.yf-seg{display:flex;gap:3px;padding:3px;border-radius:11px;background:#121215}
+.yf-seg input{position:absolute;opacity:0;width:1px;height:1px}
+.yf-seg label{display:flex;align-items:center;height:30px;padding:0 12px;border-radius:8px;font-size:10px;color:#A3A3AD;cursor:pointer}
+.yf-seg input:checked+label{background:#2A2A31;color:#F4F4F0;font-weight:500}
+.yf-sw:focus-visible,.yf-btn:focus-visible,.yf-seg input:focus-visible+label{outline:2px solid #5AB0FF;outline-offset:2px}
+.yf-stat{display:flex;flex-direction:column;gap:6px;padding:18px;border-radius:16px;background:#1A1A1F;flex:1 1 0}
+</style>
+</helmet>
+<div style="width: 1040px; height: 800px; display: flex; background: #121215; color: #F4F4F0; font-family: 'Unbounded', 'Reem Kufi', sans-serif">
+  <dc-import name="Sidebar" active="about" theme="dark" hint-size="240px,800px"></dc-import>
+  <main style="flex-grow: 1; min-width: 0; padding: 34px 40px; display: flex; flex-direction: column; gap: 18px; box-sizing: border-box">
+    <div style="display: flex; align-items: center; gap: 18px">
+      <div style="width: 64px; height: 64px; border-radius: 18px; background: #1E1E24; display: flex; align-items: center; justify-content: center; gap: 4px" aria-hidden="true">
+        <svg viewBox="0 0 64 64" style="width: 82%; height: 82%" aria-hidden="true"><defs><linearGradient id="yfmSetAbout1" gradientUnits="userSpaceOnUse" x1="8" y1="0" x2="56" y2="0"><stop offset="0.42" stop-color="#5AB0FF"></stop><stop offset="0.58" stop-color="#F4F4F0"></stop></linearGradient></defs><path d="M8 32c2-11 5-11 7 0s5 9 7 0 4-6 6 0c1.2 2.5 2.6 0 4 0h24" fill="none" stroke="url(#yfmSetAbout1)" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"></path></svg></div>
+      <div style="flex-grow: 1">
+        <h1 style="margin: 0; font-size: 26px; font-weight: 700; letter-spacing: -0.01em">Yappaflow</h1>
+        <p style="margin: 6px 0 0; font-size: 11px; font-weight: 300; color: #A3A3AD">Version 1.0.0 · <span style="color: #5AB0FF">Up to date</span></p>
+      </div>
+      <button type="button" class="yf-btn">Check for updates</button>
+    </div>
+
+    <div style="display: flex; gap: 12px">
+      <div class="yf-stat"><span style="font-size: 22px; font-weight: 600; font-variant-numeric: tabular-nums">312 min</span><span style="font-size: 10px; color: #A3A3AD">talked this month</span></div>
+      <div class="yf-stat"><span style="font-size: 22px; font-weight: 600; font-variant-numeric: tabular-nums">41,600</span><span style="font-size: 10px; color: #A3A3AD">words written</span></div>
+      <div class="yf-stat"><span style="font-size: 22px; font-weight: 600; font-variant-numeric: tabular-nums; color: #5AB0FF">≈ 10 h</span><span style="font-size: 10px; color: #A3A3AD">saved vs typing at 45 wpm</span></div>
+    </div>
+
+    <div class="yf-card">
+      <div class="yf-row">
+        <label class="yf-lbl" for="ab-auto">Install updates automatically</label>
+        <input id="ab-auto" class="yf-sw" type="checkbox" role="switch" checked="checked">
+      </div>
+      <div class="yf-row">
+        <span class="yf-lbl">Update channel</span>
+        <div class="yf-seg" role="radiogroup" aria-label="Update channel">
+          <input type="radio" name="ab-ch" id="ab-stable" checked="checked"><label for="ab-stable">Stable</label>
+          <input type="radio" name="ab-ch" id="ab-beta"><label for="ab-beta">Beta</label>
+        </div>
+      </div>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 10px; padding: 18px 22px; border-radius: 18px; border: 1px solid #26262D">
+      <span style="font-size: 12px; font-weight: 500">Free and open source · MIT licence</span>
+      <p style="margin: 0; font-size: 10px; font-weight: 300; line-height: 1.7; color: #A3A3AD">Built on Tauri, whisper.cpp and llama.cpp. No accounts, no analytics. Your keys and audio stay on your PC or go straight to the provider you chose.</p>
+      <div style="display: flex; gap: 18px; font-size: 11px">
+        <a href="#github">Source code</a><a href="#issues">Report a problem</a><a href="#licences">Licences</a>
+      </div>
+    </div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1040,"height":800}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {};
+  }
+}
+</script>
+</body>
+</html>

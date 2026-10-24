@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Onboarding · Done</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;400;500;600;700&amp;family=Reem+Kufi:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#5AB0FF}a:hover{color:#A9D4FF}
+.yf-cta{display:inline-flex;align-items:center;gap:10px;height:48px;padding:0 24px;border-radius:14px;background:#5AB0FF;color:#141417;text-decoration:none;font-size:13px;font-weight:600}
+.yf-cta:hover{color:#141417;background:#8CC8FF}
+.yf-tip{display:flex;flex-direction:column;gap:12px;padding:20px;border-radius:18px;background:#1A1A1F;flex:1 1 0}
+.yf-kbd{display:inline-flex;align-items:center;height:26px;padding:0 9px;border-radius:7px;background:#26262D;box-shadow:inset 0 -2px 0 #0E0E11;font-family:inherit;font-size:10px;font-weight:600;color:#F4F4F0}
+.yf-chk{width:18px;height:18px;accent-color:#5AB0FF;margin:0}
+</style>
+</helmet>
+<div style="width: 760px; height: 560px; box-sizing: border-box; padding: 36px 48px 40px; background: #121215; color: #F4F4F0; font-family: 'Unbounded', 'Reem Kufi', sans-serif; display: flex; flex-direction: column; gap: 26px">
+  <div style="display: flex; justify-content: space-between; align-items: center">
+    <span style="font-size: 11px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: #A3A3AD">Step 5 of 5</span>
+    <div style="display: flex; gap: 6px" aria-hidden="true">
+      <span style="width: 6px; height: 6px; border-radius: 999px; background: #2F5577; display: block"></span>
+      <span style="width: 6px; height: 6px; border-radius: 999px; background: #2F5577; display: block"></span>
+      <span style="width: 6px; height: 6px; border-radius: 999px; background: #2F5577; display: block"></span>
+      <span style="width: 6px; height: 6px; border-radius: 999px; background: #2F5577; display: block"></span>
+      <span style="width: 22px; height: 6px; border-radius: 999px; background: #5AB0FF; display: block"></span></div>
+  </div>
+
+  <div>
+    <h1 style="margin: 0; font-size: 36px; font-weight: 700; letter-spacing: -0.02em">You're set.</h1>
+    <p style="margin: 10px 0 0; font-size: 12px; font-weight: 300; line-height: 1.7; color: #A3A3AD">Three things worth knowing:</p>
+  </div>
+
+  <div style="display: flex; gap: 14px; flex-grow: 1">
+    <div class="yf-tip">
+      <div style="display: flex; align-items: center; gap: 6px"><kbd class="yf-kbd">Ctrl + Win</kbd><span style="font-size: 10px; color: #A3A3AD">×2</span></div>
+      <div style="font-size: 13px; font-weight: 500">Long thoughts</div>
+      <p style="margin: 0; font-size: 11px; font-weight: 300; line-height: 1.7; color: #A3A3AD">Double-tap for hands-free. Talk as long as you like, then tap once to finish.</p>
+    </div>
+    <div class="yf-tip">
+      <div><kbd class="yf-kbd">Esc</kbd></div>
+      <div style="font-size: 13px; font-weight: 500">Changed your mind?</div>
+      <p style="margin: 0; font-size: 11px; font-weight: 300; line-height: 1.7; color: #A3A3AD">Esc cancels while listening or transcribing. Nothing gets pasted.</p>
+    </div>
+    <div class="yf-tip">
+      <div style="width: 26px; height: 26px; border-radius: 7px; background: #26262D; display: flex; align-items: center; justify-content: center; gap: 1.5px" aria-hidden="true">
+        <svg viewBox="0 0 64 64" style="width: 82%; height: 82%" aria-hidden="true"><defs><linearGradient id="yfmOnb5Done2" gradientUnits="userSpaceOnUse" x1="8" y1="0" x2="56" y2="0"><stop offset="0.42" stop-color="#5AB0FF"></stop><stop offset="0.58" stop-color="#F4F4F0"></stop></linearGradient></defs><path d="M8 32c2-11 5-11 7 0s5 9 7 0 4-6 6 0c1.2 2.5 2.6 0 4 0h24" fill="none" stroke="url(#yfmOnb5Done2)" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"></path></svg></div>
+      <div style="font-size: 13px; font-weight: 500">Lives in the tray</div>
+      <p style="margin: 0; font-size: 11px; font-weight: 300; line-height: 1.7; color: #A3A3AD">Settings, history and "paste last" are one click away, next to the clock.</p>
+    </div>
+  </div>
+
+  <div style="display: flex; justify-content: space-between; align-items: center">
+    <label style="display: flex; align-items: center; gap: 10px; font-size: 11px; cursor: pointer"><input class="yf-chk" type="checkbox" checked="checked">Start with Windows</label>
+    <a class="yf-cta" href="SetGeneral.dc.html">Start yapping</a>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":760,"height":560}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {};
+  }
+}
+</script>
+</body>
+</html>

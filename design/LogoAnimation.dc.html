@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Logo animation: bars to wave</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;400;500;600;700&amp;family=Reem+Kufi:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+/* 4.2 s loop: bars talk → collapse → wave draws in → line types out → hold → reset */
+.yf-bar{transform-box:fill-box;transform-origin:center;animation:yf-bar 4.2s ease-in-out infinite}
+.yf-bar.b2{animation-delay:.04s}.yf-bar.b3{animation-delay:.08s}.yf-bar.b4{animation-delay:.12s}.yf-bar.b5{animation-delay:.16s}
+@keyframes yf-bar{
+  0%{transform:scaleY(1);opacity:1}
+  12%{transform:scaleY(.55);opacity:1}
+  24%{transform:scaleY(1);opacity:1}
+  36%{transform:scaleY(.18);opacity:.55}
+  43%{transform:scaleY(.06);opacity:0}
+  93%{transform:scaleY(.06);opacity:0}
+  100%{transform:scaleY(1);opacity:1}
+}
+.yf-wave{stroke-dasharray:100 101;stroke-dashoffset:100;animation:yf-wave 4.2s cubic-bezier(.4,0,.2,1) infinite}
+@keyframes yf-wave{
+  0%,46.9%{stroke-dashoffset:100;opacity:0}
+  47%{stroke-dashoffset:100;opacity:1}
+  75%{stroke-dashoffset:0;opacity:1}
+  86%{stroke-dashoffset:0;opacity:1}
+  92%{stroke-dashoffset:0;opacity:0}
+  100%{stroke-dashoffset:100;opacity:0}
+}
+.yf-line{stroke-dasharray:100;stroke-dashoffset:100;animation:yf-line 4.2s cubic-bezier(.4,0,.2,1) infinite}
+@keyframes yf-line{
+  0%,60%{stroke-dashoffset:100;opacity:1}
+  70%{stroke-dashoffset:0;opacity:1}
+  88%{stroke-dashoffset:0;opacity:1}
+  95%{stroke-dashoffset:0;opacity:0}
+  100%{stroke-dashoffset:100;opacity:0}
+.yf-cursor{animation:yf-cursor 4.2s steps(1) infinite}
+@keyframes yf-cursor{0%,68%{opacity:0}70%,74%{opacity:1}76%,80%{opacity:0}82%,86%{opacity:1}88%,100%{opacity:0}}
+@media (prefers-reduced-motion: reduce){
+  .yf-bar,.yf-wave,.yf-line,.yf-cursor{animation:none}
+  .yf-bar{opacity:0}.yf-wave,.yf-line{stroke-dashoffset:0}
+}
+</style>
+</helmet>
+<div style="width: 1280px; height: 720px; box-sizing: border-box; padding: 48px 56px; background: #ECEBE6; font-family: 'Unbounded', 'Reem Kufi', sans-serif; color: #1B1B1F; display: flex; gap: 48px">
+  <div style="flex: 1 1 0; display: flex; flex-direction: column; gap: 24px; justify-content: center">
+    <span style="font-size: 12px; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase; color: #5E5E66">Logo animation · 1 → 3</span>
+    <h1 style="margin: 0; font-size: 34px; font-weight: 600; letter-spacing: -0.01em; line-height: 1.2">Your voice<br>becomes text</h1>
+    <ol style="margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 10px; font-size: 12px; font-weight: 300; line-height: 1.6; color: #3A3A42">
+      <li>The bars "talk" with one pulse.</li>
+      <li>They collapse into a single resting line.</li>
+      <li>One stroke draws in from the left: a sound wave that calms at the centre and carries on as a line of text, fading from blue to white.</li>
+      <li>Hold, fade, loop. 4.2 s in total.</li>
+    </ol>
+    <p style="margin: 0; font-size: 11px; font-weight: 300; line-height: 1.7; color: #4A4A52">Where it plays: the launch splash, onboarding welcome, About, and the website hero. The static app icon uses the final frame (option 3), or option 1 if you prefer the bars at small sizes. Reduced-motion users see the final frame only.</p>
+  </div>
+
+  <div style="flex: 1.2 1 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 30px">
+    <svg width="340" height="340" viewBox="0 0 64 64" role="img" aria-label="Yappaflow logo animation: sound bars become a wave, then a line of text">
+      <rect width="64" height="64" rx="16" fill="#141417"></rect>
+      <path class="yf-bar b1" d="M16 27v10" stroke="#5AB0FF" stroke-width="5" stroke-linecap="round" fill="none"></path>
+      <path class="yf-bar b2" d="M24 21v22" stroke="#5AB0FF" stroke-width="5" stroke-linecap="round" fill="none"></path>
+      <path class="yf-bar b3" d="M32 14v36" stroke="#5AB0FF" stroke-width="5" stroke-linecap="round" fill="none"></path>
+      <path class="yf-bar b4" d="M40 21v22" stroke="#5AB0FF" stroke-width="5" stroke-linecap="round" fill="none"></path>
+      <path class="yf-bar b5" d="M48 27v10" stroke="#5AB0FF" stroke-width="5" stroke-linecap="round" fill="none"></path>
+      <defs><linearGradient id="yfA" gradientUnits="userSpaceOnUse" x1="8" y1="0" x2="56" y2="0"><stop offset="0.42" stop-color="#5AB0FF"></stop><stop offset="0.58" stop-color="#F4F4F0"></stop></linearGradient></defs>
+      <path class="yf-wave" pathLength="100" d="M8 32c2-11 5-11 7 0s5 9 7 0 4-6 6 0c1.2 2.5 2.6 0 4 0h24" stroke="url(#yfA)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none"></path>
+    </svg>
+
+    <div style="display: flex; align-items: center; gap: 14px; padding: 14px 22px; border-radius: 18px; background: #141417">
+      <svg width="44" height="44" viewBox="0 0 64 64" aria-hidden="true">
+        <path class="yf-bar b1" d="M16 27v10" stroke="#5AB0FF" stroke-width="6" stroke-linecap="round" fill="none"></path>
+        <path class="yf-bar b2" d="M24 21v22" stroke="#5AB0FF" stroke-width="6" stroke-linecap="round" fill="none"></path>
+        <path class="yf-bar b3" d="M32 14v36" stroke="#5AB0FF" stroke-width="6" stroke-linecap="round" fill="none"></path>
+        <path class="yf-bar b4" d="M40 21v22" stroke="#5AB0FF" stroke-width="6" stroke-linecap="round" fill="none"></path>
+        <path class="yf-bar b5" d="M48 27v10" stroke="#5AB0FF" stroke-width="6" stroke-linecap="round" fill="none"></path>
+        <defs><linearGradient id="yfB" gradientUnits="userSpaceOnUse" x1="8" y1="0" x2="56" y2="0"><stop offset="0.42" stop-color="#5AB0FF"></stop><stop offset="0.58" stop-color="#F4F4F0"></stop></linearGradient></defs>
+        <path class="yf-wave" pathLength="100" d="M8 32c2-11 5-11 7 0s5 9 7 0 4-6 6 0c1.2 2.5 2.6 0 4 0h24" stroke="url(#yfB)" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" fill="none"></path>
+      </svg>
+      <span style="font-size: 30px; font-weight: 600; letter-spacing: -0.01em; color: #F4F4F0">Yappaflow</span>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":720}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {};
+  }
+}
+</script>
+</body>
+</html>

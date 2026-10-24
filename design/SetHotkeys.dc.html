@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Settings · Hotkeys</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;400;500;600;700&amp;family=Reem+Kufi:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#5AB0FF}a:hover{color:#A9D4FF}
+.yf-card{background:#1A1A1F;border-radius:18px;padding:6px 22px}
+.yf-cap{margin:0 0 4px;font-size:11px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:#A3A3AD}
+.yf-row{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:15px 0;border-top:1px solid #26262D}
+.yf-row:first-child{border-top:0}
+.yf-lbl{font-size:12px;font-weight:400;color:#F4F4F0}
+.yf-help{font-size:10px;font-weight:300;line-height:1.6;color:#A3A3AD;margin-top:4px;max-width:420px}
+.yf-btn{height:36px;padding:0 14px;border-radius:10px;font-family:inherit;font-size:11px;cursor:pointer;border:1px solid #2E2E36;background:transparent;color:#F4F4F0;font-weight:500}
+.yf-sw{appearance:none;-webkit-appearance:none;width:42px;height:24px;border-radius:999px;background:#2E2E36;position:relative;cursor:pointer;margin:0;flex:none}
+.yf-sw::after{content:"";position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#A3A3AD;transition:left .15s}
+.yf-sw:checked{background:#5AB0FF}.yf-sw:checked::after{left:21px;background:#141417}
+.yf-sw:focus-visible{outline:2px solid #5AB0FF;outline-offset:2px}
+.yf-kbd{display:inline-flex;align-items:center;height:30px;padding:0 10px;border-radius:8px;background:#26262D;box-shadow:inset 0 -2px 0 #0E0E11;font-family:inherit;font-size:11px;font-weight:600;color:#F4F4F0}
+.yf-plus{font-size:11px;color:#A3A3AD}
+</style>
+</helmet>
+<div style="width: 1040px; height: 800px; display: flex; background: #121215; color: #F4F4F0; font-family: 'Unbounded', 'Reem Kufi', sans-serif">
+  <dc-import name="Sidebar" active="hotkeys" theme="dark" hint-size="240px,800px"></dc-import>
+  <main style="flex-grow: 1; min-width: 0; padding: 34px 40px; display: flex; flex-direction: column; gap: 18px; box-sizing: border-box">
+    <div>
+      <h1 style="margin: 0; font-size: 24px; font-weight: 600; letter-spacing: -0.01em">Hotkeys</h1>
+      <p style="margin: 8px 0 0; font-size: 12px; font-weight: 300; color: #A3A3AD">Click Change, then press the new keys. Works in every app, including full-screen ones.</p>
+    </div>
+
+    <section>
+      <h2 class="yf-cap">Shortcuts</h2>
+      <div class="yf-card">
+        <div class="yf-row">
+          <div><span class="yf-lbl">Dictate</span><div class="yf-help">Hold to talk, release to paste.</div></div>
+          <div style="display: flex; align-items: center; gap: 14px">
+            <div style="display: flex; align-items: center; gap: 6px"><kbd class="yf-kbd">Ctrl</kbd><span class="yf-plus">+</span><kbd class="yf-kbd">Win</kbd></div>
+            <button type="button" class="yf-btn">Change</button>
+          </div>
+        </div>
+        <div class="yf-row">
+          <div><label class="yf-lbl" for="h-hf">Hands-free with a double-tap</label><div class="yf-help">Double-tap the dictate keys to keep listening without holding. Tap once more to finish.</div></div>
+          <input id="h-hf" class="yf-sw" type="checkbox" role="switch" checked="checked">
+        </div>
+        <div class="yf-row">
+          <div><span class="yf-lbl">Command mode</span><div class="yf-help">Select text, hold, then say how to change it: "make it shorter", "translate to Arabic".</div></div>
+          <div style="display: flex; align-items: center; gap: 14px">
+            <div style="display: flex; align-items: center; gap: 6px"><kbd class="yf-kbd">Ctrl</kbd><span class="yf-plus">+</span><kbd class="yf-kbd">Win</kbd><span class="yf-plus">+</span><kbd class="yf-kbd">Alt</kbd></div>
+            <button type="button" class="yf-btn">Change</button>
+          </div>
+        </div>
+        <div class="yf-row">
+          <div><span class="yf-lbl">Paste last dictation</span><div class="yf-help">For when the text went to the wrong window.</div></div>
+          <div style="display: flex; align-items: center; gap: 10px">
+            <div style="height: 36px; min-width: 190px; box-sizing: border-box; padding: 0 14px; border-radius: 10px; border: 1.5px solid #5AB0FF; background: rgba(90,176,255,0.06); display: flex; align-items: center; gap: 8px; font-size: 11px; color: #5AB0FF">
+              <span style="width: 6px; height: 6px; border-radius: 50%; background: #5AB0FF; display: block"></span>
+              Press the new keys…
+            </div>
+            <button type="button" class="yf-btn">Cancel</button>
+          </div>
+        </div>
+        <div class="yf-row">
+          <div><span class="yf-lbl">Cancel</span><div class="yf-help">While listening or transcribing. Nothing is pasted.</div></div>
+          <kbd class="yf-kbd">Esc</kbd>
+        </div>
+      </div>
+    </section>
+
+    <div style="display: flex; gap: 14px; align-items: flex-start; padding: 16px 18px; border-radius: 14px; background: #17171B; border: 1px solid #26262D">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#A3A3AD" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none; margin-top: 1px"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM12 11v5M12 8h.01"></path></svg>
+      <p style="margin: 0; font-size: 11px; font-weight: 300; line-height: 1.7; color: #C9C9CF">Windows shortcuts still work. If you press Ctrl + Win + → to switch desktops, Yappaflow notices the extra key, cancels quietly and lets the shortcut through. The Start menu won't pop up when you release Win.</p>
+    </div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1040,"height":800}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {};
+  }
+}
+</script>
+</body>
+</html>

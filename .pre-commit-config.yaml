@@ -1,0 +1,7 @@
+# Install once: `pip install pre-commit` (or `pipx install pre-commit`), then `pre-commit install`.
+# Runs `gitleaks protect --staged` with .gitleaks.toml on every commit.
+repos:
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.30.1
+    hooks:
+      - id: gitleaks

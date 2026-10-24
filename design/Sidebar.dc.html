@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Settings sidebar</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;400;500;600;700&amp;family=Reem+Kufi:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<nav aria-label="Settings" style="width: 240px; height: 800px; box-sizing: border-box; padding: 26px 14px 18px; background: {{c.side}}; color: {{c.text}}; font-family: 'Unbounded', 'Reem Kufi', sans-serif; display: flex; flex-direction: column; gap: 22px; flex: none">
+  <div style="display: flex; align-items: center; gap: 10px; padding: 0 10px">
+    <div style="width: 32px; height: 32px; border-radius: 9px; background: #141417; display: flex; align-items: center; justify-content: center; gap: 2px" aria-hidden="true">
+      <svg viewBox="0 0 64 64" style="width: 82%; height: 82%" aria-hidden="true"><defs><linearGradient id="yfmSidebar1" gradientUnits="userSpaceOnUse" x1="8" y1="0" x2="56" y2="0"><stop offset="0.42" stop-color="#5AB0FF"></stop><stop offset="0.58" stop-color="#F4F4F0"></stop></linearGradient></defs><path d="M8 32c2-11 5-11 7 0s5 9 7 0 4-6 6 0c1.2 2.5 2.6 0 4 0h24" fill="none" stroke="url(#yfmSidebar1)" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"></path></svg></div>
+    <span style="font-size: 15px; font-weight: 600; letter-spacing: -0.01em">Yappaflow</span>
+  </div>
+
+  <div style="display: flex; flex-direction: column; gap: 2px; flex-grow: 1">
+    <sc-for list="{{items}}" as="item" hint-placeholder-count="10">
+      <a href="{{item.href}}" aria-current="{{item.current}}" style="display: flex; align-items: center; gap: 12px; height: 40px; padding: 0 12px; border-radius: 11px; text-decoration: none; font-size: 12px; background: {{item.bg}}; color: {{item.fg}}; font-weight: {{item.weight}}">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{item.icon}}"></path></svg>
+        {{item.label}}
+      </a>
+    </sc-for>
+  </div>
+
+  <div style="display: flex; flex-direction: column; gap: 8px; padding: 14px; border-radius: 14px; background: {{c.card}}">
+    <div style="display: flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 500">
+      <span style="width: 7px; height: 7px; border-radius: 50%; background: #5AB0FF; box-shadow: 0 0 0 2px {{c.dotRing}}; display: block"></span>
+      Ready
+    </div>
+    <div style="font-size: 10px; font-weight: 300; line-height: 1.6; color: {{c.muted}}">This month: 312 min · ≈ $1.40</div>
+  </div>
+</nav>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"active":{"editor":"enum","options":["general","hotkeys","mic","models","apps","dictionary","snippets","history","advanced","about"],"default":"general"},"theme":{"editor":"enum","options":["dark","light"],"default":"dark"},"$preview":{"width":240,"height":800}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const active = this.props.active ?? 'general';
+    const theme = this.props.theme ?? 'dark';
+    const dark = { side: '#0E0E11', text: '#F4F4F0', muted: '#A3A3AD', card: '#1A1A1F', activeBg: '#1E1E24', activeFg: '#F4F4F0', idleFg: '#A3A3AD', dotRing: 'rgba(90,176,255,0.18)' };
+    const light = { side: '#EAE9E3', text: '#17171A', muted: '#5E5E66', card: '#FFFFFF', activeBg: '#FFFFFF', activeFg: '#17171A', idleFg: '#4A4A52', dotRing: 'rgba(11,95,179,0.15)' };
+    const c = theme === 'light' ? light : dark;
+    const lightFiles = { general: 'SetGeneralLight.dc.html', history: 'SetHistoryLight.dc.html' };
+    const defs = [
+      ['general', 'General', 'SetGeneral.dc.html', 'M4 7h9M17 7h3M14 5v4M4 17h3M11 17h9M8 15v4'],
+      ['hotkeys', 'Hotkeys', 'SetHotkeys.dc.html', 'M3 7h18v10H3zM7 11h.01M11 11h.01M15 11h.01M8 14h8'],
+      ['mic', 'Microphone', 'SetMic.dc.html', 'M12 4a3 3 0 0 1 3 3v4a3 3 0 0 1-6 0V7a3 3 0 0 1 3-3zM6 11a6 6 0 0 0 12 0M12 17v3'],
+      ['models', 'Models', 'SetModels.dc.html', 'M7 7h10v10H7zM10 3v4M14 3v4M10 17v4M14 17v4M3 10h4M3 14h4M17 10h4M17 14h4'],
+      ['apps', 'App styles', 'SetApps.dc.html', 'M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z'],
+      ['dictionary', 'Dictionary', 'SetDictionary.dc.html', 'M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3zM5 17a3 3 0 0 1 3-3h11'],
+      ['snippets', 'Snippets', 'SetSnippets.dc.html', 'M8 7l-5 5 5 5M16 7l5 5-5 5M13 5l-2 14'],
+      ['history', 'History', 'SetHistory.dc.html', 'M12 7v5l3 2M3 12a9 9 0 1 0 3-6.7M3 4v4h4'],
+      ['advanced', 'Advanced', 'SetAdvanced.dc.html', 'M14 6a4 4 0 0 0-5 5l-6 6 2 2 6-6a4 4 0 0 0 5-5l-3 3-2-2z'],
+      ['about', 'About', 'SetAbout.dc.html', 'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM12 11v5M12 8h.01'],
+    ];
+    const items = defs.map(([id, label, href, icon]) => {
+      const on = id === active;
+      return {
+        id, label, icon,
+        href: theme === 'light' ? (lightFiles[id] || href) : href,
+        current: on ? 'page' : 'false',
+        bg: on ? c.activeBg : 'transparent',
+        fg: on ? c.activeFg : c.idleFg,
+        weight: on ? 500 : 400,
+      };
+    });
+    return { c, items };
+  }
+}
+</script>
+</body>
+</html>

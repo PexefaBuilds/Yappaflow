@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Settings · General · light</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;400;500;600;700&amp;family=Reem+Kufi:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#0B5FB3}a:hover{color:#084A8C}
+.yf-card{background:#FFFFFF;border-radius:18px;padding:6px 22px;box-shadow:0 1px 0 rgba(20,20,23,0.04)}
+.yf-cap{margin:0 0 4px;font-size:11px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:#5E5E66}
+.yf-row{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:15px 0;border-top:1px solid #ECEBE5}
+.yf-row:first-child{border-top:0}
+.yf-lbl{font-size:12px;font-weight:400;color:#17171A}
+.yf-help{font-size:10px;font-weight:300;line-height:1.6;color:#5E5E66;margin-top:4px;max-width:440px}
+.yf-in{height:40px;padding:0 12px;border-radius:12px;border:1px solid #D9D8D1;background:#F7F6F2;color:#17171A;font-family:inherit;font-size:12px;box-sizing:border-box}
+.yf-btn{height:40px;padding:0 16px;border-radius:12px;font-family:inherit;font-size:12px;cursor:pointer;border:1px solid #D9D8D1;background:#FFFFFF;color:#17171A;font-weight:500}
+.yf-sw{appearance:none;-webkit-appearance:none;width:42px;height:24px;border-radius:999px;background:#D9D8D1;position:relative;cursor:pointer;margin:0;flex:none}
+.yf-sw::after{content:"";position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#FFFFFF;box-shadow:0 1px 2px rgba(0,0,0,.2);transition:left .15s}
+.yf-sw:checked{background:#0B5FB3}.yf-sw:checked::after{left:21px;background:#5AB0FF}
+.yf-sw:focus-visible,.yf-seg input:focus-visible+label{outline:2px solid #0B5FB3;outline-offset:2px}
+.yf-seg{display:flex;gap:3px;padding:3px;border-radius:12px;background:#EFEEE8;flex:none}
+.yf-seg input{position:absolute;opacity:0;width:1px;height:1px}
+.yf-seg label{display:flex;align-items:center;height:34px;padding:0 14px;border-radius:9px;font-size:11px;color:#5E5E66;cursor:pointer}
+.yf-seg input:checked+label{background:#FFFFFF;color:#17171A;font-weight:500;box-shadow:0 1px 3px rgba(20,20,23,0.12)}
+</style>
+</helmet>
+<div style="width: 1040px; height: 800px; display: flex; background: #F4F3EE; color: #17171A; font-family: 'Unbounded', 'Reem Kufi', sans-serif">
+  <dc-import name="Sidebar" active="general" theme="light" hint-size="240px,800px"></dc-import>
+  <main style="flex-grow: 1; min-width: 0; padding: 30px 40px; display: flex; flex-direction: column; gap: 14px; box-sizing: border-box">
+    <div>
+      <h1 style="margin: 0; font-size: 24px; font-weight: 600; letter-spacing: -0.01em">General</h1>
+      <p style="margin: 8px 0 0; font-size: 12px; font-weight: 300; color: #5E5E66">How Yappaflow behaves day to day.</p>
+    </div>
+
+    <section>
+      <h2 class="yf-cap">Dictation</h2>
+      <div class="yf-card">
+        <div class="yf-row">
+          <div><label class="yf-lbl" for="gl-clean">AI cleanup</label><div class="yf-help">Removes um and uh, applies your corrections ("Tuesday, no, Wednesday" becomes "Wednesday"), and adds punctuation and lists.</div></div>
+          <input id="gl-clean" class="yf-sw" type="checkbox" role="switch" checked="checked">
+        </div>
+        <div class="yf-row">
+          <div><label class="yf-lbl" for="gl-lang">Language</label><div class="yf-help">Auto-detect handles switching between English and Arabic mid-sentence.</div></div>
+          <select id="gl-lang" class="yf-in" style="width: 220px"><option>Auto-detect</option><option>English</option><option>Arabic</option></select>
+        </div>
+        <div class="yf-row">
+          <div><span class="yf-lbl">Insert text by</span><div class="yf-help">Typing is slower. Use it only for apps that block paste.</div></div>
+          <div class="yf-seg" role="radiogroup" aria-label="Insert text by">
+            <input type="radio" name="gl-ins" id="gl-ins-p" checked="checked"><label for="gl-ins-p">Pasting</label>
+            <input type="radio" name="gl-ins" id="gl-ins-t"><label for="gl-ins-t">Typing</label>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2 class="yf-cap">Pill &amp; sounds</h2>
+      <div class="yf-card">
+        <div class="yf-row">
+          <div><span class="yf-lbl">Show the pill</span><div class="yf-help">"Always" leaves a small resting handle above the taskbar.</div></div>
+          <div class="yf-seg" role="radiogroup" aria-label="Show the pill">
+            <input type="radio" name="gl-pill" id="gl-pill-d" checked="checked"><label for="gl-pill-d">While dictating</label>
+            <input type="radio" name="gl-pill" id="gl-pill-a"><label for="gl-pill-a">Always</label>
+            <input type="radio" name="gl-pill" id="gl-pill-n"><label for="gl-pill-n">Never</label>
+          </div>
+        </div>
+        <div class="yf-row">
+          <div><label class="yf-lbl" for="gl-snd">Start and stop sounds</label><div class="yf-help">A soft tick, so you know it's listening without looking.</div></div>
+          <input id="gl-snd" class="yf-sw" type="checkbox" role="switch" checked="checked">
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2 class="yf-cap">Appearance &amp; system</h2>
+      <div class="yf-card">
+        <div class="yf-row">
+          <div><span class="yf-lbl">Accent</span><div class="yf-help">{{accentName}}: a deeper shade is used for text in light mode, so it stays readable.</div></div>
+          <div style="display: flex; gap: 8px" role="radiogroup" aria-label="Accent colour">
+            <sc-for list="{{accents}}" as="a" hint-placeholder-count="7">
+              <button type="button" role="radio" aria-checked="{{a.checked}}" aria-label="{{a.name}}" title="{{a.name}}" onClick="{{a.pick}}" style="width: 30px; height: 30px; border-radius: 50%; border: 0; padding: 0; cursor: pointer; background: {{a.fill}}; box-shadow: {{a.ring}}"></button>
+            </sc-for>
+          </div>
+        </div>
+        <div class="yf-row">
+          <div><span class="yf-lbl">Theme</span></div>
+          <div class="yf-seg" role="radiogroup" aria-label="Theme">
+            <input type="radio" name="gl-th" id="gl-th-s" checked="checked"><label for="gl-th-s">Match Windows</label>
+            <input type="radio" name="gl-th" id="gl-th-l"><label for="gl-th-l">Light</label>
+            <input type="radio" name="gl-th" id="gl-th-d"><label for="gl-th-d">Dark</label>
+          </div>
+        </div>
+        <div class="yf-row">
+          <label class="yf-lbl" for="gl-start">Start with Windows</label>
+          <input id="gl-start" class="yf-sw" type="checkbox" role="switch" checked="checked">
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1040,"height":800}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { accent: 0 };
+  }
+  renderVals() {
+    const list = [
+      ['Azure', '#5AB0FF'], ['Coral', '#FF7A59'], ['Tangerine', '#FF9A3D'], ['Sunflower', '#FFC94D'],
+      ['Mint', '#5EE3B0'], ['Violet', '#9A88FF'], ['Chalk', '#17171A'],
+    ];
+    const cur = this.state.accent;
+    const accents = list.map(([name, fill], i) => ({
+      name, fill,
+      checked: i === cur ? 'true' : 'false',
+      ring: i === cur ? '0 0 0 2px #FFFFFF, 0 0 0 4px #17171A' : 'inset 0 0 0 1px rgba(20,20,23,0.12)',
+      pick: () => this.setState({ accent: i }),
+    }));
+    return { accents, accentName: list[cur][0] };
+  }
+}
+</script>
+</body>
+</html>

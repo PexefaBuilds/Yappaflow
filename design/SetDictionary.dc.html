@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Settings · Dictionary</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;400;500;600;700&amp;family=Reem+Kufi:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#5AB0FF}a:hover{color:#A9D4FF}
+.yf-in{height:40px;padding:0 12px;border-radius:12px;border:1px solid #2E2E36;background:#121215;color:#F4F4F0;font-family:inherit;font-size:12px;box-sizing:border-box;min-width:0}
+.yf-btn{height:40px;padding:0 16px;border-radius:12px;font-family:inherit;font-size:12px;cursor:pointer;border:1px solid #2E2E36;background:transparent;color:#F4F4F0;font-weight:500;flex:none}
+.yf-btn.p{border:0;background:#5AB0FF;color:#141417;font-weight:600}
+.yf-btn.s{height:32px;padding:0 12px;border-radius:9px;font-size:10px}
+.yf-x{width:30px;height:30px;border:0;border-radius:8px;background:transparent;color:#A3A3AD;cursor:pointer;display:flex;align-items:center;justify-content:center;flex:none}
+.yf-x:hover{background:#26262D;color:#F4F4F0}
+.yf-tabs{display:flex;gap:3px;padding:3px;border-radius:12px;background:#1A1A1F}
+.yf-tabs input{position:absolute;opacity:0;width:1px;height:1px}
+.yf-tabs label{display:flex;align-items:center;height:32px;padding:0 12px;border-radius:9px;font-size:11px;color:#A3A3AD;cursor:pointer}
+.yf-tabs input:checked+label{background:#2A2A31;color:#F4F4F0;font-weight:500}
+.yf-in:focus-visible,.yf-btn:focus-visible,.yf-x:focus-visible,.yf-tabs input:focus-visible+label{outline:2px solid #5AB0FF;outline-offset:2px}
+</style>
+</helmet>
+<div style="width: 1040px; height: 800px; display: flex; background: #121215; color: #F4F4F0; font-family: 'Unbounded', 'Reem Kufi', sans-serif">
+  <dc-import name="Sidebar" active="dictionary" theme="dark" hint-size="240px,800px"></dc-import>
+  <main style="flex-grow: 1; min-width: 0; padding: 34px 40px; display: flex; flex-direction: column; gap: 16px; box-sizing: border-box">
+    <div>
+      <h1 style="margin: 0; font-size: 24px; font-weight: 600; letter-spacing: -0.01em">Dictionary</h1>
+      <p style="margin: 8px 0 0; font-size: 12px; font-weight: 300; color: #A3A3AD">Names and jargon, spelled your way. Passed to the speech model as hints.</p>
+    </div>
+
+    <div style="display: flex; align-items: center; gap: 14px; padding: 14px 16px; border-radius: 14px; background: #151B23; border: 1px solid #1E3A5C">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5AB0FF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none"><path d="M12 3l1.8 4.6L18.5 9l-4.7 1.4L12 15l-1.8-4.6L5.5 9l4.7-1.4zM19 15l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8z"></path></svg>
+      <p style="margin: 0; flex-grow: 1; font-size: 11px; font-weight: 300; line-height: 1.6; color: #D7D7D2">You corrected "Cooper Netties" to <strong style="font-weight: 600; color: #F4F4F0">Kubernetes</strong> twice. Add it?</p>
+      <button type="button" class="yf-btn s p">Add</button>
+      <button type="button" class="yf-btn s">Not now</button>
+    </div>
+
+    <div style="display: flex; gap: 8px">
+      <input class="yf-in" style="flex: 1.2 1 0" type="text" aria-label="Word or name" placeholder="Word or name, e.g. Al-Mansoori">
+      <input class="yf-in" style="flex: 1 1 0" type="text" aria-label="Sounds like (optional)" placeholder="Sounds like (optional)">
+      <button type="button" class="yf-btn p">Add</button>
+    </div>
+
+    <div style="display: flex; justify-content: space-between; align-items: center">
+      <div class="yf-tabs" role="radiogroup" aria-label="Filter">
+        <input type="radio" name="d-f" id="d-all" checked="checked"><label for="d-all">All · 9</label>
+        <input type="radio" name="d-f" id="d-mine"><label for="d-mine">Added by you · 6</label>
+        <input type="radio" name="d-f" id="d-learn"><label for="d-learn">Learned · 3</label>
+      </div>
+      <span style="font-size: 10px; font-weight: 300; color: #A3A3AD">uses this month</span>
+    </div>
+
+    <section style="background: #1A1A1F; border-radius: 18px; padding: 4px 18px; flex-grow: 1; overflow: hidden">
+      <sc-for list="{{terms}}" as="t" hint-placeholder-count="9">
+        <div style="display: flex; align-items: center; gap: 14px; height: 48px; border-top: {{t.border}}">
+          <span style="font-size: 12px; font-weight: 500; flex: 0 0 220px">{{t.term}}</span>
+          <span style="font-size: 10px; font-weight: 300; color: #A3A3AD; flex-grow: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{t.sounds}}</span>
+          <span style="height: 22px; padding: 0 9px; border-radius: 999px; font-size: 9px; font-weight: 500; display: flex; align-items: center; background: {{t.chipBg}}; color: {{t.chipFg}}">{{t.source}}</span>
+          <span style="font-size: 11px; font-variant-numeric: tabular-nums; width: 32px; text-align: right; color: #C9C9CF">{{t.uses}}</span>
+          <button type="button" class="yf-x" aria-label="{{t.removeLabel}}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg></button>
+        </div>
+      </sc-for>
+    </section>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1040,"height":800}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const rows = [
+      ['Yappaflow', 'yap and flow, yapflow', 'You', 41],
+      ['Sara Al-Mansoori', 'sarah al mansuri', 'You', 18],
+      ['Dubai Design District', 'd three', 'You', 12],
+      ['Tauri', 'tory, towery', 'You', 9],
+      ['Unbounded', '', 'You', 4],
+      ['gpt-transcribe', 'GPT transcribe', 'You', 3],
+      ['PostgreSQL', 'postgres Q L', 'Learned', 7],
+      ['Al Quoz', 'al cos, alcoz', 'Learned', 5],
+      ['Figma', 'figmah', 'Learned', 2],
+    ];
+    const terms = rows.map(([term, sounds, source, uses], i) => ({
+      term, sounds: sounds ? `sounds like: ${sounds}` : '', source, uses,
+      removeLabel: `Remove ${term}`,
+      border: i === 0 ? '0' : '1px solid #26262D',
+      chipBg: source === 'Learned' ? 'rgba(90,176,255,0.12)' : '#26262D',
+      chipFg: source === 'Learned' ? '#5AB0FF' : '#C9C9CF',
+    }));
+    return { terms };
+  }
+}
+</script>
+</body>
+</html>

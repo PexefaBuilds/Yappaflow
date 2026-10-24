@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Settings window</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;400;500;600;700&amp;family=Reem+Kufi:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#5AB0FF}a:hover{color:#A9D4FF}
+</style>
+</helmet>
+<div style="width: 600px; height: 980px; box-sizing: border-box; background: #121215; color: #F4F4F0; font-family: 'Unbounded', 'Reem Kufi', sans-serif; padding: 32px 32px 28px; display: flex; flex-direction: column; gap: 18px">
+
+  <!-- Header -->
+  <div style="display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-bottom: 6px">
+    <div style="display: flex; align-items: center; gap: 12px">
+      <div style="width: 40px; height: 40px; border-radius: 11px; background: #1E1E24; display: flex; align-items: center; justify-content: center; gap: 3px" aria-hidden="true">
+        <svg viewBox="0 0 64 64" style="width: 82%; height: 82%" aria-hidden="true"><defs><linearGradient id="yfmSettings1" gradientUnits="userSpaceOnUse" x1="8" y1="0" x2="56" y2="0"><stop offset="0.42" stop-color="#5AB0FF"></stop><stop offset="0.58" stop-color="#F4F4F0"></stop></linearGradient></defs><path d="M8 32c2-11 5-11 7 0s5 9 7 0 4-6 6 0c1.2 2.5 2.6 0 4 0h24" fill="none" stroke="url(#yfmSettings1)" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"></path></svg></div>
+      <h1 style="margin: 0; font-size: 22px; font-weight: 600; letter-spacing: -0.01em">Yappaflow</h1>
+    </div>
+    <div style="display: flex; align-items: center; gap: 8px; height: 32px; padding: 0 14px; border-radius: 999px; background: #1E1E24; font-size: 11px; font-weight: 400; color: #D7D7D2">
+      <span style="width: 7px; height: 7px; border-radius: 50%; background: #5AB0FF; display: block"></span>
+      Ready · hold <kbd style="font-family: inherit; font-weight: 600; color: #F4F4F0">Ctrl + Win</kbd>
+    </div>
+  </div>
+
+  <!-- OpenAI key -->
+  <section style="background: #1A1A1F; border-radius: 18px; padding: 20px 22px; display: flex; flex-direction: column; gap: 12px">
+    <h2 style="margin: 0; font-size: 11px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: #A3A3AD">OpenAI</h2>
+    <label for="key" style="font-size: 12px; font-weight: 400">API key</label>
+    <div style="display: flex; gap: 8px">
+      <input id="key" type="password" value="sk-proj-xxxxxxxxxxxxxxxxxxxxa9F2" style="flex-grow: 1; min-width: 0; height: 44px; box-sizing: border-box; padding: 0 14px; border-radius: 12px; border: 1px solid #2E2E36; background: #121215; color: #F4F4F0; font-family: inherit; font-size: 12px; letter-spacing: 0.1em">
+      <button type="button" style="height: 44px; padding: 0 18px; border: 0; border-radius: 12px; background: #5AB0FF; color: #141417; font-family: inherit; font-size: 12px; font-weight: 600; cursor: pointer">Save</button>
+      <button type="button" style="height: 44px; padding: 0 16px; border: 1px solid #2E2E36; border-radius: 12px; background: transparent; color: #F4F4F0; font-family: inherit; font-size: 12px; font-weight: 500; cursor: pointer">Test</button>
+    </div>
+    <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; font-size: 10px; font-weight: 300; color: #A3A3AD">
+      <span style="display: flex; align-items: center; gap: 6px; color: #5AB0FF; font-weight: 400">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>
+        Key works · gpt-transcribe available
+      </span>
+      <span>Kept in Windows Credential Manager</span>
+    </div>
+  </section>
+
+  <!-- Transcription -->
+  <section style="background: #1A1A1F; border-radius: 18px; padding: 20px 22px; display: flex; flex-direction: column; gap: 14px">
+    <h2 style="margin: 0; font-size: 11px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: #A3A3AD">Transcription</h2>
+    <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px">
+      <div style="display: flex; flex-direction: column; gap: 8px">
+        <label for="prov" style="font-size: 12px; font-weight: 400">Provider</label>
+        <select id="prov" style="height: 44px; padding: 0 12px; border-radius: 12px; border: 1px solid #2E2E36; background: #121215; color: #F4F4F0; font-family: inherit; font-size: 12px">
+          <option>OpenAI (cloud)</option>
+          <option disabled="disabled">Local · whisper.cpp (later)</option>
+        </select>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 8px">
+        <label for="model" style="font-size: 12px; font-weight: 400">Model</label>
+        <select id="model" style="height: 44px; padding: 0 12px; border-radius: 12px; border: 1px solid #2E2E36; background: #121215; color: #F4F4F0; font-family: inherit; font-size: 12px">
+          <option>gpt-transcribe · $0.0045/min</option>
+          <option>gpt-4o-transcribe · $0.006/min</option>
+          <option>gpt-4o-mini-transcribe · $0.003/min</option>
+        </select>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 8px">
+        <label for="lang" style="font-size: 12px; font-weight: 400">Language</label>
+        <select id="lang" style="height: 44px; padding: 0 12px; border-radius: 12px; border: 1px solid #2E2E36; background: #121215; color: #F4F4F0; font-family: inherit; font-size: 12px">
+          <option>Auto-detect (mixing OK)</option>
+          <option>English</option>
+          <option>Arabic</option>
+        </select>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 8px">
+        <label for="mic" style="font-size: 12px; font-weight: 400">Microphone</label>
+        <select id="mic" style="height: 44px; padding: 0 12px; border-radius: 12px; border: 1px solid #2E2E36; background: #121215; color: #F4F4F0; font-family: inherit; font-size: 12px">
+          <option>System default</option>
+          <option>[YOUR MIC]</option>
+        </select>
+      </div>
+    </div>
+  </section>
+
+  <!-- Insert -->
+  <section style="background: #1A1A1F; border-radius: 18px; padding: 20px 22px; display: flex; flex-direction: column; gap: 14px">
+    <h2 style="margin: 0; font-size: 11px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: #A3A3AD">Insert text by</h2>
+    <div style="display: flex; padding: 4px; border-radius: 14px; background: #121215; gap: 4px" role="radiogroup" aria-label="Insert method">
+      <button type="button" role="radio" aria-checked="true" style="flex-grow: 1; flex-basis: 0; height: 40px; border: 0; border-radius: 10px; background: #2A2A31; color: #F4F4F0; font-family: inherit; font-size: 12px; font-weight: 500; cursor: pointer">Pasting <span style="font-weight: 300; color: #A3A3AD">· fast</span></button>
+      <button type="button" role="radio" aria-checked="false" style="flex-grow: 1; flex-basis: 0; height: 40px; border: 0; border-radius: 10px; background: transparent; color: #A3A3AD; font-family: inherit; font-size: 12px; font-weight: 400; cursor: pointer">Typing <span style="font-weight: 300">· for paste-blocking apps</span></button>
+    </div>
+    <label style="display: flex; align-items: center; justify-content: space-between; gap: 16px; font-size: 12px; font-weight: 400; cursor: pointer">
+      Put my clipboard back after pasting
+      <input type="checkbox" checked="checked" style="width: 20px; height: 20px; accent-color: #5AB0FF">
+    </label>
+  </section>
+
+  <!-- Recent -->
+  <section style="background: #1A1A1F; border-radius: 18px; padding: 20px 22px; display: flex; flex-direction: column; gap: 6px; flex-grow: 1">
+    <div style="display: flex; justify-content: space-between; align-items: baseline; padding-bottom: 6px">
+      <h2 style="margin: 0; font-size: 11px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: #A3A3AD">Recent</h2>
+      <span style="font-size: 10px; font-weight: 300; color: #A3A3AD">release → paste</span>
+    </div>
+
+    <div style="display: flex; align-items: center; gap: 14px; padding: 12px 0; border-top: 1px solid #26262D">
+      <div style="flex-grow: 1; min-width: 0; display: flex; flex-direction: column; gap: 5px">
+        <div style="font-size: 10px; font-weight: 400; color: #A3A3AD">slack.exe · 2 min ago</div>
+        <div style="font-size: 12px; font-weight: 300; line-height: 1.5; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">Sounds good, let's move the review to Wednesday at three.</div>
+      </div>
+      <span style="font-size: 11px; font-weight: 500; color: #5AB0FF; font-variant-numeric: tabular-nums">0.84 s</span>
+      <button type="button" style="height: 34px; padding: 0 14px; border: 1px solid #2E2E36; border-radius: 10px; background: transparent; color: #F4F4F0; font-family: inherit; font-size: 11px; cursor: pointer">Copy</button>
+    </div>
+
+    <div style="display: flex; align-items: center; gap: 14px; padding: 12px 0; border-top: 1px solid #26262D">
+      <div style="flex-grow: 1; min-width: 0; display: flex; flex-direction: column; gap: 5px">
+        <div style="font-size: 10px; font-weight: 400; color: #A3A3AD">outlook.exe · 9 min ago</div>
+        <div style="font-size: 12px; font-weight: 300; line-height: 1.5; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">Hi Sara, attaching the revised floor plan. Let me know what you think.</div>
+      </div>
+      <span style="font-size: 11px; font-weight: 500; color: #5AB0FF; font-variant-numeric: tabular-nums">1.06 s</span>
+      <button type="button" style="height: 34px; padding: 0 14px; border: 1px solid #2E2E36; border-radius: 10px; background: transparent; color: #F4F4F0; font-family: inherit; font-size: 11px; cursor: pointer">Copy</button>
+    </div>
+
+    <div style="display: flex; align-items: center; gap: 14px; padding: 12px 0; border-top: 1px solid #26262D">
+      <div style="flex-grow: 1; min-width: 0; display: flex; flex-direction: column; gap: 5px">
+        <div style="font-size: 10px; font-weight: 400; color: #FF8A5B">code.exe · failed · network error</div>
+        <div style="font-size: 12px; font-weight: 300; line-height: 1.5; color: #A3A3AD">Audio saved · 6.2 s</div>
+      </div>
+      <button type="button" style="height: 34px; padding: 0 14px; border: 0; border-radius: 10px; background: #5AB0FF; color: #141417; font-family: inherit; font-size: 11px; font-weight: 600; cursor: pointer">Retry</button>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <div style="display: flex; justify-content: space-between; align-items: center; font-size: 10px; font-weight: 300; color: #A3A3AD">
+    <a href="#recordings" style="font-weight: 400">Open recordings folder</a>
+    <span>v0.1.0 · Phase 1</span>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":600,"height":980}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {};
+  }
+}
+</script>
+</body>
+</html>

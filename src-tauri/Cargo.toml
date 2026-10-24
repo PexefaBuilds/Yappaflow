@@ -1,0 +1,84 @@
+[package]
+name = "yappaflow"
+version = "0.9.0"
+description = "Hold-to-talk dictation for Windows"
+authors = ["Yappaflow contributors"]
+edition = "2021"
+license = "MIT"
+publish = false
+rust-version = "1.77"
+
+[lib]
+name = "yappaflow_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = ["tray-icon"] }
+tauri-plugin-single-instance = "2"
+tauri-plugin-autostart = "2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+base64 = "0.22"
+anyhow = "1"
+async-trait = "0.1"
+log = "0.4"
+env_logger = "0.11"
+tokio = { version = "1", features = ["time", "sync"] }
+reqwest = { version = "0.12", default-features = false, features = ["rustls-tls", "multipart", "json", "http2"] }
+cpal = "0.15"
+arboard = "3.4"
+keyring = { version = "3", features = ["windows-native"] }
+rusqlite = { version = "0.32", features = ["bundled"] }
+sha2 = "0.10"
+# RAM, cores and free disk space for local models (Phase 7).
+sysinfo = { version = "0.39", default-features = false, features = ["system", "disk"] }
+# Local speech (whisper.cpp). Needs CMake + libclang at build time; see the local-stt feature.
+whisper-rs = { version = "0.16", optional = true }
+
+[target.'cfg(windows)'.dependencies]
+windows = { version = "0.58", features = [
+  "Win32_Foundation",
+  "Win32_System_LibraryLoader",
+  "Win32_System_Threading",
+  "Win32_Security",
+  "Win32_UI_WindowsAndMessaging",
+  "Win32_UI_Input_KeyboardAndMouse",
+  "Win32_UI_Accessibility",
+  "Win32_System_Com",
+  "Win32_System_DataExchange",
+  "Win32_System_Memory",
+  "Win32_UI_Shell",
+  "Win32_Graphics_Dxgi",
+  "Win32_Security",
+  "Win32_System_JobObjects",
+] }
+
+# Same versions tauri/tao already pull in on macOS, so nothing new is downloaded.
+[target.'cfg(target_os = "macos")'.dependencies]
+keyring = { version = "3", features = ["apple-native"] }
+objc2 = "0.6"
+objc2-foundation = "0.3"
+objc2-app-kit = "0.3"
+block2 = "0.6"
+# Non-activating NSPanel for the pill (MIT/Apache-2.0, github.com/ahkohd/tauri-nspanel).
+tauri-nspanel = "2.1"
+
+[profile.release]
+codegen-units = 1
+lto = true
+opt-level = "s"
+panic = "abort"
+strip = true
+
+[features]
+# Network eval of the cleanup prompt: cargo test --features evals -- --ignored
+evals = []
+# In-process whisper.cpp (CPU). Off by default: building it needs CMake and libclang (LLVM).
+local-stt = ["dep:whisper-rs"]
+# whisper.cpp on NVIDIA GPUs. Needs the CUDA Toolkit (nvcc) at build time.
+cuda = ["local-stt", "whisper-rs/cuda"]
+# whisper.cpp on Apple GPUs (macOS only). Needs Xcode's Metal toolchain at build time.
+metal = ["local-stt", "whisper-rs/metal"]

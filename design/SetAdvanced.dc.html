@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Settings · Advanced</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;400;500;600;700&amp;family=Reem+Kufi:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#5AB0FF}a:hover{color:#A9D4FF}
+.yf-card{background:#1A1A1F;border-radius:18px;padding:4px 22px}
+.yf-cap{margin:0 0 4px;font-size:11px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:#A3A3AD}
+.yf-row{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:13px 0;border-top:1px solid #26262D}
+.yf-row:first-child{border-top:0}
+.yf-lbl{font-size:12px;font-weight:400;color:#F4F4F0}
+.yf-help{font-size:10px;font-weight:300;line-height:1.6;color:#A3A3AD;margin-top:4px;max-width:420px}
+.yf-in{height:36px;padding:0 10px;border-radius:10px;border:1px solid #2E2E36;background:#121215;color:#F4F4F0;font-family:inherit;font-size:11px;box-sizing:border-box}
+.yf-btn{height:36px;padding:0 14px;border-radius:10px;font-family:inherit;font-size:11px;cursor:pointer;border:1px solid #2E2E36;background:transparent;color:#F4F4F0;font-weight:500;flex:none}
+.yf-btn.d{color:#FF8A5B;border-color:#3A2A24}
+.yf-sw{appearance:none;-webkit-appearance:none;width:42px;height:24px;border-radius:999px;background:#2E2E36;position:relative;cursor:pointer;margin:0;flex:none}
+.yf-sw::after{content:"";position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#A3A3AD;transition:left .15s}
+.yf-sw:checked{background:#5AB0FF}.yf-sw:checked::after{left:21px;background:#141417}
+.yf-sw:focus-visible,.yf-btn:focus-visible,.yf-in:focus-visible{outline:2px solid #5AB0FF;outline-offset:2px}
+.yf-chip{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 6px 0 10px;border-radius:8px;background:#26262D;font-size:10px}
+.yf-chip button{width:20px;height:20px;border:0;border-radius:5px;background:transparent;color:#A3A3AD;cursor:pointer;font-family:inherit;font-size:12px;line-height:1}
+</style>
+</helmet>
+<div style="width: 1040px; height: 800px; display: flex; background: #121215; color: #F4F4F0; font-family: 'Unbounded', 'Reem Kufi', sans-serif">
+  <dc-import name="Sidebar" active="advanced" theme="dark" hint-size="240px,800px"></dc-import>
+  <main style="flex-grow: 1; min-width: 0; padding: 34px 40px; display: flex; flex-direction: column; gap: 16px; box-sizing: border-box">
+    <div>
+      <h1 style="margin: 0; font-size: 24px; font-weight: 600; letter-spacing: -0.01em">Advanced</h1>
+      <p style="margin: 8px 0 0; font-size: 12px; font-weight: 300; color: #A3A3AD">For when something doesn't paste quite right.</p>
+    </div>
+
+    <section>
+      <h2 class="yf-cap">Pasting</h2>
+      <div class="yf-card">
+        <div class="yf-row">
+          <div><label class="yf-lbl" for="a-delay">Wait before restoring the clipboard</label><div class="yf-help">Raise this if some apps paste your old clipboard instead of the dictation.</div></div>
+          <div style="display: flex; align-items: center; gap: 12px"><input id="a-delay" type="range" min="100" max="1000" step="50" value="250" style="width: 180px; accent-color: #5AB0FF"><span style="font-size: 11px; font-weight: 500; width: 54px; font-variant-numeric: tabular-nums">250 ms</span></div>
+        </div>
+        <div class="yf-row">
+          <div><span class="yf-lbl">Always type, never paste, in</span><div class="yf-help">For apps that block Ctrl+V.</div></div>
+          <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap; justify-content: flex-end">
+            <span class="yf-chip">mstsc.exe<button type="button" aria-label="Remove mstsc.exe">×</button></span>
+            <span class="yf-chip">citrix.exe<button type="button" aria-label="Remove citrix.exe">×</button></span>
+            <button type="button" class="yf-btn">+ Add</button>
+          </div>
+        </div>
+        <div class="yf-row">
+          <div><label class="yf-lbl" for="a-admin">Work in admin windows</label><div class="yf-help">Windows blocks normal apps from typing into windows running as administrator. Turning this on restarts Yappaflow with admin rights.</div></div>
+          <input id="a-admin" class="yf-sw" type="checkbox" role="switch">
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2 class="yf-cap">Privacy &amp; data</h2>
+      <div class="yf-card">
+        <div class="yf-row">
+          <div><label class="yf-lbl" for="a-keep">Keep recordings</label><div class="yf-help">So you can retry or replay. Stored only on this PC.</div></div>
+          <select id="a-keep" class="yf-in"><option>Last 50</option><option>Last 500</option><option>Don't keep audio</option></select>
+        </div>
+        <div class="yf-row">
+          <div><label class="yf-lbl" for="a-crash">Send crash reports</label><div class="yf-help">Off by default. Never includes audio or text. Yappaflow has no analytics.</div></div>
+          <input id="a-crash" class="yf-sw" type="checkbox" role="switch">
+        </div>
+        <div class="yf-row">
+          <span class="yf-lbl">Your data</span>
+          <div style="display: flex; gap: 8px">
+            <button type="button" class="yf-btn">Open data folder</button>
+            <button type="button" class="yf-btn">Export history</button>
+            <button type="button" class="yf-btn d">Delete all history</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div style="display: flex; justify-content: space-between; align-items: center; font-size: 10px; font-weight: 300; color: #A3A3AD">
+      <span>Something off? Logs help us fix it.</span>
+      <button type="button" class="yf-btn">Open log file</button>
+    </div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1040,"height":800}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {};
+  }
+}
+</script>
+</body>
+</html>

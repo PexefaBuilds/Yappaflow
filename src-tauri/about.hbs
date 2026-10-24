@@ -1,0 +1,29 @@
+# Third-party notices
+
+Yappaflow is MIT licensed. It includes the open-source software listed below, under their own licences.
+The fonts (Unbounded, Reem Kufi) are under the SIL Open Font License 1.1; see `OFL.txt`.
+
+## Native components
+
+- whisper.cpp, llama.cpp (the `llama-server` sidecar) and ggml: MIT licence, Copyright (c) the ggml authors.
+  https://github.com/ggml-org/whisper.cpp · https://github.com/ggml-org/llama.cpp
+
+## Rust crates
+
+{{#each overview}}
+- {{name}} ({{count}})
+{{/each}}
+
+{{#each licenses}}
+### {{name}}
+
+Used by:
+{{#each used_by}}
+- {{crate.name}} {{crate.version}}
+{{/each}}
+
+```
+{{{text}}}
+```
+
+{{/each}}

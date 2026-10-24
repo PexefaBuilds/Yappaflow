@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Onboarding · Try it</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;400;500;600;700&amp;family=Reem+Kufi:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#5AB0FF}a:hover{color:#A9D4FF}
+.yf-cta{display:inline-flex;align-items:center;gap:10px;height:48px;padding:0 24px;border-radius:14px;background:#5AB0FF;color:#141417;text-decoration:none;font-size:13px;font-weight:600}
+.yf-cta:hover{color:#141417;background:#8CC8FF}
+.yf-back{display:inline-flex;align-items:center;height:48px;padding:0 18px;border-radius:14px;color:#C9C9CF;text-decoration:none;font-size:12px}
+.yf-back:hover{color:#F4F4F0;background:#1A1A1F}
+.yf-kbd{display:inline-flex;align-items:center;height:24px;padding:0 8px;border-radius:7px;background:#26262D;box-shadow:inset 0 -2px 0 #0E0E11;font-family:inherit;font-size:10px;font-weight:600;color:#F4F4F0}
+</style>
+</helmet>
+<div style="width: 760px; height: 560px; box-sizing: border-box; padding: 36px 48px 40px; background: #121215; color: #F4F4F0; font-family: 'Unbounded', 'Reem Kufi', sans-serif; display: flex; flex-direction: column; gap: 22px">
+  <div style="display: flex; justify-content: space-between; align-items: center">
+    <span style="font-size: 11px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: #A3A3AD">Step 4 of 5</span>
+    <div style="display: flex; gap: 6px" aria-hidden="true">
+      <span style="width: 6px; height: 6px; border-radius: 999px; background: #2F5577; display: block"></span>
+      <span style="width: 6px; height: 6px; border-radius: 999px; background: #2F5577; display: block"></span>
+      <span style="width: 6px; height: 6px; border-radius: 999px; background: #2F5577; display: block"></span>
+      <span style="width: 22px; height: 6px; border-radius: 999px; background: #5AB0FF; display: block"></span>
+      <span style="width: 6px; height: 6px; border-radius: 999px; background: #2E2E36; display: block"></span></div>
+  </div>
+
+  <div>
+    <h1 style="margin: 0; font-size: 28px; font-weight: 600; letter-spacing: -0.01em">Try it, mistakes included</h1>
+    <p style="margin: 10px 0 0; font-size: 12px; font-weight: 300; line-height: 1.7; color: #A3A3AD">Click the box, hold <kbd class="yf-kbd">Ctrl</kbd> + <kbd class="yf-kbd">Win</kbd> and read this out, um and all:</p>
+  </div>
+
+  <blockquote style="margin: 0; padding: 14px 18px; border-radius: 14px; background: #1A1A1F; font-size: 13px; font-weight: 300; line-height: 1.7; color: #C9C9CF">"Um, hey Sara, can we move lunch to Thursday… no, actually Friday?"</blockquote>
+
+  <div style="display: flex; flex-direction: column; gap: 10px; flex-grow: 1">
+    <label for="o-try" style="font-size: 11px; color: #A3A3AD">Practice box</label>
+    <div style="position: relative; flex-grow: 1">
+      <textarea id="o-try" style="width: 100%; height: 100%; box-sizing: border-box; resize: none; padding: 16px 18px; border-radius: 14px; border: 1.5px solid #5AB0FF; background: #0E0E11; color: #F4F4F0; font-family: inherit; font-size: 15px; font-weight: 400; line-height: 1.6">Hey Sara, can we move lunch to Friday?</textarea>
+      <div style="position: absolute; right: 14px; bottom: 14px; display: flex; align-items: center; gap: 8px; height: 28px; padding: 0 12px; border-radius: 999px; background: #1E1E24; font-size: 10px; color: #5AB0FF">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>
+        "um" dropped · Friday kept · 0.92 s
+      </div>
+    </div>
+  </div>
+
+  <div style="display: flex; justify-content: space-between; align-items: center">
+    <a class="yf-back" href="Onb3Mic.dc.html">Back</a>
+    <div style="display: flex; align-items: center; gap: 8px">
+      <a class="yf-back" href="Onb5Done.dc.html">Skip</a>
+      <a class="yf-cta" href="Onb5Done.dc.html">It worked
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg>
+      </a>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":760,"height":560}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {};
+  }
+}
+</script>
+</body>
+</html>

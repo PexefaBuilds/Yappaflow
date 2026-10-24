@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Settings · App styles</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;400;500;600;700&amp;family=Reem+Kufi:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#5AB0FF}a:hover{color:#A9D4FF}
+.yf-cap{margin:0 0 8px;font-size:11px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:#A3A3AD}
+.yf-sel{height:34px;padding:0 10px;border-radius:10px;border:1px solid #2E2E36;background:#121215;color:#F4F4F0;font-family:inherit;font-size:11px}
+.yf-sel:focus-visible,.yf-btn:focus-visible{outline:2px solid #5AB0FF;outline-offset:2px}
+.yf-btn{height:38px;padding:0 14px;border-radius:11px;font-family:inherit;font-size:11px;cursor:pointer;border:1px solid #2E2E36;background:transparent;color:#F4F4F0;font-weight:500}
+</style>
+</helmet>
+<div style="width: 1040px; height: 800px; display: flex; background: #121215; color: #F4F4F0; font-family: 'Unbounded', 'Reem Kufi', sans-serif">
+  <dc-import name="Sidebar" active="apps" theme="dark" hint-size="240px,800px"></dc-import>
+  <main style="flex-grow: 1; min-width: 0; padding: 34px 40px; display: flex; flex-direction: column; gap: 18px; box-sizing: border-box">
+    <div style="display: flex; justify-content: space-between; align-items: flex-end; gap: 20px">
+      <div>
+        <h1 style="margin: 0; font-size: 24px; font-weight: 600; letter-spacing: -0.01em">App styles</h1>
+        <p style="margin: 8px 0 0; font-size: 12px; font-weight: 300; color: #A3A3AD">The same words, written to fit where they land.</p>
+      </div>
+      <button type="button" class="yf-btn">+ Add app</button>
+    </div>
+
+    <div style="display: flex; gap: 16px; flex-grow: 1; min-height: 0">
+      <section style="flex: 1.15 1 0; background: #1A1A1F; border-radius: 18px; padding: 8px 18px; display: flex; flex-direction: column">
+        <sc-for list="{{apps}}" as="a" hint-placeholder-count="8">
+          <div style="display: flex; align-items: center; gap: 12px; padding: 11px 0; border-top: {{a.border}}">
+            <span style="width: 32px; height: 32px; border-radius: 9px; background: #26262D; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; color: #C9C9CF; flex: none" aria-hidden="true">{{a.initial}}</span>
+            <div style="flex-grow: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px">
+              <span style="font-size: 12px">{{a.name}}</span>
+              <span style="font-size: 9px; font-weight: 300; color: #A3A3AD; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{a.match}}</span>
+            </div>
+            <select class="yf-sel" aria-label="{{a.label}}" defaultValue="{{a.tone}}">
+              <option value="Casual">Casual</option>
+              <option value="Formal">Formal</option>
+              <option value="Neutral">Neutral</option>
+              <option value="Literal">Literal</option>
+            </select>
+          </div>
+        </sc-for>
+      </section>
+
+      <section style="flex: 1 1 0; display: flex; flex-direction: column; gap: 10px">
+        <h2 class="yf-cap">Preview</h2>
+        <div style="padding: 14px 16px; border-radius: 14px; border: 1px dashed #2E2E36; font-size: 11px; font-weight: 300; line-height: 1.7; color: #A3A3AD">You said: "um yeah so let's push the review to friday, sound good"</div>
+        <sc-for list="{{previews}}" as="p" hint-placeholder-count="4">
+          <div style="padding: 14px 16px; border-radius: 14px; background: #1A1A1F; display: flex; flex-direction: column; gap: 6px">
+            <span style="font-size: 9px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: {{p.color}}">{{p.tone}}</span>
+            <span style="font-size: 12px; font-weight: 300; line-height: 1.6; font-family: {{p.font}}">{{p.text}}</span>
+          </div>
+        </sc-for>
+      </section>
+    </div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1040,"height":800}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const rows = [
+      ['S', 'Slack', 'slack.exe', 'Casual'],
+      ['W', 'WhatsApp', 'whatsapp.exe', 'Casual'],
+      ['O', 'Outlook', 'outlook.exe · olk.exe', 'Formal'],
+      ['G', 'Gmail', 'any browser · tab title contains "Gmail"', 'Formal'],
+      ['W', 'Word', 'winword.exe', 'Formal'],
+      ['V', 'VS Code', 'code.exe · cursor.exe', 'Literal'],
+      ['T', 'Terminal', 'windowsterminal.exe · powershell.exe · cmd.exe', 'Literal'],
+      ['*', 'Everything else', 'default', 'Neutral'],
+    ];
+    const apps = rows.map(([initial, name, match, tone], i) => ({
+      initial, name, match, tone, label: `Style for ${name}`,
+      border: i === 0 ? '0' : '1px solid #26262D',
+    }));
+    const previews = [
+      { tone: 'Casual', color: '#5AB0FF', font: 'inherit', text: "Yeah, let's push the review to Friday. Sound good?" },
+      { tone: 'Formal', color: '#C9C9CF', font: 'inherit', text: "Let's move the review to Friday. Does that work for you?" },
+      { tone: 'Literal · code & terminals', color: '#A3A3AD', font: "ui-monospace, Consolas, monospace", text: "yeah so let's push the review to friday sound good" },
+    ];
+    return { apps, previews };
+  }
+}
+</script>
+</body>
+</html>

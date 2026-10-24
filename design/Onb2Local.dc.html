@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Onboarding · Local model setup</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;400;500;600;700&amp;family=Reem+Kufi:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#5AB0FF}a:hover{color:#A9D4FF}
+.yf-cta{display:inline-flex;align-items:center;gap:10px;height:48px;padding:0 24px;border-radius:14px;background:#5AB0FF;color:#141417;text-decoration:none;font-size:13px;font-weight:600}
+.yf-cta:hover{color:#141417;background:#8CC8FF}
+.yf-back{display:inline-flex;align-items:center;height:48px;padding:0 18px;border-radius:14px;color:#C9C9CF;text-decoration:none;font-size:12px}
+.yf-back:hover{color:#F4F4F0;background:#1A1A1F}
+.yf-chk{width:18px;height:18px;accent-color:#5AB0FF;margin:0;flex:none}
+</style>
+</helmet>
+<div style="width: 760px; height: 560px; box-sizing: border-box; padding: 36px 48px 40px; background: #121215; color: #F4F4F0; font-family: 'Unbounded', 'Reem Kufi', sans-serif; display: flex; flex-direction: column; gap: 20px">
+  <div style="display: flex; justify-content: space-between; align-items: center">
+    <span style="font-size: 11px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: #A3A3AD">Step 2 of 5 · On this PC</span>
+    <div style="display: flex; gap: 6px" aria-hidden="true">
+      <span style="width: 6px; height: 6px; border-radius: 999px; background: #2F5577; display: block"></span>
+      <span style="width: 22px; height: 6px; border-radius: 999px; background: #5AB0FF; display: block"></span>
+      <span style="width: 6px; height: 6px; border-radius: 999px; background: #2E2E36; display: block"></span>
+      <span style="width: 6px; height: 6px; border-radius: 999px; background: #2E2E36; display: block"></span>
+      <span style="width: 6px; height: 6px; border-radius: 999px; background: #2E2E36; display: block"></span></div>
+  </div>
+
+  <div>
+    <h1 style="margin: 0; font-size: 28px; font-weight: 600; letter-spacing: -0.01em">Downloading your model</h1>
+    <p style="margin: 10px 0 0; font-size: 12px; font-weight: 300; line-height: 1.7; color: #A3A3AD">One-time download. We picked the best fit for your graphics card.</p>
+  </div>
+
+  <div style="display: flex; flex-direction: column; gap: 16px; padding: 20px; border-radius: 18px; background: #1A1A1F">
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 16px">
+      <div style="display: flex; flex-direction: column; gap: 6px">
+        <span style="font-size: 13px; font-weight: 500">Whisper large-v3-turbo</span>
+        <span style="font-size: 10px; font-weight: 300; color: #A3A3AD">Speech to text · 99 languages · runs on your GPU</span>
+      </div>
+      <a href="#models" style="font-size: 10px">Choose another</a>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 8px">
+      <div style="height: 10px; border-radius: 999px; background: #26262D; overflow: hidden" role="progressbar" aria-valuenow="62" aria-valuemin="0" aria-valuemax="100" aria-label="Download progress">
+        <div style="width: 62%; height: 10px; border-radius: 999px; background: #5AB0FF"></div>
+      </div>
+      <div style="display: flex; justify-content: space-between; font-size: 10px; color: #A3A3AD; font-variant-numeric: tabular-nums">
+        <span>356 of 574 MB</span><span>about 15 s left</span>
+      </div>
+    </div>
+  </div>
+
+  <label style="display: flex; gap: 14px; align-items: flex-start; padding: 16px 18px; border-radius: 16px; border: 1px solid #26262D; cursor: pointer">
+    <input class="yf-chk" type="checkbox" checked="checked" style="margin-top: 2px">
+    <span style="display: flex; flex-direction: column; gap: 6px">
+      <span style="font-size: 12px">Also download a local cleanup model · 3.0 GB</span>
+      <span style="font-size: 10px; font-weight: 300; line-height: 1.6; color: #A3A3AD">Removes "um", fixes self-corrections and punctuation, all offline. Both models fit together in your 8 GB.</span>
+    </span>
+  </label>
+
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-top: auto">
+    <a class="yf-back" href="Onb2Connect.dc.html">Back</a>
+    <div style="display: flex; align-items: center; gap: 14px">
+      <span style="font-size: 10px; font-weight: 300; color: #A3A3AD">You can continue while it downloads</span>
+      <a class="yf-cta" href="Onb3Mic.dc.html">Continue
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg>
+      </a>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":760,"height":560}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {};
+  }
+}
+</script>
+</body>
+</html>

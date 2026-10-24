@@ -1,0 +1,39 @@
+name: Provider request
+description: Ask for a new speech-to-text or cleanup provider.
+labels: ["provider"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **Never paste your API key** in an issue.
+        We add providers from their public docs only (see the provider checklist in CONTRIBUTING.md).
+  - type: input
+    id: name
+    attributes:
+      label: Provider
+    validations:
+      required: true
+  - type: dropdown
+    id: kind
+    attributes:
+      label: What for?
+      options: ["Speech to text", "Cleanup / command mode (LLM)", "Both"]
+    validations:
+      required: true
+  - type: input
+    id: docs
+    attributes:
+      label: Link to the API docs
+      description: The page that lists the endpoint, parameters and model IDs.
+      placeholder: "https://..."
+    validations:
+      required: true
+  - type: input
+    id: models
+    attributes:
+      label: Model(s) you'd use
+  - type: textarea
+    id: why
+    attributes:
+      label: Why this provider?
+      description: Languages, price, speed, privacy terms, region...

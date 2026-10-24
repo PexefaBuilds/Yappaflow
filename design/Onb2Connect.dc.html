@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Onboarding · How it listens</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;400;500;600;700&amp;family=Reem+Kufi:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#5AB0FF}a:hover{color:#A9D4FF}
+.yf-cta{display:inline-flex;align-items:center;gap:10px;height:48px;padding:0 24px;border-radius:14px;background:#5AB0FF;color:#141417;text-decoration:none;font-size:13px;font-weight:600}
+.yf-cta:hover{color:#141417;background:#8CC8FF}
+.yf-back{display:inline-flex;align-items:center;height:48px;padding:0 18px;border-radius:14px;color:#C9C9CF;text-decoration:none;font-size:12px}
+.yf-back:hover{color:#F4F4F0;background:#1A1A1F}
+.yf-in{height:40px;padding:0 12px;border-radius:12px;border:1px solid #2E2E36;background:#121215;color:#F4F4F0;font-family:inherit;font-size:11px;box-sizing:border-box;width:100%;min-width:0}
+.yf-in:focus-visible,.yf-opt:focus-visible{outline:2px solid #5AB0FF;outline-offset:2px}
+.yf-opt{display:flex;flex-direction:column;gap:12px;padding:18px;border-radius:18px;text-align:left;font-family:inherit;color:#F4F4F0;cursor:pointer;flex:1 1 0;box-sizing:border-box}
+</style>
+</helmet>
+<div style="width: 760px; height: 560px; box-sizing: border-box; padding: 36px 48px 40px; background: #121215; color: #F4F4F0; font-family: 'Unbounded', 'Reem Kufi', sans-serif; display: flex; flex-direction: column; gap: 22px">
+  <div style="display: flex; justify-content: space-between; align-items: center">
+    <span style="font-size: 11px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: #A3A3AD">Step 2 of 5</span>
+    <div style="display: flex; gap: 6px" aria-hidden="true">
+      <span style="width: 6px; height: 6px; border-radius: 999px; background: #2F5577; display: block"></span>
+      <span style="width: 22px; height: 6px; border-radius: 999px; background: #5AB0FF; display: block"></span>
+      <span style="width: 6px; height: 6px; border-radius: 999px; background: #2E2E36; display: block"></span>
+      <span style="width: 6px; height: 6px; border-radius: 999px; background: #2E2E36; display: block"></span>
+      <span style="width: 6px; height: 6px; border-radius: 999px; background: #2E2E36; display: block"></span></div>
+  </div>
+
+  <div>
+    <h1 style="margin: 0; font-size: 28px; font-weight: 600; letter-spacing: -0.01em">Where should your voice go?</h1>
+    <p style="margin: 10px 0 0; font-size: 12px; font-weight: 300; line-height: 1.7; color: #A3A3AD">You can switch any time in Settings › Models.</p>
+  </div>
+
+  <div style="display: flex; gap: 14px; flex-grow: 1" role="radiogroup" aria-label="Where speech is processed">
+    <button type="button" role="radio" aria-checked="{{local.checked}}" class="yf-opt" onClick="{{pickLocal}}" style="border: 1.5px solid {{local.border}}; background: {{local.bg}}">
+      <span style="display: flex; align-items: center; justify-content: space-between; width: 100%">
+        <span style="font-size: 14px; font-weight: 600">On this PC</span>
+        <span style="height: 22px; padding: 0 8px; border-radius: 999px; background: #26262D; font-size: 9px; font-weight: 500; color: #C9C9CF; display: flex; align-items: center">Free</span>
+      </span>
+      <span style="font-size: 11px; font-weight: 300; line-height: 1.7; color: #A3A3AD">Private and offline. Nothing leaves your computer.</span>
+      <span style="margin-top: auto; display: flex; flex-direction: column; gap: 8px; padding: 12px; border-radius: 12px; background: #121215; width: 100%; box-sizing: border-box">
+        <span style="font-size: 9px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: #A3A3AD">We found</span>
+        <span style="font-size: 11px">NVIDIA RTX 2070 Super · 8 GB</span>
+        <span style="display: flex; align-items: center; gap: 6px; font-size: 10px; color: #5AB0FF">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>
+          Great fit · about 1 s per dictation
+        </span>
+      </span>
+    </button>
+
+    <button type="button" role="radio" aria-checked="{{cloud.checked}}" class="yf-opt" onClick="{{pickCloud}}" style="border: 1.5px solid {{cloud.border}}; background: {{cloud.bg}}">
+      <span style="display: flex; align-items: center; justify-content: space-between; width: 100%">
+        <span style="font-size: 14px; font-weight: 600">Cloud, with your key</span>
+        <span style="height: 22px; padding: 0 8px; border-radius: 999px; background: #26262D; font-size: 9px; font-weight: 500; color: #C9C9CF; display: flex; align-items: center">≈ $3/mo</span>
+      </span>
+      <span style="font-size: 11px; font-weight: 300; line-height: 1.7; color: #A3A3AD">Pick any major provider and paste its key. You pay them directly, never us.</span>
+      <span style="margin-top: auto; display: flex; flex-direction: column; gap: 8px; width: 100%">
+        <select class="yf-in" aria-label="Provider"><option>OpenAI</option><option>Groq</option><option>Deepgram</option><option>ElevenLabs</option><option>AssemblyAI</option><option>Mistral</option><option>Google Gemini</option><option>Custom (OpenAI-compatible URL)</option></select>
+        <input class="yf-in" type="password" aria-label="API key" placeholder="Paste your API key">
+      </span>
+    </button>
+  </div>
+
+  <div style="display: flex; justify-content: space-between; align-items: center">
+    <a class="yf-back" href="Onb1Welcome.dc.html">Back</a>
+    <a class="yf-cta" href="{{next}}">{{ctaLabel}}
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg>
+    </a>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":760,"height":560}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { choice: 'local' };
+  }
+  renderVals() {
+    const on = { checked: 'true', border: '#5AB0FF', bg: '#151B23' };
+    const off = { checked: 'false', border: '#26262D', bg: '#1A1A1F' };
+    const isLocal = this.state.choice === 'local';
+    return {
+      local: isLocal ? on : off,
+      cloud: isLocal ? off : on,
+      pickLocal: () => this.setState({ choice: 'local' }),
+      pickCloud: () => this.setState({ choice: 'cloud' }),
+      next: isLocal ? 'Onb2Local.dc.html' : 'Onb3Mic.dc.html',
+      ctaLabel: isLocal ? 'Set up local model' : 'Check key & continue',
+    };
+  }
+}
+</script>
+</body>
+</html>

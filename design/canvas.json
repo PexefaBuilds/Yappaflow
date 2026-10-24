@@ -1,0 +1,413 @@
+{
+  "v": 3,
+  "createdOnFiles": {
+    "v": 1,
+    "at": "2026-10-23T20:25:00Z"
+  },
+  "title": "Yappaflow UI",
+  "launch": {
+    "view": "canvas",
+    "page": "logo"
+  },
+  "pages": [
+    {
+      "id": "accents",
+      "name": "Accent options"
+    },
+    {
+      "id": "logo",
+      "name": "Logo options"
+    },
+    {
+      "id": "pill",
+      "name": "Pill"
+    },
+    {
+      "id": "onboarding",
+      "name": "Onboarding"
+    },
+    {
+      "id": "settings",
+      "name": "Settings app"
+    },
+    {
+      "id": "overlays",
+      "name": "Overlays & tray"
+    },
+    {
+      "id": "light",
+      "name": "Light theme"
+    }
+  ],
+  "boards": {
+    "Main.dc.html": {
+      "x": 0,
+      "y": 0,
+      "w": 1280,
+      "h": 760,
+      "title": "Pill · core states",
+      "page": "pill"
+    },
+    "PillExtras.dc.html": {
+      "x": 0,
+      "y": 880,
+      "w": 1280,
+      "h": 600,
+      "title": "Pill · extra states",
+      "page": "pill"
+    },
+    "Settings.dc.html": {
+      "x": 1360,
+      "y": 0,
+      "w": 600,
+      "h": 980,
+      "title": "Phase 1 settings window (interim)",
+      "page": "pill"
+    },
+    "Onb1Welcome.dc.html": {
+      "x": 0,
+      "y": 0,
+      "w": 760,
+      "h": 560,
+      "title": "1 · Welcome",
+      "page": "onboarding",
+      "is_interactive": true
+    },
+    "Onb2Connect.dc.html": {
+      "x": 840,
+      "y": 0,
+      "w": 760,
+      "h": 560,
+      "title": "2 · How it listens",
+      "page": "onboarding",
+      "is_interactive": true
+    },
+    "Onb3Mic.dc.html": {
+      "x": 2520,
+      "y": 0,
+      "w": 760,
+      "h": 560,
+      "title": "3 · Microphone",
+      "page": "onboarding",
+      "is_interactive": true
+    },
+    "Onb4Try.dc.html": {
+      "x": 3360,
+      "y": 0,
+      "w": 760,
+      "h": 560,
+      "title": "4 · Try it",
+      "page": "onboarding",
+      "is_interactive": true
+    },
+    "Onb5Done.dc.html": {
+      "x": 4200,
+      "y": 0,
+      "w": 760,
+      "h": 560,
+      "title": "5 · Done",
+      "page": "onboarding",
+      "is_interactive": true
+    },
+    "Sidebar.dc.html": {
+      "x": 0,
+      "y": 0,
+      "w": 240,
+      "h": 800,
+      "title": "Component · Sidebar",
+      "page": "settings"
+    },
+    "SetGeneral.dc.html": {
+      "x": 320,
+      "y": 0,
+      "w": 1040,
+      "h": 800,
+      "title": "General",
+      "page": "settings",
+      "is_interactive": true
+    },
+    "SetHotkeys.dc.html": {
+      "x": 1440,
+      "y": 0,
+      "w": 1040,
+      "h": 800,
+      "title": "Hotkeys",
+      "page": "settings",
+      "is_interactive": true
+    },
+    "SetMic.dc.html": {
+      "x": 2560,
+      "y": 0,
+      "w": 1040,
+      "h": 800,
+      "title": "Microphone",
+      "page": "settings",
+      "is_interactive": true
+    },
+    "SetModels.dc.html": {
+      "x": 320,
+      "y": 920,
+      "w": 1040,
+      "h": 800,
+      "title": "Models · cloud",
+      "page": "settings",
+      "is_interactive": true
+    },
+    "SetApps.dc.html": {
+      "x": 1440,
+      "y": 920,
+      "w": 1040,
+      "h": 800,
+      "title": "App styles",
+      "page": "settings",
+      "is_interactive": true
+    },
+    "SetDictionary.dc.html": {
+      "x": 2560,
+      "y": 920,
+      "w": 1040,
+      "h": 800,
+      "title": "Dictionary",
+      "page": "settings",
+      "is_interactive": true
+    },
+    "SetSnippets.dc.html": {
+      "x": 320,
+      "y": 1840,
+      "w": 1040,
+      "h": 800,
+      "title": "Snippets",
+      "page": "settings",
+      "is_interactive": true
+    },
+    "SetHistory.dc.html": {
+      "x": 1440,
+      "y": 1840,
+      "w": 1040,
+      "h": 800,
+      "title": "History",
+      "page": "settings",
+      "is_interactive": true
+    },
+    "SetAdvanced.dc.html": {
+      "x": 2560,
+      "y": 1840,
+      "w": 1040,
+      "h": 800,
+      "title": "Advanced",
+      "page": "settings",
+      "is_interactive": true
+    },
+    "SetAbout.dc.html": {
+      "x": 320,
+      "y": 2760,
+      "w": 1040,
+      "h": 800,
+      "title": "About & updates",
+      "page": "settings",
+      "is_interactive": true
+    },
+    "CommandMode.dc.html": {
+      "x": 0,
+      "y": 0,
+      "w": 1280,
+      "h": 720,
+      "title": "Command mode",
+      "page": "overlays"
+    },
+    "Toasts.dc.html": {
+      "x": 1360,
+      "y": 0,
+      "w": 1280,
+      "h": 720,
+      "title": "Toasts & notices",
+      "page": "overlays"
+    },
+    "TrayMenu.dc.html": {
+      "x": 2720,
+      "y": 0,
+      "w": 520,
+      "h": 720,
+      "title": "Tray menu",
+      "page": "overlays"
+    },
+    "OnbWelcomeLight.dc.html": {
+      "x": 0,
+      "y": 0,
+      "w": 760,
+      "h": 560,
+      "title": "Welcome · light",
+      "page": "light"
+    },
+    "SetGeneralLight.dc.html": {
+      "x": 840,
+      "y": 0,
+      "w": 1040,
+      "h": 800,
+      "title": "General · light",
+      "page": "light"
+    },
+    "SetHistoryLight.dc.html": {
+      "x": 1960,
+      "y": 0,
+      "w": 1040,
+      "h": 800,
+      "title": "History · light",
+      "page": "light"
+    },
+    "Onb2Local.dc.html": {
+      "x": 1680,
+      "y": 0,
+      "w": 760,
+      "h": 560,
+      "title": "2b · Local model setup",
+      "page": "onboarding",
+      "is_interactive": true
+    },
+    "SetModelsLocal.dc.html": {
+      "x": 1440,
+      "y": 2760,
+      "w": 1040,
+      "h": 800,
+      "title": "Models · on this PC",
+      "page": "settings",
+      "is_interactive": true
+    },
+    "OnbMacPerms.dc.html": {
+      "x": 0,
+      "y": 680,
+      "w": 760,
+      "h": 560,
+      "title": "Mac only · Permissions (replaces step 3 on macOS)",
+      "page": "onboarding",
+      "is_interactive": true
+    },
+    "AccentOptions.dc.html": {
+      "x": 0,
+      "y": 0,
+      "w": 1600,
+      "h": 1000,
+      "title": "Pick an accent",
+      "page": "accents",
+      "is_interactive": true
+    },
+    "LogoOptions.dc.html": {
+      "x": 0,
+      "y": 0,
+      "w": 1600,
+      "h": 1180,
+      "title": "Logo & icon options",
+      "page": "logo",
+      "is_interactive": true
+    },
+    "LogoAnimation.dc.html": {
+      "x": 0,
+      "y": 1300,
+      "w": 1280,
+      "h": 720,
+      "title": "Logo animation · bars → wave → text",
+      "page": "logo"
+    }
+  },
+  "order": [
+    "AccentOptions.dc.html",
+    "LogoOptions.dc.html",
+    "LogoAnimation.dc.html",
+    "Main.dc.html",
+    "PillExtras.dc.html",
+    "Settings.dc.html",
+    "Onb1Welcome.dc.html",
+    "Onb2Connect.dc.html",
+    "Onb2Local.dc.html",
+    "OnbMacPerms.dc.html",
+    "Onb3Mic.dc.html",
+    "Onb4Try.dc.html",
+    "Onb5Done.dc.html",
+    "Sidebar.dc.html",
+    "SetGeneral.dc.html",
+    "SetHotkeys.dc.html",
+    "SetMic.dc.html",
+    "SetModels.dc.html",
+    "SetModelsLocal.dc.html",
+    "SetApps.dc.html",
+    "SetDictionary.dc.html",
+    "SetSnippets.dc.html",
+    "SetHistory.dc.html",
+    "SetAdvanced.dc.html",
+    "SetAbout.dc.html",
+    "CommandMode.dc.html",
+    "Toasts.dc.html",
+    "TrayMenu.dc.html",
+    "OnbWelcomeLight.dc.html",
+    "SetGeneralLight.dc.html",
+    "SetHistoryLight.dc.html"
+  ],
+  "notes": {
+    "t1": {
+      "x": 0,
+      "y": -260,
+      "text": "Pill overlay",
+      "kind": "title1",
+      "maxW": 1960,
+      "page": "pill"
+    },
+    "t2": {
+      "x": 0,
+      "y": -260,
+      "text": "First-run onboarding",
+      "kind": "title1",
+      "maxW": 4960,
+      "page": "onboarding"
+    },
+    "t3": {
+      "x": 0,
+      "y": -260,
+      "text": "Settings app",
+      "kind": "title1",
+      "maxW": 3600,
+      "page": "settings"
+    },
+    "t4": {
+      "x": 0,
+      "y": -260,
+      "text": "Overlays, toasts & tray",
+      "kind": "title1",
+      "maxW": 3240,
+      "page": "overlays"
+    },
+    "t5": {
+      "x": 0,
+      "y": -260,
+      "text": "Light theme",
+      "kind": "title1",
+      "maxW": 3000,
+      "page": "light"
+    },
+    "mac1": {
+      "x": 840,
+      "y": 700,
+      "text": "On Mac: hotkey defaults to fn (Globe) hold; tray → menu bar; Credential Manager → Keychain; “Start with Windows” → “Open at login”; local models run on Apple Silicon via Metal.",
+      "w": 360,
+      "page": "onboarding",
+      "fill": "teal",
+      "size": "m"
+    },
+    "t0": {
+      "x": 0,
+      "y": -260,
+      "text": "Accent options",
+      "kind": "title1",
+      "maxW": 1600,
+      "page": "accents"
+    },
+    "tlogo": {
+      "x": 0,
+      "y": -260,
+      "text": "Logo options",
+      "kind": "title1",
+      "maxW": 1600,
+      "page": "logo"
+    }
+  },
+  "designSystems": []
+}

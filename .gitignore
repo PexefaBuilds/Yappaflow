@@ -1,0 +1,27 @@
+node_modules/
+dist/
+src-tauri/target/
+src-tauri/gen/
+*.log
+
+# Secrets: never commit these (see CLAUDE.md rule 2)
+.env*
+!.env.example
+*.pfx
+*.p12
+*.pem
+# Private keys, incl. the Tauri updater private key (*.key).
+# Public keys (*.key.pub) are fine to commit and are NOT matched here.
+*.key
+
+# Downloaded local models (whisper.cpp / llama.cpp)
+/models/
+
+# OS clutter
+.DS_Store
+Thumbs.db
+.claude/worktrees/
+
+# llama-server sidecar, fetched by the release workflow
+/src-tauri/binaries/
+/src-tauri/tauri.llama.conf.json

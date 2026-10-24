@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Settings · History</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;400;500;600;700&amp;family=Reem+Kufi:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div style="width: 1040px; height: 800px; display: flex; background: {{p.bg}}; color: {{p.text}}; font-family: 'Unbounded', 'Reem Kufi', sans-serif">
+  <dc-import name="Sidebar" active="history" theme="{{theme}}" hint-size="240px,800px"></dc-import>
+  <main style="flex-grow: 1; min-width: 0; padding: 34px 40px; display: flex; flex-direction: column; gap: 16px; box-sizing: border-box">
+    <div style="display: flex; justify-content: space-between; align-items: flex-end; gap: 20px">
+      <div>
+        <h1 style="margin: 0; font-size: 24px; font-weight: 600; letter-spacing: -0.01em">History</h1>
+        <p style="margin: 8px 0 0; font-size: 12px; font-weight: 300; color: {{p.muted}}">Everything you've said lately. Audio is kept for your last 50 dictations.</p>
+      </div>
+      <input type="search" aria-label="Search history" placeholder="Search" style="height: 38px; width: 220px; padding: 0 12px; border-radius: 11px; border: 1px solid {{p.line}}; background: {{p.field}}; color: {{p.text}}; font-family: inherit; font-size: 11px; box-sizing: border-box">
+    </div>
+
+    <div style="display: flex; gap: 16px; flex-grow: 1; min-height: 0">
+      <div style="flex: 1 1 0; display: flex; flex-direction: column; gap: 6px; min-width: 0">
+        <sc-for list="{{items}}" as="it" hint-placeholder-count="6">
+          <button type="button" onClick="{{it.pick}}" aria-pressed="{{it.pressed}}" style="display: flex; align-items: center; gap: 12px; width: 100%; padding: 12px 14px; border-radius: 14px; border: 1.5px solid {{it.border}}; background: {{it.bg}}; color: {{p.text}}; font-family: inherit; text-align: left; cursor: pointer">
+            <div style="flex-grow: 1; min-width: 0; display: flex; flex-direction: column; gap: 5px">
+              <span style="font-size: 10px; color: {{it.metaColor}}">{{it.meta}}</span>
+              <span dir="auto" style="font-size: 12px; font-weight: 300; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: start">{{it.text}}</span>
+            </div>
+            <span style="font-size: 11px; font-weight: 500; font-variant-numeric: tabular-nums; color: {{it.timeColor}}; flex: none">{{it.time}}</span>
+          </button>
+        </sc-for>
+      </div>
+
+      <section style="flex: 1.2 1 0; background: {{p.surface}}; border-radius: 18px; padding: 22px; display: flex; flex-direction: column; gap: 16px; min-width: 0">
+        <div style="display: flex; justify-content: space-between; align-items: center; gap: 12px">
+          <span style="font-size: 11px; color: {{p.muted}}">{{sel.detailMeta}}</span>
+          <button type="button" aria-label="Play recording" style="height: 32px; padding: 0 12px; border-radius: 999px; border: 1px solid {{p.line}}; background: transparent; color: {{p.text}}; font-family: inherit; font-size: 10px; display: flex; align-items: center; gap: 8px; cursor: pointer">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4l13 8-13 8z"></path></svg>
+            {{sel.dur}}
+          </button>
+        </div>
+
+        <sc-if value="{{sel.failed}}" hint-placeholder-val="{{ false }}">
+          <div style="display: flex; flex-direction: column; gap: 10px; padding: 16px; border-radius: 14px; background: {{p.warnBg}}">
+            <span style="font-size: 12px; font-weight: 500; color: {{p.warn}}">Couldn't transcribe: network error</span>
+            <span style="font-size: 11px; font-weight: 300; line-height: 1.6; color: {{p.soft}}">The recording is safe on this PC. Retry when you're back online.</span>
+          </div>
+        </sc-if>
+        <sc-if value="{{sel.ok}}" hint-placeholder-val="{{ true }}">
+          <div style="display: flex; flex-direction: column; gap: 8px">
+            <span style="font-size: 9px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: {{p.muted}}">What you said</span>
+            <p dir="auto" style="margin: 0; font-size: 12px; font-weight: 300; line-height: 1.7; color: {{p.muted}}">{{sel.raw}}</p>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 8px">
+            <span style="font-size: 9px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: {{p.accentText}}">What was typed</span>
+            <p dir="auto" style="margin: 0; font-size: 14px; font-weight: 400; line-height: 1.7">{{sel.final}}</p>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 8px; margin-top: auto">
+            <div style="display: flex; justify-content: space-between; font-size: 10px; color: {{p.muted}}"><span>Release → text</span><span style="font-weight: 500; color: {{p.text}}">{{sel.time}}</span></div>
+            <div style="display: flex; height: 8px; border-radius: 999px; overflow: hidden; gap: 2px" role="img" aria-label="{{sel.breakdownLabel}}">
+              <sc-for list="{{sel.segs}}" as="sg" hint-placeholder-count="4">
+                <span style="display: block; height: 8px; flex: {{sg.w}} 1 0; background: {{sg.c}}"></span>
+              </sc-for>
+            </div>
+            <div style="display: flex; gap: 14px; flex-wrap: wrap">
+              <sc-for list="{{sel.segs}}" as="sg" hint-placeholder-count="4">
+                <span style="display: flex; align-items: center; gap: 6px; font-size: 9px; color: {{p.muted}}"><span style="width: 8px; height: 8px; border-radius: 2px; background: {{sg.c}}; display: block"></span>{{sg.label}} {{sg.ms}} ms</span>
+              </sc-for>
+            </div>
+          </div>
+        </sc-if>
+
+        <div style="display: flex; gap: 8px; justify-content: flex-end; margin-top: auto">
+          <button type="button" style="height: 38px; padding: 0 14px; border-radius: 11px; border: 1px solid {{p.line}}; background: transparent; color: {{p.text}}; font-family: inherit; font-size: 11px; font-weight: 500; cursor: pointer">Retry with another model</button>
+          <button type="button" style="height: 38px; padding: 0 16px; border-radius: 11px; border: 0; background: #5AB0FF; color: #141417; font-family: inherit; font-size: 11px; font-weight: 600; cursor: pointer">{{sel.primary}}</button>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["dark","light"],"default":"dark"},"$preview":{"width":1040,"height":800}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { picked: 2 };
+  }
+  renderVals() {
+    const theme = this.props.theme ?? 'dark';
+    const dark = { bg: '#121215', surface: '#1A1A1F', field: '#121215', line: '#2E2E36', text: '#F4F4F0', muted: '#A3A3AD', soft: '#C9C9CF', accentText: '#5AB0FF', warn: '#FF8A5B', warnBg: 'rgba(255,138,91,0.08)', selBg: '#151B23', selBorder: '#5AB0FF', segs: ['#4A4A52', '#5AB0FF', '#3E7FC0', '#2A4F78'] };
+    const light = { bg: '#F4F3EE', surface: '#FFFFFF', field: '#FFFFFF', line: '#D9D8D1', text: '#17171A', muted: '#5E5E66', soft: '#3A3A42', accentText: '#0B5FB3', warn: '#B4471C', warnBg: 'rgba(180,71,28,0.07)', selBg: '#FFFFFF', selBorder: '#0B5FB3', segs: ['#B8B7B0', '#0B5FB3', '#3E7FC0', '#5AB0FF'] };
+    const p = theme === 'light' ? light : dark;
+    const data = [
+      { app: 'outlook.exe', when: '10:42', dur: '5.4 s', model: 'gpt-transcribe', raw: 'um hi sara attaching the uh revised floor plan let me know what you think', final: 'Hi Sara, attaching the revised floor plan. Let me know what you think.', t: [14, 742, 228, 76] },
+      { app: 'slack.exe', when: '10:31', dur: '3.1 s', model: 'gpt-transcribe', raw: "sounds good let's move the review to tuesday no wednesday at three", final: "Sounds good, let's move the review to Wednesday at three.", t: [11, 598, 171, 60] },
+      { app: 'code.exe', when: '10:12', dur: '6.2 s', model: 'gpt-transcribe', failed: true },
+      { app: 'chrome.exe · Gmail', when: '09:55', dur: '7.8 s', model: 'gpt-transcribe', raw: "thanks for the quick turnaround i'll review the draft tonight and uh send comments tomorrow morning", final: "Thanks for the quick turnaround. I'll review the draft tonight and send comments tomorrow morning.", t: [16, 811, 224, 69] },
+      { app: 'whatsapp.exe', when: 'Yesterday', dur: '2.4 s', model: 'gpt-transcribe', raw: 'اه تمام يعني اشوفك بكرة الساعة ثلاثة لا اربعة', final: 'تمام، أشوفك بكرة الساعة أربعة.', t: [10, 640, 190, 55] },
+      { app: 'windowsterminal.exe', when: 'Yesterday', dur: '1.2 s', model: 'gpt-transcribe', raw: 'git status', final: 'git status', t: [8, 590, 0, 64] },
+    ];
+    const picked = this.state.picked;
+    const items = data.map((d, i) => {
+      const total = d.t ? d.t.reduce((a, b) => a + b, 0) : 0;
+      const on = i === picked;
+      return {
+        meta: `${d.app} · ${d.when}${d.failed ? ' · failed' : ''}`,
+        metaColor: d.failed ? p.warn : p.muted,
+        text: d.failed ? `Audio saved · ${d.dur}` : d.final,
+        time: d.failed ? 'Retry' : `${(total / 1000).toFixed(2)} s`,
+        timeColor: d.failed ? p.warn : (total > 1200 ? p.warn : p.accentText),
+        bg: on ? p.selBg : p.surface,
+        border: on ? p.selBorder : 'transparent',
+        pressed: on ? 'true' : 'false',
+        pick: () => this.setState({ picked: i }),
+      };
+    });
+    const d = data[picked];
+    const labels = ['Prepare', 'Speech', 'Cleanup', 'Paste'];
+    const total = d.t ? d.t.reduce((a, b) => a + b, 0) : 0;
+    const sel = {
+      detailMeta: `${d.app} · ${d.when} · ${d.model}`,
+      dur: d.dur,
+      failed: !!d.failed,
+      ok: !d.failed,
+      raw: d.raw || '',
+      final: d.final || '',
+      time: `${(total / 1000).toFixed(2)} s`,
+      segs: d.t ? d.t.map((ms, k) => ({ w: Math.max(ms, 1), ms, label: labels[k], c: p.segs[k] })) : [],
+      breakdownLabel: d.t ? labels.map((l, k) => `${l} ${d.t[k]} ms`).join(', ') : '',
+      primary: d.failed ? 'Retry now' : 'Copy text',
+    };
+    return { p, theme, items, sel };
+  }
+}
+</script>
+</body>
+</html>

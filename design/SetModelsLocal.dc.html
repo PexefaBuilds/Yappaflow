@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Settings · Models · On this PC</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;400;500;600;700&amp;family=Reem+Kufi:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#5AB0FF}a:hover{color:#A9D4FF}
+.yf-cap{margin:0 0 10px;font-size:11px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:#A3A3AD}
+.yf-tab{display:flex;align-items:center;height:36px;padding:0 16px;border-radius:10px;font-size:11px;text-decoration:none;color:#A3A3AD}
+.yf-tab:hover{color:#F4F4F0}
+.yf-btn{height:32px;padding:0 12px;border-radius:9px;font-family:inherit;font-size:10px;cursor:pointer;border:1px solid #2E2E36;background:transparent;color:#F4F4F0;font-weight:500;flex:none}
+.yf-btn:focus-visible,.yf-tab:focus-visible{outline:2px solid #5AB0FF;outline-offset:2px}
+</style>
+</helmet>
+<div style="width: 1040px; height: 800px; display: flex; background: #121215; color: #F4F4F0; font-family: 'Unbounded', 'Reem Kufi', sans-serif">
+  <dc-import name="Sidebar" active="models" theme="dark" hint-size="240px,800px"></dc-import>
+  <main style="flex-grow: 1; min-width: 0; padding: 34px 40px; display: flex; flex-direction: column; gap: 18px; box-sizing: border-box">
+    <div style="display: flex; justify-content: space-between; align-items: flex-end; gap: 20px">
+      <div>
+        <h1 style="margin: 0; font-size: 24px; font-weight: 600; letter-spacing: -0.01em">Models</h1>
+        <p style="margin: 8px 0 0; font-size: 12px; font-weight: 300; color: #A3A3AD">Free, private, offline. Your audio never leaves this PC.</p>
+      </div>
+      <nav style="display: flex; gap: 3px; padding: 3px; border-radius: 13px; background: #1A1A1F" aria-label="Model location">
+        <a class="yf-tab" href="SetModels.dc.html">Cloud</a>
+        <a class="yf-tab" href="SetModelsLocal.dc.html" aria-current="page" style="background: #2A2A31; color: #F4F4F0; font-weight: 500">On this PC</a>
+      </nav>
+    </div>
+
+    <section style="background: #1A1A1F; border-radius: 18px; padding: 18px 22px; display: flex; align-items: center; gap: 24px">
+      <div style="display: flex; flex-direction: column; gap: 5px; flex: none">
+        <span style="font-size: 12px; font-weight: 500">NVIDIA RTX 2070 Super</span>
+        <span style="font-size: 10px; font-weight: 300; color: #A3A3AD">CUDA · 8 GB graphics memory</span>
+      </div>
+      <div style="flex-grow: 1; display: flex; flex-direction: column; gap: 7px">
+        <div style="display: flex; height: 10px; border-radius: 999px; overflow: hidden; background: #26262D; gap: 2px" role="img" aria-label="Graphics memory: speech model 0.6 GB, cleanup model 3.0 GB, about 4 GB free">
+          <span style="display: block; width: 8%; background: #5AB0FF"></span>
+          <span style="display: block; width: 38%; background: #3E7FC0"></span>
+        </div>
+        <div style="display: flex; gap: 16px; font-size: 9px; color: #A3A3AD">
+          <span style="display: flex; align-items: center; gap: 6px"><span style="width: 8px; height: 8px; border-radius: 2px; background: #5AB0FF; display: block"></span>Speech 0.6 GB</span>
+          <span style="display: flex; align-items: center; gap: 6px"><span style="width: 8px; height: 8px; border-radius: 2px; background: #3E7FC0; display: block"></span>Cleanup 3.0 GB</span>
+          <span>about 4 GB free</span>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2 class="yf-cap">Speech to text · whisper.cpp</h2>
+      <div style="background: #1A1A1F; border-radius: 18px; padding: 4px 20px">
+        <sc-for list="{{speech}}" as="m" hint-placeholder-count="5">
+          <div style="display: flex; align-items: center; gap: 16px; height: 50px; border-top: {{m.border}}">
+            <span style="font-size: 12px; font-weight: {{m.weight}}; flex: 0 0 170px">{{m.name}}</span>
+            <span style="font-size: 10px; color: #A3A3AD; flex: 0 0 64px; font-variant-numeric: tabular-nums">{{m.size}}</span>
+            <span style="font-size: 10px; color: #A3A3AD; flex-grow: 1">{{m.note}}</span>
+            <sc-if value="{{m.using}}" hint-placeholder-val="{{ false }}">
+              <span style="height: 26px; padding: 0 10px; border-radius: 999px; background: rgba(90,176,255,0.12); color: #5AB0FF; font-size: 9px; font-weight: 500; display: flex; align-items: center">In use</span>
+            </sc-if>
+            <sc-if value="{{m.notUsing}}" hint-placeholder-val="{{ true }}">
+              <button type="button" class="yf-btn">{{m.action}}</button>
+            </sc-if>
+          </div>
+        </sc-for>
+      </div>
+    </section>
+
+    <section>
+      <h2 class="yf-cap">Cleanup · llama.cpp</h2>
+      <div style="background: #1A1A1F; border-radius: 18px; padding: 4px 20px">
+        <sc-for list="{{cleanup}}" as="m" hint-placeholder-count="3">
+          <div style="display: flex; align-items: center; gap: 16px; height: 50px; border-top: {{m.border}}">
+            <span style="font-size: 12px; font-weight: {{m.weight}}; flex: 0 0 170px">{{m.name}}</span>
+            <span style="font-size: 10px; color: #A3A3AD; flex: 0 0 64px; font-variant-numeric: tabular-nums">{{m.size}}</span>
+            <span style="font-size: 10px; color: #A3A3AD; flex-grow: 1">{{m.note}}</span>
+            <sc-if value="{{m.using}}" hint-placeholder-val="{{ false }}">
+              <span style="height: 26px; padding: 0 10px; border-radius: 999px; background: rgba(90,176,255,0.12); color: #5AB0FF; font-size: 9px; font-weight: 500; display: flex; align-items: center">In use</span>
+            </sc-if>
+            <sc-if value="{{m.notUsing}}" hint-placeholder-val="{{ true }}">
+              <button type="button" class="yf-btn">{{m.action}}</button>
+            </sc-if>
+          </div>
+        </sc-for>
+      </div>
+    </section>
+
+    <p style="margin: 0; font-size: 10px; font-weight: 300; color: #A3A3AD">Models live in %LOCALAPPDATA%\Yappaflow\models · <a href="#folder">Open folder</a></p>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1040,"height":800}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const row = (name, size, note, state, i) => ({
+      name, size, note,
+      using: state === 'use', notUsing: state !== 'use',
+      action: state === 'have' ? 'Use' : 'Download',
+      weight: state === 'use' ? 500 : 400,
+      border: i === 0 ? '0' : '1px solid #26262D',
+    });
+    const speech = [
+      ['large-v3-turbo · q5', '574 MB', 'Best fit for your GPU · about 1 s', 'use'],
+      ['large-v3 · q5', '1.08 GB', 'Slightly more accurate, about 2× slower', 'get'],
+      ['medium · q5', '539 MB', 'Older, multilingual', 'get'],
+      ['small · q5', '190 MB', 'For laptops without a graphics card', 'have'],
+      ['base · q5', '60 MB', 'Fastest on CPU, rough on names', 'get'],
+    ].map((r, i) => row(...r, i));
+    const cleanup = [
+      ['Qwen3.5 4B', '3.0 GB', 'Recommended · 201 languages', 'use'],
+      ['Ministral 3 3B', '2.2 GB', 'Faster · Arabic supported', 'get'],
+      ['Qwen3.5 0.8B', '0.6 GB', 'For CPU-only PCs · fillers and punctuation only', 'get'],
+    ].map((r, i) => row(...r, i));
+    return { speech, cleanup };
+  }
+}
+</script>
+</body>
+</html>
