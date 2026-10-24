@@ -29,6 +29,7 @@ mod stt_bench;
 mod system_cmds;
 mod toast;
 mod tray;
+mod updater;
 mod usage;
 
 /// "Work in admin windows": relaunch elevated so the hook and SendInput reach elevated apps.
@@ -191,6 +192,7 @@ pub fn run() {
     let builder = builder.plugin(tauri_nspanel::init());
     builder
         .plugin(tauri_plugin_single_instance::init(|app, _args, _cwd| show_settings(app)))
+        .plugin(tauri_plugin_updater::Builder::new().build())
         .plugin(tauri_plugin_autostart::init(tauri_plugin_autostart::MacosLauncher::LaunchAgent, None))
         .setup(|app| {
             // Menu-bar app: no Dock icon (LSUIElement in Info.plist does the same for bundled builds).
@@ -266,6 +268,7 @@ pub fn run() {
             };
             appicon::apply(app.handle(), &accent);
             system_cmds::restore_autostart(app.handle(), autostart);
+            updater::spawn(app.handle().clone());
             models::keep::spawn(state.clone());
             pipeline::spawn(app.handle().clone(), state, ctl_tx, ctl_rx)?;
             models::download::resume_all(app.handle());
@@ -322,6 +325,8 @@ pub fn run() {
             commands::copy_text,
             commands::open_recordings_folder,
             system_cmds::get_autostart,
+            updater::check_update,
+            updater::install_update,
             system_cmds::set_autostart,
             system_cmds::set_admin_mode,
             system_cmds::is_elevated,

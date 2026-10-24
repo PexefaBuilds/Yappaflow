@@ -2,7 +2,7 @@ import "./toast.css";
 import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
 
-type Act = { label: string; kind: "retry" | "cloud_once" | "settings" | "dismiss" | "restart" | "add_term" | "skip_term" | "system_settings"; arg: string | null };
+type Act = { label: string; kind: "retry" | "cloud_once" | "settings" | "dismiss" | "restart" | "update" | "add_term" | "skip_term" | "system_settings"; arg: string | null };
 type Toast = { dot: "accent" | "warn" | "muted"; title: string; body: string; action: Act | null; secondary: Act | null };
 type Row = { final_text: string | null };
 
@@ -71,7 +71,15 @@ async function run(a: Act, btn: HTMLButtonElement) {
     case "system_settings": // macOS privacy page, e.g. after a permission was revoked
       try { await invoke("open_system_settings", { kind: a.arg ?? "" }); } catch { /* nothing to open */ }
       return close();
-    default: // "restart" is a stub until an updater exists
+    case "restart":
+    case "update":
+      btn.disabled = true;
+      btn.textContent = a.kind === "update" ? "Updating…" : "Restarting…";
+      try { await invoke("install_update"); } catch (e) {
+        render({ dot: "warn", title: "Update didn't install", body: String(e), action: null, secondary: null });
+      }
+      return;
+    default:
       return close();
   }
 }
@@ -104,7 +112,9 @@ function render(t: Toast) {
   box.hidden = false;
   void invoke("toast_fit", { height: box.offsetHeight });
   left = SHOW_MS;
-  if (hovering) clearTimeout(timer);
+  // An update offer waits for Update / Later instead of timing out.
+  const sticky = t.action?.kind === "restart" || t.action?.kind === "update";
+  if (hovering || sticky) clearTimeout(timer);
   else arm();
 }
 

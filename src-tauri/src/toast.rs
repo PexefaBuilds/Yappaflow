@@ -14,7 +14,7 @@ const ABOVE_BOTTOM: f64 = 48.0;
 #[derive(Serialize, Clone)]
 pub struct ToastAction {
     pub label: &'static str,
-    /// retry | cloud_once | settings | dismiss | restart | add_term | skip_term (handled in toast.ts)
+    /// retry | cloud_once | settings | dismiss | restart | update | add_term | skip_term (handled in toast.ts)
     pub kind: &'static str,
     pub arg: Option<String>,
 }
@@ -137,16 +137,31 @@ pub fn command_refused(app: &AppHandle, title: &str, body: &str) {
     show(app, Toast { dot: "warn", title: title.into(), body: body.into(), action: None, secondary: None });
 }
 
-/// Update flow isn't built yet; call this once an updater exists.
-#[allow(dead_code)]
-pub fn update_ready(app: &AppHandle, version: &str) {
+/// Downloaded in the background ("Install updates automatically"); installs on Restart now.
+pub fn update_ready(app: &AppHandle, version: &str, notes: &str) {
+    let body = if notes.is_empty() { "Restart to finish updating." } else { notes };
     show(
         app,
         Toast {
             dot: "accent",
             title: format!("Yappaflow {version} is ready"),
-            body: "Restart to finish updating.".into(),
+            body: body.into(),
             action: act("Restart now", "restart", None),
+            secondary: act("Later", "dismiss", None),
+        },
+    );
+}
+
+/// Automatic install is off: offer the update; Update downloads, installs and restarts.
+pub fn update_available(app: &AppHandle, version: &str, notes: &str) {
+    let body = if notes.is_empty() { "A new version is available." } else { notes };
+    show(
+        app,
+        Toast {
+            dot: "accent",
+            title: format!("Yappaflow {version} is available"),
+            body: body.into(),
+            action: act("Update", "update", None),
             secondary: act("Later", "dismiss", None),
         },
     );

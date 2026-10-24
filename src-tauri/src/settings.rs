@@ -59,6 +59,10 @@ pub struct Settings {
     /// "Start with Windows" / "Open at login". Re-applied at every launch: reinstalling over an
     /// older version runs its uninstaller, which deletes the Run entry.
     pub start_with_windows: bool,
+    /// About › "Install updates automatically": download in the background, then offer Restart now.
+    pub auto_update: bool,
+    /// About › Update channel: stable | beta (beta also gets prereleases).
+    pub update_channel: String,
     /// llama-server binary for local cleanup; empty = next to the app exe (Tauri sidecar spot).
     pub llama_server_path: String,
     /// Local models: always | idle (unload after 15 min idle) | after_use. Default: always on a GPU build.
@@ -93,6 +97,8 @@ impl Default for Settings {
             custom_rules: Vec::new(),
             admin_mode: false,
             start_with_windows: true,
+            auto_update: true,
+            update_channel: "stable".into(),
             llama_server_path: String::new(),
             keep_models_loaded: if crate::models::GPU_BUILD { "always" } else { "idle" }.into(),
             theme: "system".into(),

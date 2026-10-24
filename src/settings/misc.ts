@@ -113,11 +113,40 @@ function licences() {
     row("Local models", h("div", {}, "Downloaded from Hugging Face, not shipped with the app.", models), null));
 }
 
+function updates() {
+  const status = h("div", { className: "help", role: "status", ariaLive: "polite" });
+  const install = btn("Update now", "p", async () => {
+    install.disabled = true;
+    install.textContent = "Updating…";
+    try { await invoke("install_update"); } catch (e) { status.textContent = String(e); install.disabled = false; install.textContent = "Update now"; }
+  });
+  install.hidden = true;
+  const check = btn("Check for updates", "g", async () => {
+    check.disabled = true;
+    status.textContent = "Checking…";
+    try {
+      const v = await invoke<string | null>("check_update");
+      status.textContent = v ? `Version ${v} is available.` : `You're on the latest version (${ctx.options.version}).`;
+      install.hidden = !v;
+      if (v) install.textContent = `Update to ${v}`;
+    } catch (e) { status.textContent = String(e); }
+    check.disabled = false;
+  });
+  const auto = sw(ctx.settings.auto_update, (v) => save({ auto_update: v }), false, "ab-auto");
+  const channel = select([{ value: "stable", label: "Stable" }, { value: "beta", label: "Beta" }], ctx.settings.update_channel,
+    (v) => save({ update_channel: v }), "ab-channel", 160);
+  return section("Updates",
+    row(`Version ${ctx.options.version}`, h("div", { className: "stack" }, status), h("div", { className: "actions" }, check, install)),
+    row("Install updates automatically", "Downloads in the background, then asks before restarting.", auto, "ab-auto"),
+    row("Update channel", "Beta gets new versions earlier, including test releases.", channel, "ab-channel"));
+}
+
 export function about() {
   const msg = h("div", { className: "help", role: "status" });
   return page("About", "Free and open source (MIT licence).",
+    updates(),
     section("Yappaflow",
-      row(`Version ${ctx.options.version}`, "Built on Tauri. No accounts, no analytics. Your keys and audio stay on your PC or go straight to the provider you chose.", null),
+      row("Private by design", "Built on Tauri. No accounts, no analytics. Your keys and audio stay on your PC or go straight to the provider you chose.", null),
       row("Welcome tour", "Run the first-time setup again.", h("div", { className: "stack" }, btn("Re-run onboarding", "g", async () => {
         try { await invoke("show_onboarding"); msg.textContent = ""; } catch { msg.textContent = "Onboarding isn't available in this build yet."; }
       }), msg))),
