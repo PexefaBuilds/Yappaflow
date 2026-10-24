@@ -1,0 +1,31 @@
+name: Beta update channel
+
+# The app's Beta channel reads releases/download/updater-beta/latest.json. Every published
+# release (stable or prerelease) is copied there, so Beta users get each version first.
+# Stable users read releases/latest, which skips prereleases.
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: write
+
+jobs:
+  copy:
+    if: github.event.release.tag_name != 'updater-beta'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Copy this release's latest.json to the updater-beta release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ github.event.release.tag_name }}
+        run: |
+          if ! gh release download "$TAG" --repo "$GITHUB_REPOSITORY" --pattern latest.json; then
+            echo "$TAG has no latest.json (unsigned build); nothing to copy"
+            exit 0
+          fi
+          if ! gh release view updater-beta --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            gh release create updater-beta --repo "$GITHUB_REPOSITORY" --prerelease --latest=false \
+              --title "Beta update channel" --notes "Holds the Beta channel's update manifest. Download Yappaflow from the latest release instead."
+          fi
+          gh release upload updater-beta latest.json --repo "$GITHUB_REPOSITORY" --clobber

@@ -109,6 +109,10 @@ jobs:
       LLAMA_MAC_ARM_SHA256: "" # TODO
       LLAMA_MAC_X64_ASSET: "" # TODO llama-<tag>-bin-macos-x64.zip
       LLAMA_MAC_X64_SHA256: "" # TODO
+      # Updater signing (secrets in the `release` environment). While they're missing the build
+      # still succeeds, just without updater packages or latest.json.
+      TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+      TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
@@ -192,13 +196,17 @@ jobs:
           name: third-party-notices
           path: .
 
+      # Signed updater packages (.sig, plus .app.tar.gz on macOS) only when the key is configured.
+      - name: Updater packages
+        id: updater
+        if: env.TAURI_SIGNING_PRIVATE_KEY != ''
+        shell: bash
+        run: echo "config=--config src-tauri/tauri.updater.conf.json" >> "$GITHUB_OUTPUT"
+
       - uses: tauri-apps/tauri-action@84b9d35b5fc46c1e45415bdb6144030364f7ebc5 # v0 (2026-10-24)
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # ── Updater signing (Phase 6). Uncomment once the updater plugin is configured
-          # and the secrets exist in the `release` environment. Never print these.
-          # TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
-          # TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+          # Updater signing: TAURI_SIGNING_PRIVATE_KEY(_PASSWORD) come from the job env above.
           # ── macOS signing + notarisation (Phase 8).
           # APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
           # APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
@@ -212,23 +220,29 @@ jobs:
         with:
           releaseId: ${{ needs.draft.outputs.id }}
           # TODO (Phase 6): publish a separate beta updater manifest for the beta channel.
-          # TODO (Phase 6): set to true once the updater is configured.
+          # latest.json is built once both legs are done (job `checksums`), so they can't race.
           includeUpdaterJson: false
-          args: ${{ matrix.args }} ${{ steps.llama_win.outputs.config }}${{ steps.llama_mac.outputs.config }}
+          args: ${{ matrix.args }} ${{ steps.llama_win.outputs.config }}${{ steps.llama_mac.outputs.config }} ${{ steps.updater.outputs.config }}
 
   checksums:
-    name: SHA256SUMS
+    name: Updater manifest and SHA256SUMS
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - name: Hash release assets and upload SHA256SUMS
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Write latest.json and SHA256SUMS
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAG: ${{ github.ref_name }}
         run: |
-          mkdir assets && cd assets
-          gh release download "$TAG" --repo "$GITHUB_REPOSITORY" --pattern '*'
-          rm -f SHA256SUMS
-          sha256sum * > SHA256SUMS
-          cat SHA256SUMS
-          gh release upload "$TAG" SHA256SUMS --repo "$GITHUB_REPOSITORY" --clobber
+          mkdir assets
+          gh release download "$TAG" --repo "$GITHUB_REPOSITORY" --pattern '*' --dir assets
+          rm -f assets/SHA256SUMS assets/latest.json
+          # Exit 2 = an unsigned build (no .sig files): no manifest, the release still works.
+          python3 scripts/make_latest_json.py "$TAG" assets "$GITHUB_REPOSITORY" "docs/release-notes/$TAG.md" || [ $? -eq 2 ]
+          if [ -f assets/latest.json ]; then
+            gh release upload "$TAG" assets/latest.json --repo "$GITHUB_REPOSITORY" --clobber
+          fi
+          (cd assets && sha256sum * > SHA256SUMS && cat SHA256SUMS)
+          gh release upload "$TAG" assets/SHA256SUMS --repo "$GITHUB_REPOSITORY" --clobber
