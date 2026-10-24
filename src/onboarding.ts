@@ -64,7 +64,7 @@ const screens: Record<string, () => string> = {
         !local?.stt_engine ? "Not in this build" : h(local.hardware.gpu_name || "No graphics card found")}</span><span class="help">Private and offline. Nothing leaves your computer.</span></label>
       <label class="opt"><input type="radio" name="where" value="cloud"${st.stt_provider === "whisper_cpp" && local?.stt_engine ? "" : " checked"}><b>Cloud, with your key</b><span class="help">Pick a provider and paste its key. You pay them directly, never us.</span></label>
     </div>
-    <div class="col" id="cloudbox"><div class="col" id="provs" style="gap:6px"></div>
+    <div class="col" id="cloudbox"><div class="provs" id="provs"></div>
     <p class="help" id="langnote" dir="auto"></p>
     <div class="row"><input class="field grow" id="key" type="password" autocomplete="off" spellcheck="false" aria-label="API key" placeholder="Paste your API key" dir="auto">
     <button class="small" id="test" type="button">Test key</button></div><div class="status" id="kstat" role="status"></div></div></section>${foot("Next")}`,

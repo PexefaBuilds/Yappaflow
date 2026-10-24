@@ -12,7 +12,7 @@ html, body { margin: 0; height: 100%; background: var(--bg); color: var(--text);
 button, input, select, textarea { font: inherit; color: inherit; }
 :focus-visible { outline: 2px solid var(--accent-ring); outline-offset: 2px; }
 
-.onb { width: 100%; height: 100%; padding: 36px 48px 40px; display: flex; flex-direction: column; justify-content: space-between; gap: var(--space-5); }
+.onb { width: 100%; min-height: 100%; padding: 36px 48px 40px; display: flex; flex-direction: column; justify-content: space-between; gap: var(--space-5); }
 .onb > section { flex: 1; display: flex; flex-direction: column; gap: var(--space-4); min-height: 0; }
 .brand { display: flex; align-items: center; gap: 10px; font-weight: 600; }
 .brand i { width: 30px; height: 30px; border-radius: 9px; background: var(--surface); display: grid; place-items: center; }
@@ -49,6 +49,7 @@ select.field { height: 44px; }
 .opt:has(input:disabled) { opacity: .6; cursor: default; }
 .opt b { font-weight: 600; font-size: 13px; }
 .opt .tag { align-self: flex-start; font: var(--text-meta); padding: 3px 8px; border-radius: var(--radius-pill); background: var(--raised); color: var(--text-2); }
+.provs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
 .opt.list { flex: none; flex-direction: row; align-items: center; justify-content: space-between; padding: 12px 18px; border-radius: var(--radius-tile); }
 
 .kbd { display: inline-flex; align-items: center; height: 24px; padding: 0 8px; border-radius: var(--radius-kbd); background: var(--kbd); box-shadow: inset 0 -2px 0 var(--kbd-shadow); font: var(--text-kbd); }

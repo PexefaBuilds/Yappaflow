@@ -35,6 +35,7 @@ fn act(label: &'static str, kind: &'static str, arg: Option<String>) -> Option<T
 
 pub fn create(app: &AppHandle) -> tauri::Result<()> {
     WebviewWindowBuilder::new(app, "toast", WebviewUrl::App("toast.html".into()))
+        .additional_browser_args(crate::WEBVIEW_ARGS)
         .title("Yappaflow toast")
         .inner_size(W, H)
         .decorations(false)

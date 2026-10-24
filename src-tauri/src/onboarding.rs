@@ -13,8 +13,9 @@ pub fn show(app: &AppHandle) -> tauri::Result<()> {
         return w.set_focus();
     }
     WebviewWindowBuilder::new(app, "onboarding", WebviewUrl::App("onboarding.html".into()))
+        .additional_browser_args(crate::WEBVIEW_ARGS)
         .title("Welcome to Yappaflow")
-        .inner_size(960.0, 540.0)
+        .inner_size(960.0, fit_height(app))
         .center()
         .build()?;
     if let Some(state) = app.try_state::<Arc<AppState>>() {
@@ -22,6 +23,13 @@ pub fn show(app: &AppHandle) -> tauri::Result<()> {
         crate::appicon::apply(app, &accent);
     }
     Ok(())
+}
+
+/// Tall enough for the Connect step without scrolling; smaller screens scroll instead.
+fn fit_height(app: &AppHandle) -> f64 {
+    const WANT: f64 = 780.0;
+    let monitor = app.primary_monitor().ok().flatten();
+    monitor.map_or(WANT, |m| (m.work_area().size.height as f64 / m.scale_factor() - 48.0).clamp(540.0, WANT))
 }
 
 #[tauri::command]

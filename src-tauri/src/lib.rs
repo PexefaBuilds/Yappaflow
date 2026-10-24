@@ -113,6 +113,11 @@ use tauri::{AppHandle, Manager, WindowEvent};
 pub const APP_NAME: &str = "Yappaflow";
 pub const APP_ID: &str = "yappaflow";
 
+/// WebView2 args for every window; they share one environment, so all must match (main: tauri.conf.json).
+/// wry's defaults plus fake media UI: the mic test is allowed without a prompt whose "Block" would
+/// stick with no way to undo it. Only our bundled pages load in these webviews.
+pub const WEBVIEW_ARGS: &str = "--disable-features=msWebOOUI,msPdfOOUI,msSmartScreenProtection --use-fake-ui-for-media-stream";
+
 pub struct AppState {
     pub db: Storage,
     pub settings: RwLock<Settings>,
@@ -376,4 +381,13 @@ pub fn run() {
                 providers::llama_cpp::shutdown();
             }
         });
+}
+
+#[cfg(test)]
+mod webview_args_tests {
+    #[test]
+    fn main_window_uses_the_same_webview_args() {
+        let conf: serde_json::Value = serde_json::from_str(include_str!("../tauri.conf.json")).unwrap();
+        assert_eq!(conf["app"]["windows"][0]["additionalBrowserArgs"], super::WEBVIEW_ARGS);
+    }
 }

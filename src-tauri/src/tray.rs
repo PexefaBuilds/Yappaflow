@@ -96,6 +96,7 @@ pub fn build(app: &tauri::App) -> tauri::Result<()> {
     context::start_focus_tracker();
 
     let win = WebviewWindowBuilder::new(h, "tray", WebviewUrl::App("tray.html".into()))
+        .additional_browser_args(crate::WEBVIEW_ARGS)
         .title("Yappaflow menu")
         .inner_size(W, H)
         .decorations(false)

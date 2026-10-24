@@ -23,6 +23,7 @@ static GEN: AtomicU64 = AtomicU64::new(0);
 
 pub fn create(app: &AppHandle) -> tauri::Result<()> {
     let w = WebviewWindowBuilder::new(app, "pill", WebviewUrl::App("pill.html".into()))
+        .additional_browser_args(crate::WEBVIEW_ARGS)
         .title("Yappaflow pill")
         .inner_size(W, H)
         .decorations(false)
