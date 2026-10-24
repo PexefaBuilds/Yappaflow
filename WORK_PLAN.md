@@ -24,7 +24,7 @@ Updated 2026-10-24. `PLAN.md` §0 stays the product source of truth; this file i
 - Never type or store API keys: the owner enters them in Settings › Models.
 
 ## Current task
-None in flight. **v0.9.1 released 25 Oct 2026** (onboarding fits the screen, Next below content, mic test auto-allowed via `WEBVIEW_ARGS`). **v0.9.0 public beta released 24 Oct 2026**: https://github.com/PexefaBuilds/yappaflow/releases/tag/v0.9.0 (unsigned `Yappaflow_0.9.0_x64-setup.exe` + universal ad-hoc-signed `.dmg`, `SHA256SUMS`). Repo is public under PexefaBuilds: one squashed commit (noreply author), secret scanning, push protection and private vulnerability reporting on, labels created. CI (incl. local-engines builds, gitleaks, cargo-deny) is green.
+None in flight. **v0.9.2 (25 Oct 2026): signed auto-updates** (`updater.rs`, About › Updates, Stable/Beta, `scripts/make_latest_json.py`, `updater-beta.yml`), Start with Windows default-on and restored at launch, taskbar icon follows the accent (`appicon.rs::set_taskbar_icon`). Updater key: `%USERPROFILE%\.tauri\yappaflow-updater.key` (+ .password, .pub); **owner must back it up and add the two CI secrets** (RELEASE_CHECKLIST), until then sign by hand with `scripts/sign_release.md`. **v0.9.1 released 25 Oct 2026** (onboarding fits the screen, Next below content, mic test auto-allowed via `WEBVIEW_ARGS`). **v0.9.0 public beta released 24 Oct 2026**: https://github.com/PexefaBuilds/yappaflow/releases/tag/v0.9.0 (unsigned `Yappaflow_0.9.0_x64-setup.exe` + universal ad-hoc-signed `.dmg`, `SHA256SUMS`). Repo is public under PexefaBuilds: one squashed commit (noreply author), secret scanning, push protection and private vulnerability reporting on, labels created. CI (incl. local-engines builds, gitleaks, cargo-deny) is green.
 
 ## Next steps (in order)
 1. Before filling the llama-server pins in `release.yml`: settle Phase 7 item 7 (CUDA DLL size/licence; the only Windows build bundled is CUDA, so check it runs without NVIDIA). Also open: `docs/providers.md` lacks the llama-server flags / `-ngl 0` fallback; macOS watchdog trusts PID liveness (PID reuse); create repo labels `bug`, `enhancement`, `provider` for the issue forms.
@@ -43,6 +43,7 @@ None in flight. **v0.9.1 released 25 Oct 2026** (onboarding fits the screen, Nex
 - Every new `Settings` field needs a serde default; schema changes are new migration steps (last is v5).
 - `capabilities/default.json` must keep listing main, pill, onboarding, toast, tray.
 - Rule 6 has two owner-approved exceptions (see CLAUDE.md): `lib.rs::elevate`, `llama_cpp.rs::tie_to_app`.
+- Never launch an installer or the app from a Claude tool directly: Claude is an MSIX app, so Windows redirects AppData writes into its sandbox (`%LOCALAPPDATA%\Packages\Claude_*\LocalCache`). Start them with `explorer.exe <path>`.
 - Worktree `node_modules`: link with a junction to the main one; remove it with `cmd /c rmdir` (never `Remove-Item -Recurse`) before `git worktree remove`.
 - Typing mode sends Shift+Enter for newlines. Command mode: apps without UIA TextPattern still get Ctrl+C on an empty selection.
 - Local STT on Windows needs LLVM/libclang + `LIBCLANG_PATH`, CMake on PATH, and a short `CARGO_TARGET_DIR` (long worktree paths break MSBuild).

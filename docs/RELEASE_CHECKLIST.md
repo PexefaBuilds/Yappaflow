@@ -38,7 +38,14 @@ Record findings and dates in phase-9.md Results.
 ## Signing (secrets in the `release` environment, never in git)
 - [ ] Windows code-signing: OV/EV certificate or Azure Trusted Signing (Phase 6). Configure `bundle.windows` in `tauri.conf.json` and uncomment the step in `release.yml`.
 - [ ] Apple Developer ID certificate + notarisation API key (Phase 8): `APPLE_CERTIFICATE`, `APPLE_CERTIFICATE_PASSWORD`, `APPLE_SIGNING_IDENTITY`, `APPLE_API_ISSUER`, `APPLE_API_KEY` (+ the .p8).
-- [ ] Tauri updater key: `npm run tauri signer generate -- -w <path outside the repo>`. Back up the private key and password offline; losing it means existing installs can't update. Store `TAURI_SIGNING_PRIVATE_KEY` and `TAURI_SIGNING_PRIVATE_KEY_PASSWORD` as secrets; commit only the public key (in `tauri.conf.json`). Then set `includeUpdaterJson: true` in `release.yml`.
+- [x] Tauri updater key generated (25 Oct 2026) at `%USERPROFILE%\.tauri\yappaflow-updater.key` (+ `.password`, `.pub`). Public key is in `tauri.conf.json`.
+- [ ] **Back up** `%USERPROFILE%\.tauri\yappaflow-updater.key` and `.key.password` offline (password manager / USB). Losing them means existing installs can never update again.
+- [ ] Add them as secrets in the `release` environment, so CI signs every release:
+  ```powershell
+  Get-Content -Raw "$env:USERPROFILE\.tauri\yappaflow-updater.key" | gh secret set TAURI_SIGNING_PRIVATE_KEY --env release --repo PexefaBuilds/yappaflow
+  Get-Content -Raw "$env:USERPROFILE\.tauri\yappaflow-updater.key.password" | gh secret set TAURI_SIGNING_PRIVATE_KEY_PASSWORD --env release --repo PexefaBuilds/yappaflow
+  ```
+  Until then, releases build unsigned for the updater: no `latest.json`, so installed copies don't see the new version (they keep working). The manual fallback is `scripts/sign_release.md`.
 
 ## First public release (v0.9.0 "public beta")
 - [ ] Phases 1–8 acceptance tests pass on clean machines; results pasted.
