@@ -10,6 +10,7 @@ accepted = [
   "ISC",
   "Zlib",
   "Unicode-3.0",
+  "Unlicense", # whisper-rs (local speech)
   "BSL-1.0",
   "CDLA-Permissive-2.0",
   "OFL-1.1",

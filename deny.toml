@@ -16,6 +16,7 @@ allow = [
   "ISC",
   "Zlib",
   "Unicode-3.0",
+  "Unlicense", # whisper-rs (local speech)
   "BSL-1.0",              # clipboard-win, error-code
   "CDLA-Permissive-2.0",  # webpki-roots (Mozilla root certificate data)
   "OFL-1.1",
