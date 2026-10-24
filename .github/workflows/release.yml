@@ -28,9 +28,12 @@ jobs:
         run: |
           notes="docs/release-notes/$TAG.md"
           [ -f "$notes" ] || notes=/dev/null
-          gh release create "$TAG" --draft --verify-tag --title "Yappaflow $TAG" --notes-file "$notes" \
-            $([[ "$TAG" == *-beta.* ]] && echo --prerelease)
-          id=$(gh api "repos/$GITHUB_REPOSITORY/releases" --jq ".[] | select(.tag_name == \"$TAG\") | .id" | head -n 1)
+          pre=false; [[ "$TAG" == *-beta.* ]] && pre=true
+          # The create call returns the id; listing releases right after can miss a new draft.
+          id=$(gh api -X POST "repos/$GITHUB_REPOSITORY/releases" -f tag_name="$TAG" -f name="Yappaflow $TAG" \
+            -F body=@"$notes" -F draft=true -F prerelease=$pre --jq .id)
+          [ -n "$id" ] || { echo "no release id" >&2; exit 1; }
+          echo "draft release id: $id"
           echo "id=$id" >> "$GITHUB_OUTPUT"
 
   # ── Phase 9: THIRD_PARTY_NOTICES.md (Rust via cargo-about, npm via license-checker-rseidelsohn).
