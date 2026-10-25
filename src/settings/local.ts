@@ -5,6 +5,7 @@ import { badge, btn, ctx, h, nextId, row, save, section, select } from "./common
 export interface LocalModel {
   id: string; kind: "stt" | "cleanup"; display_name: string; size_bytes: number; notes: string; licence: string;
   state: "none" | "downloading" | "paused" | "installed"; done_bytes: number;
+  est_ms: [number, number] | null; avg_ms: number | null; avg_n: number;
 }
 export interface LocalInfo {
   hardware: { gpu_name: string; gpu_vendor: string; vram_mb: number; ram_mb: number; cores: number };
@@ -41,6 +42,15 @@ export function progress(done: number, total: number) {
   return { el: h("div", { className: "stack" }, bar, txt), set };
 }
 
+const secs = (ms: number) => (ms < 10_000 ? (ms / 1000).toFixed(1) : String(Math.round(ms / 1000)));
+
+/** "Your average: 0.9 s per 10 s of speech (14 dictations)", or the rough range before that. */
+export function speedText(m: LocalModel) {
+  const per = m.kind === "stt" ? "per 10 s of speech" : "per cleanup";
+  if (m.avg_ms != null) return `Your average: ${secs(m.avg_ms)} s ${per} (${m.avg_n} dictations)`;
+  return m.est_ms ? `About ${secs(m.est_ms[0])}–${secs(m.est_ms[1])} s ${per} on this PC (estimate)` : "";
+}
+
 const inUse = (m: LocalModel) =>
   m.kind === "stt"
     ? ctx.settings.stt_provider === "whisper_cpp" && ctx.settings.stt_model === m.id
@@ -74,6 +84,7 @@ export function localModels() {
     const rec = info?.recommended && (info.recommended.stt === m.id || info.recommended.cleanup === m.id);
     const label = h("span", { className: "lbl" }, m.display_name);
     const help = h("div", { className: "help" }, `${fmtSize(m.size_bytes)} · ${m.notes} · ${m.licence}`);
+    const speed = speedText(m);
     const ctl: Node[] = [];
     if (m.state === "installed") {
       if (inUse(m)) ctl.push(h("span", { className: "badge on" }, "In use"));
@@ -91,7 +102,7 @@ export function localModels() {
       ctl.push(btn("Download", rec ? "p" : "g", () => void act("download_model", m.id)));
     }
     return h("div", { className: "row" },
-      h("div", {}, h("div", { className: "actions" }, label, rec ? badge("Recommended") : null), help),
+      h("div", {}, h("div", { className: "actions" }, label, rec ? badge("Recommended") : null), help, speed ? h("div", { className: "help" }, speed) : null),
       h("div", { className: "actions" }, ...ctl));
   };
 

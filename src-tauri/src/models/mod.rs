@@ -30,6 +30,9 @@ pub struct Model {
     #[serde(default)]
     pub chat_preset: Option<String>,
     pub notes: String,
+    /// Rough [GPU, CPU] ms for 10 s of speech or one cleanup (see `_ref_ms` in models.json).
+    #[serde(default)]
+    pub ref_ms: Option<[u64; 2]>,
 }
 
 #[derive(Debug, Clone, Deserialize)]
@@ -191,6 +194,11 @@ pub struct ModelView {
     /// none | downloading | paused | installed
     pub state: &'static str,
     pub done_bytes: u64,
+    /// Rough [low, high] ms on this PC, from `ref_ms`.
+    pub est_ms: Option<[u64; 2]>,
+    /// This user's measured average ms, once there are enough dictations.
+    pub avg_ms: Option<u64>,
+    pub avg_n: i64,
 }
 
 #[derive(Serialize)]
@@ -209,8 +217,26 @@ fn hw() -> &'static Hardware {
     HW.get_or_init(hardware::detect)
 }
 
+/// Rough [low, high] ms for `m` on this PC. CPU time scales with core count from the 8-core reference.
+/// shortcut: assumes llama-server's build can use the GPU; the measured average corrects it after a few dictations.
+pub fn estimate_ms(m: &Model, hw: &Hardware, gpu_build: bool) -> Option<[u64; 2]> {
+    let [gpu, cpu] = m.ref_ms?;
+    let on_gpu = (m.kind == "cleanup" || gpu_build) && gpu_memory_mb(hw).is_some_and(|mb| mb >= m.min_vram_mb + 512);
+    let ms = if on_gpu { gpu } else { cpu * 8 / hw.cores.clamp(2, 32) as u64 };
+    Some([ms * 2 / 3, ms * 3 / 2])
+}
+
+/// Dictations a model needs before its measured average replaces the estimate.
+const MIN_MEASURED: i64 = 3;
+
 #[tauri::command]
-pub fn local_models() -> LocalInfo {
+pub fn local_models(state: tauri::State<'_, std::sync::Arc<crate::AppState>>) -> LocalInfo {
+    let month_ago =
+        std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).map(|d| d.as_millis() as i64).unwrap_or(0) - 30 * 86_400_000;
+    let speeds = state.db.local_speeds(month_ago).unwrap_or_else(|e| {
+        log::warn!("local model speeds: {e:#}");
+        Vec::new()
+    });
     let models = catalogue()
         .models
         .iter()
@@ -224,7 +250,8 @@ pub fn local_models() -> LocalInfo {
             } else {
                 ("none", 0)
             };
-            ModelView { model: m, state, done_bytes }
+            let (avg_n, avg_ms) = speeds.iter().find(|s| s.0 == m.id).map_or((0, None), |s| (s.1, (s.1 >= MIN_MEASURED).then_some(s.2)));
+            ModelView { model: m, state, done_bytes, est_ms: estimate_ms(m, hw(), GPU_BUILD), avg_ms, avg_n }
         })
         .collect();
     LocalInfo {
@@ -367,5 +394,18 @@ mod tests {
         let mut h = hw("", 0, 0);
         h.ram_mb = 7800;
         assert_eq!(r(h, false), s("whisper-small-q5_1", "qwen3.5-0.8b-q4_k_m", "CPU"));
+    }
+
+    #[test]
+    fn estimates_follow_gpu_build_and_cores() {
+        assert!(catalogue().models.iter().all(|m| m.ref_ms.is_some_and(|[g, c]| 0 < g && g < c)), "every model has [GPU, CPU] ms");
+        let turbo = find("whisper-large-v3-turbo-q5_0").unwrap();
+        let qwen = find("qwen3.5-4b-q4_k_m").unwrap();
+        let gpu = hw("nvidia", 8, 32);
+        assert_eq!(estimate_ms(turbo, &gpu, true), Some([266, 600]));
+        assert_eq!(estimate_ms(turbo, &gpu, false), Some([2666, 6000]), "a CPU build runs whisper on the CPU");
+        assert_eq!(estimate_ms(qwen, &gpu, false), Some([666, 1500]), "llama-server still uses the GPU");
+        let laptop = Hardware { cores: 4, ..hw("", 0, 16) };
+        assert_eq!(estimate_ms(qwen, &laptop, false), Some([8000, 18000]), "half the cores, twice the time");
     }
 }

@@ -12,6 +12,7 @@ Updated 2026-10-25. `PLAN.md` §0 stays the product source of truth; this file i
     - **Signed auto-updates** (`updater.rs`, tauri-plugin-updater 2.14): check 60 s after launch, then every 6 h. Auto-install on = background download, then a sticky "ready · Restart now" toast; off = "available · Update". It refuses while a dictation is active. Settings › About › Updates has the version, Check for updates, the auto-install toggle and a Stable/Beta channel.
     - **Start with Windows** is the `start_with_windows` setting (default on), re-applied at every launch. Only `set_autostart` writes it.
     - **Taskbar/Alt+Tab icon** follows the accent (`appicon.rs::set_taskbar_icon`, WM_SETICON ICON_BIG).
+- **Models › On this PC speed line** (unreleased): each local model shows a rough time per 10 s of speech or per cleanup (`models::estimate_ms`, from `ref_ms` guesses, scaled by GPU and core count), replaced by the user's measured 30-day average after 3 dictations (`Storage::local_speeds`).
 - **Release pipeline:**
   - `release.yml`: draft job → notices → Windows + macOS builds. These sign updater packages when the `TAURI_SIGNING_PRIVATE_KEY(_PASSWORD)` secrets exist (via `tauri.updater.conf.json`). The `checksums` job builds `latest.json` with `scripts/make_latest_json.py` (self-test `scripts/test_make_latest_json.py`) plus `SHA256SUMS`.
   - `updater-beta.yml` copies each published release's `latest.json` to the `updater-beta` prerelease (the Beta channel).
@@ -51,6 +52,7 @@ None in flight. Working tree clean (`.claude/launch.json`, the vite preview conf
 3. **Phase 7 local-model leftovers:**
    - Settle item 7 (CUDA DLL size/licence, and whether the CUDA build runs without NVIDIA) before filling the llama-server pins in `release.yml`.
    - Pill "Warming up" state.
+   - Calibrate the rough speed numbers (`ref_ms` in `resources/models.json`, shown on Models › On this PC) against real runs on the 2070 Super and a CPU-only laptop.
 4. **Owner:** on-screen acceptance tests for Phases 1–8 (paste results into `docs/phases/phase-N.md`); rotate the OpenAI key; add a Groq key and run `stt_bench` / `cleanup_eval` to pick defaults.
 5. **Owner:** back up the updater key offline. Remaining `docs/RELEASE_CHECKLIST.md` items: trademark/domains, Windows + Apple Developer ID signing, a required reviewer on the `release` environment.
 

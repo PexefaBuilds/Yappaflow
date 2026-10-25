@@ -161,6 +161,25 @@ impl Storage {
         Ok(rows)
     }
 
+    /// Measured speed per local model since `since_ms`: (model id, dictations, average ms).
+    /// Speech is ms per 10 s of audio; cleanup is ms per cleanup that ran (the gate skips some).
+    pub fn local_speeds(&self, since_ms: i64) -> Result<Vec<(String, i64, u64)>> {
+        let c = self.conn.lock().unwrap();
+        let mut st = c.prepare(
+            "SELECT stt_model, COUNT(*), CAST(SUM(json_extract(timings, '$.stt_ms')) * 10000.0 / SUM(duration_ms) AS INTEGER)
+             FROM dictations WHERE stt_provider = 'whisper_cpp' AND created_at >= ?1 AND timings IS NOT NULL AND duration_ms > 0
+             GROUP BY stt_model
+             UNION ALL
+             SELECT cleanup_model, COUNT(*), CAST(AVG(json_extract(timings, '$.cleanup_ms')) AS INTEGER)
+             FROM dictations WHERE cleanup_provider = 'llama_cpp' AND created_at >= ?1 AND json_extract(timings, '$.cleanup_ms') > 0
+             GROUP BY cleanup_model",
+        )?;
+        let rows = st
+            .query_map(params![since_ms], |r| Ok((r.get(0)?, r.get(1)?, r.get::<_, i64>(2)?.max(0) as u64)))?
+            .collect::<Result<Vec<_>, _>>()?;
+        Ok(rows)
+    }
+
     pub fn fail_dictation(&self, id: i64, error: &str) -> Result<()> {
         let c = self.conn.lock().unwrap();
         c.execute("UPDATE dictations SET status = 'failed', error = ?2 WHERE id = ?1", params![id, error])?;
@@ -367,6 +386,35 @@ mod tests {
         let left = db.recent(10).unwrap();
         assert_eq!((left.len(), left[0].id), (1, live)); // the in-flight dictation survives
         assert!(db.usage_since(0).unwrap().is_empty(), "the estimate resets with History");
+        drop(db);
+        let _ = std::fs::remove_file(&path);
+    }
+
+    #[test]
+    fn local_speeds_average_per_model() {
+        let path = std::env::temp_dir().join(format!("yf-speed-{}.db", std::process::id()));
+        let _ = std::fs::remove_file(&path);
+        let db = Storage::open(&path).unwrap();
+        let d = |ms| NewDictation {
+            app_exe: "",
+            window_title: "",
+            mode: "dictate",
+            duration_ms: ms,
+            audio_path: "x.wav",
+            stt_provider: "whisper_cpp",
+            stt_model: "w",
+        };
+        for (audio, stt, clean) in [(10_000, 1000, 800), (30_000, 2000, 0)] {
+            let id = db.insert_dictation(&d(audio)).unwrap();
+            db.finish_dictation(id, "a", "A.", &Timings { stt_ms: stt, cleanup_ms: clean, ..Default::default() }, "done").unwrap();
+            db.set_cleanup_usage(id, "llama_cpp", "q", (0, 0)).unwrap();
+        }
+        let id = db.insert_dictation(&NewDictation { stt_provider: "openai", ..d(10_000) }).unwrap(); // cloud: ignored
+        db.finish_dictation(id, "a", "A.", &Timings { stt_ms: 9000, ..Default::default() }, "done").unwrap();
+        let mut s = db.local_speeds(0).unwrap();
+        s.sort();
+        // speech: 3000 ms over 40 s of audio = 750 per 10 s; cleanup: the skipped one doesn't count
+        assert_eq!(s, vec![("q".to_string(), 1, 800), ("w".to_string(), 2, 750)]);
         drop(db);
         let _ = std::fs::remove_file(&path);
     }
