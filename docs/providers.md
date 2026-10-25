@@ -106,6 +106,22 @@ Files are from [huggingface.co/ggerganov/whisper.cpp](https://huggingface.co/gge
 
 Pick the local cleanup model by running `docs/evals/cleanup.jsonl` on all three; the eval score decides.
 
+**How we launch llama-server** (`providers/llama_cpp.rs::args`):
+
+| Flag | Value | Why |
+|---|---|---|
+| `-m` | path to the installed `.gguf` | the model |
+| `--host` | `127.0.0.1` | loopback only, never the LAN |
+| `--port` | a free port, picked per launch | a new one on the retry |
+| `--api-key` | random per-launch key | other local processes can't use the server |
+| `--jinja` | | makes the chat template honour `chat_template_kwargs` (the thinking switch) |
+| `-c` | `4096` | context size; plenty for one dictation plus the prompt |
+| `-ngl` | `999`, or `0` | all layers on the GPU, or none |
+
+- **`-ngl 0` fallback:** when the VRAM budget (`models::budget_for_settings`) says the chosen models don't fit (`fit != "ok"`), we launch with `-ngl 0`, so everything runs on the CPU. It is slower but works. The log says "CPU only: models don't fit in graphics memory".
+- **Ready check:** we poll `GET /health` until it returns OK (the model is loaded). If the server exits early we retry once on a new port, then give up and paste the raw text.
+- **Lifetime:** started on chord-down (prewarm), restarted if it died, killed on app exit or model change, and tied to the app (Job object on Windows, watchdog on macOS).
+
 ## Phase 7 build checks (24 Oct 2026)
 What the cloud-provider code relies on, checked against official docs while building. Code comments carry the same tags.
 

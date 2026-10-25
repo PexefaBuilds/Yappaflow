@@ -50,7 +50,6 @@ None in flight. Working tree clean (`.claude/launch.json`, the vite preview conf
    - History offers Retry for a row whose process died mid-STT.
 3. **Phase 7 local-model leftovers:**
    - Settle item 7 (CUDA DLL size/licence, and whether the CUDA build runs without NVIDIA) before filling the llama-server pins in `release.yml`.
-   - `docs/providers.md` is missing the llama-server flags and the `-ngl 0` fallback.
    - The macOS watchdog trusts PID liveness, so PID reuse can fool it.
    - Pill "Warming up" state.
 4. **Owner:** on-screen acceptance tests for Phases 1–8 (paste results into `docs/phases/phase-N.md`); rotate the OpenAI key; add a Groq key and run `stt_bench` / `cleanup_eval` to pick defaults.
