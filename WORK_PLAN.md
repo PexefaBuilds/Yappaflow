@@ -37,7 +37,7 @@ Updated 2026-10-25. `PLAN.md` §0 stays the product source of truth; this file i
   - Signing certificates and the Apple Developer ID are the owner's to handle.
 
 ## Current task
-None in flight. The working tree is clean apart from the untracked `.claude/` (local `launch.json` for the vite preview).
+None in flight. Working tree clean (`.claude/launch.json`, the vite preview config, is gitignored).
 
 ## Next steps (in order)
 1. **Next release (v0.9.3, with a real change):**

@@ -26,3 +26,4 @@ Thumbs.db
 /src-tauri/binaries/
 /src-tauri/tauri.llama.conf.json
 __pycache__/
+.claude/launch.json
