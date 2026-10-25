@@ -123,17 +123,15 @@ fn tie_to_app(child: &Child) -> Option<Child> {
     None
 }
 
-/// llama-server doesn't exit on stdin EOF, so a tiny shell loop watches our PID (it is reparented
-/// to launchd if we crash) and kills the server once we're gone. It exits by itself if the server
-/// stops first, and Sidecar::drop kills it on a normal shutdown.
+/// llama-server doesn't exit on stdin EOF, so a tiny watchdog shell does: it blocks reading a pipe
+/// whose write end only we hold (kept open in the returned Child's stdin). The OS closes it when we
+/// exit or crash, `read` returns, and the server is killed. Polling our PID instead could be fooled
+/// by PID reuse. The server's PID can't be reused while the watchdog runs: every path that reaps
+/// the server drops its Sidecar, and Sidecar::drop kills the watchdog first.
 #[cfg(unix)]
 fn tie_to_app(child: &Child) -> Option<Child> {
-    let script = format!(
-        "while kill -0 {me} 2>/dev/null; do kill -0 {c} 2>/dev/null || exit 0; sleep 2; done; kill {c} 2>/dev/null",
-        me = std::process::id(),
-        c = child.id()
-    );
-    let w = Command::new("/bin/sh").args(["-c", &script]).stdin(Stdio::null()).stdout(Stdio::null()).stderr(Stdio::null()).spawn();
+    let script = format!("read _; kill {} 2>/dev/null", child.id());
+    let w = Command::new("/bin/sh").args(["-c", &script]).stdin(Stdio::piped()).stdout(Stdio::null()).stderr(Stdio::null()).spawn();
     if w.is_err() {
         log::warn!("couldn't start the llama-server watchdog; it may outlive a crash");
     }
@@ -375,5 +373,19 @@ mod tests {
     #[test]
     fn missing_binary_is_a_clear_error() {
         assert!(resolve_binary("Z:/nope/llama-server.exe").unwrap_err().to_string().contains("llama-server"));
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn watchdog_kills_the_server_when_the_app_goes() {
+        let mut server = Command::new("sleep").arg("30").spawn().unwrap();
+        let mut w = tie_to_app(&server).unwrap();
+        drop(w.stdin.take()); // what the OS does when we exit or crash
+        let t = Instant::now();
+        while server.try_wait().unwrap().is_none() {
+            assert!(t.elapsed() < Duration::from_secs(5), "server outlived the app");
+            std::thread::sleep(Duration::from_millis(50));
+        }
+        let _ = w.wait();
     }
 }
