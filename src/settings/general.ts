@@ -7,6 +7,7 @@ export function general() {
   const lang = LANGUAGES;
   const models = h("div");
   const restore = sw(s.restore_clipboard, (v) => save({ restore_clipboard: v }), s.insert_mode !== "paste", "g-restore");
+  const cursor = sw(s.cursor_context === true, (v) => save({ cursor_context: v }), false, "g-cursor");
 
   const renderModel = () => {
     const p = o.cleanup_providers.find((x) => x.id === ctx.settings.cleanup_provider);
@@ -49,6 +50,8 @@ export function general() {
       row("Typing style", "How much punctuation and capitalisation cleanup adds.",
         select([{ value: "full", label: "Full punctuation and capitals" }, { value: "light", label: "Light: commas and periods only" }, { value: "none", label: "None: lowercase, no punctuation" }],
           s.typing_style || "full", (v) => save({ typing_style: v }), "g-typing", 300), "g-typing"),
+      row("Use text near the cursor", "Cleanup reads up to 500 characters before the cursor, so it can continue a sentence and spell names the same way. That text goes to your cleanup provider, so this is off by default. Never read in password fields or Literal apps, and never saved.",
+        cursor, "g-cursor"),
       row("Language", "Auto-detect handles switching between English and Arabic mid-sentence.",
         select(lang.map(([value, label]) => ({ value, label })), s.language, (v) => save({ language: v }), "g-lang"), "g-lang"),
       row("Insert text by", "Typing is slower. Use it only for apps that block paste.",

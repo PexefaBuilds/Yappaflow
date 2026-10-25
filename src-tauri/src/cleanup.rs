@@ -104,13 +104,49 @@ pub fn strip_long_dashes(text: &str) -> String {
 
 pub fn user_message(text: &str, ctx: &CleanupContext) -> String {
     let title: String = ctx.window_title.chars().take(80).collect();
+    let before =
+        if ctx.before_cursor.trim().is_empty() { String::new() } else { format!("<before_cursor>{}</before_cursor>\n", ctx.before_cursor) };
     format!(
-        "<dictionary>{}</dictionary>\n<app>{} · {}</app>\n<transcript>\n{}\n</transcript>",
+        "<dictionary>{}</dictionary>\n<app>{} · {}</app>\n{before}<transcript>\n{}\n</transcript>",
         ctx.dictionary.join(", "),
         ctx.app_exe,
         title,
         text
     )
+}
+
+/// How much text before the cursor the cleanup sees (Settings › General › Use text near the cursor).
+pub const CURSOR_CHARS: usize = 500;
+
+/// The last ~CURSOR_CHARS of the text before the cursor, starting on a word. The end is kept as is:
+/// a trailing space tells `join_after` whether the insertion needs one.
+pub fn cursor_tail(before: &str) -> String {
+    let n = before.chars().count();
+    if n <= CURSOR_CHARS {
+        return before.trim_start().to_string();
+    }
+    let tail: String = before.chars().skip(n - CURSOR_CHARS).collect();
+    match tail.find(char::is_whitespace) {
+        Some(i) => tail[i..].trim_start().to_string(),
+        None => tail,
+    }
+}
+
+/// The cursor sits mid-sentence, so the skip gate must not bypass the model (it fixes the capital).
+pub fn mid_sentence(before: &str) -> bool {
+    before.trim_end_matches([' ', '\t']).chars().last().is_some_and(|c| !".!?\n\r".contains(c))
+}
+
+/// Text pasted right after `before` gets a leading space when it starts a word straight after
+/// one ("I think we should" + "move it"), but not after a space, an opening bracket or a quote.
+pub fn join_after(before: &str, text: &str) -> String {
+    let needs = before.chars().last().is_some_and(|c| !c.is_whitespace() && !"([{\"'“‘/".contains(c))
+        && text.chars().next().is_some_and(char::is_alphanumeric);
+    if needs {
+        format!(" {text}")
+    } else {
+        text.to_string()
+    }
 }
 
 /// Output cap: ceil(tokens × 1.5) + 20, with tokens over-estimated at 3 chars each
@@ -380,5 +416,41 @@ mod tests {
         let ctx = CleanupContext { app_exe: "a.exe".into(), window_title: "t".repeat(200), ..Default::default() };
         let m = user_message("hi", &ctx);
         assert!(m.contains(&"t".repeat(80)) && !m.contains(&"t".repeat(81)));
+    }
+
+    #[test]
+    fn before_cursor_block_only_when_there_is_text() {
+        let mut ctx = CleanupContext::default();
+        assert!(!user_message("hi", &ctx).contains("before_cursor"));
+        ctx.before_cursor = "Dear Sam, ".into();
+        assert!(user_message("hi", &ctx).contains("<before_cursor>Dear Sam, </before_cursor>\n<transcript>"));
+        assert!(system_prompt("neutral", &[], &[]).contains("<before_cursor>"), "the model is told what the block means");
+    }
+
+    #[test]
+    fn cursor_tail_keeps_the_end_and_starts_on_a_word() {
+        assert_eq!(cursor_tail("  Hi Sam, "), "Hi Sam, ");
+        let long = format!("{} end of it ", "word ".repeat(200));
+        let t = cursor_tail(&long);
+        assert!(t.chars().count() <= CURSOR_CHARS && t.starts_with("word") && t.ends_with("end of it "));
+        assert_eq!(cursor_tail("   "), "");
+    }
+
+    #[test]
+    fn join_after_adds_a_space_only_between_words() {
+        assert_eq!(join_after("I think we should", "move it."), " move it.");
+        assert_eq!(join_after("I think we should ", "move it."), "move it.");
+        assert_eq!(join_after("Hello", ", world"), ", world");
+        assert_eq!(join_after("(", "see below"), "see below");
+        assert_eq!(join_after("", "Hi."), "Hi.");
+    }
+
+    #[test]
+    fn mid_sentence_is_only_after_an_unfinished_line() {
+        assert!(mid_sentence("I think we should "));
+        assert!(mid_sentence("Hi Sam,"));
+        assert!(!mid_sentence("Done. "));
+        assert!(!mid_sentence("Hi Sam,\n"));
+        assert!(!mid_sentence(""));
     }
 }

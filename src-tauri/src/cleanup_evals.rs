@@ -15,11 +15,15 @@ struct Case {
     accept: Vec<String>,
     #[serde(default)]
     tags: Vec<String>,
+    #[serde(default)]
+    before_cursor: String,
 }
 
-/// Near-exact match: whitespace, case, quote style and `, . ! ? ; :` are ignored.
-fn norm(s: &str) -> String {
-    s.replace(['’', '‘'], "'").replace([',', '.', '!', '?', ';', ':'], "").split_whitespace().collect::<Vec<_>>().join(" ").to_lowercase()
+/// Near-exact match: whitespace, case, quote style and `, . ! ? ; :` are ignored
+/// (case counts for cases tagged "exact_case").
+fn norm(s: &str, exact_case: bool) -> String {
+    let s = if exact_case { s.to_string() } else { s.to_lowercase() };
+    s.replace(['’', '‘'], "'").replace([',', '.', '!', '?', ';', ':'], "").split_whitespace().collect::<Vec<_>>().join(" ")
 }
 
 #[test]
@@ -54,12 +58,14 @@ fn cleanup_eval_set() {
         let ctx = CleanupContext {
             tone: c.style.clone(),
             dictionary: c.dictionary.split(',').map(|t| t.trim().to_string()).filter(|t| !t.is_empty()).collect(),
+            before_cursor: c.before_cursor.clone(),
             ..Default::default()
         };
         let t0 = std::time::Instant::now();
         let got = tauri::async_runtime::block_on(p.clean(&c.input, &ctx)).unwrap_or_else(|e| format!("<error: {e:#}>"));
         lat.push(t0.elapsed().as_millis());
-        let ok = std::iter::once(&c.expected).chain(&c.accept).any(|e| norm(e) == norm(&got));
+        let exact = c.tags.iter().any(|t| t == "exact_case");
+        let ok = std::iter::once(&c.expected).chain(&c.accept).any(|e| norm(e, exact) == norm(&got, exact));
         println!("{} {:<16} got: {got:?}", if ok { "PASS" } else { "FAIL" }, c.id);
         if ok {
             pass += 1;

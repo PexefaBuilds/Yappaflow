@@ -205,6 +205,12 @@ impl Controller {
         let clean = registry::build_cleanup(&s, &self.state.http);
         tauri::async_runtime::spawn(async move { stt.prewarm().await });
         tauri::async_runtime::spawn(async move { clean.prewarm().await });
+        // Read after the mic is running, so a slow UI Automation call can't cost the first words.
+        if s.cursor_context && !self.session.is_command() {
+            if let (Some(ctx), Some(before)) = (self.ctx.as_mut(), context::text_before_cursor(cleanup::CURSOR_CHARS)) {
+                ctx.before_cursor = cleanup::cursor_tail(&before);
+            }
+        }
     }
 
     fn emit_listening(&self) {
@@ -302,8 +308,11 @@ async fn process(app: &AppHandle, state: &AppState, cap: Captured, ctx: AppConte
     // ── Cleanup. Errors fall back to the raw text. ──
     let cleanup = registry::build_cleanup(&s, &state.http);
     let tone = cleanup::resolve_style(&state.db.style_rules(), &ctx.exe, &ctx.title, &ctx.bundle_id);
+    // Code editors and terminals (Literal) never get the text near the cursor.
+    let before_cursor = if tone == "literal" { String::new() } else { ctx.before_cursor.clone() };
     let tone = format!("{tone}|{}", s.typing_style); // cleanup::system_prompt splits it
     let cctx = CleanupContext {
+        before_cursor: before_cursor.clone(),
         app_exe: ctx.exe.clone(),
         window_title: ctx.title.clone(),
         tone,
@@ -316,7 +325,8 @@ async fn process(app: &AppHandle, state: &AppState, cap: Captured, ctx: AppConte
             .collect(),
     };
     let t1 = Instant::now();
-    let skip = s.typing_style == "full" && s.custom_rules.is_empty() && !heard_sounds_like(&terms, body);
+    let skip =
+        s.typing_style == "full" && s.custom_rules.is_empty() && !heard_sounds_like(&terms, body) && !cleanup::mid_sentence(&before_cursor);
     let cleaned = if body.trim().is_empty() {
         String::new()
     } else if skip && cleanup::should_skip(body) {
@@ -335,7 +345,7 @@ async fn process(app: &AppHandle, state: &AppState, cap: Captured, ctx: AppConte
         }
     };
     t.cleanup_ms = t1.elapsed().as_millis() as u64;
-    let cleaned = cleanup::strip_long_dashes(&cleaned);
+    let cleaned = cleanup::join_after(&before_cursor, &cleanup::strip_long_dashes(&cleaned));
     let final_text = match &hit {
         Some(h) => {
             state.db.bump_snippet(h.id);

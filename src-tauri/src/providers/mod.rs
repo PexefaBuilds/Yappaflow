@@ -61,6 +61,8 @@ pub struct CleanupContext {
     /// Default rule ids switched off, and the user's own extra rules (see cleanup::system_prompt).
     pub disabled_rules: Vec<String>,
     pub custom_rules: Vec<String>,
+    /// Text just before the cursor (cleanup::cursor_tail); empty when off. Never stored or logged.
+    pub before_cursor: String,
 }
 
 #[async_trait]

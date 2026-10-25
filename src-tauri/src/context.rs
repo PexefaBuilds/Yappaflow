@@ -16,6 +16,9 @@ pub struct AppContext {
     pub title: String,
     /// macOS bundle identifier, e.g. "com.tinyspeck.slackmacgap". Empty on Windows.
     pub bundle_id: String,
+    /// Text before the cursor at chord-down, when "Use text near the cursor" is on. Never serialised.
+    #[serde(skip)]
+    pub before_cursor: String,
 }
 
 #[cfg(windows)]
@@ -51,7 +54,7 @@ pub fn foreground() -> AppContext {
             }
             // Elevated processes may refuse even limited access → exe stays "".
         }
-        AppContext { exe, title, bundle_id: String::new() }
+        AppContext { exe, title, ..Default::default() }
     }
 }
 
@@ -61,7 +64,9 @@ pub fn foreground() -> AppContext {
 }
 
 #[cfg(target_os = "macos")]
-pub use mac::{focused_has_selection, focused_is_password, focused_text, foreground, restore_focus, start_focus_tracker};
+pub use mac::{
+    focused_has_selection, focused_is_password, focused_text, foreground, restore_focus, start_focus_tracker, text_before_cursor,
+};
 
 // ── Previously focused window (for the tray popup's Paste again / hands-free) ──
 
@@ -191,6 +196,36 @@ pub fn focused_text() -> Option<String> {
     None
 }
 
+/// Up to `max` chars just before the caret in the focused control (UIA TextPattern). The selection
+/// range is a copy, so moving it doesn't touch the user's selection. None for password fields or
+/// controls without TextPattern (a ValuePattern alone can't say where the caret is).
+#[cfg(windows)]
+pub fn text_before_cursor(max: usize) -> Option<String> {
+    use windows::Win32::UI::Accessibility::{
+        IUIAutomationTextPattern, TextPatternRangeEndpoint_End, TextPatternRangeEndpoint_Start, TextUnit_Character, UIA_TextPatternId,
+    };
+    let el = focused_element()?;
+    unsafe {
+        if el.CurrentIsPassword().ok()?.as_bool() {
+            return None;
+        }
+        let tp = el.GetCurrentPatternAs::<IUIAutomationTextPattern>(UIA_TextPatternId).ok()?;
+        let sel = tp.GetSelection().ok()?;
+        if sel.Length().ok()? == 0 {
+            return None;
+        }
+        let r = sel.GetElement(0).ok()?;
+        r.MoveEndpointByRange(TextPatternRangeEndpoint_End, &r, TextPatternRangeEndpoint_Start).ok()?; // collapse to the caret
+        r.MoveEndpointByUnit(TextPatternRangeEndpoint_Start, TextUnit_Character, -(max as i32)).ok()?;
+        Some(r.GetText(max as i32).ok()?.to_string())
+    }
+}
+
+#[cfg(not(any(windows, target_os = "macos")))]
+pub fn text_before_cursor(_max: usize) -> Option<String> {
+    None
+}
+
 // ── macOS: NSWorkspace for the app, the Accessibility (AX) API for window title and focused field ──
 
 #[cfg(target_os = "macos")]
@@ -209,6 +244,7 @@ pub(crate) mod mac {
         fn AXUIElementCreateSystemWide() -> Ref;
         fn AXUIElementCreateApplication(pid: i32) -> Ref;
         fn AXUIElementCopyAttributeValue(el: Ref, attr: Ref, out: *mut Ref) -> i32;
+        fn AXValueGetValue(value: Ref, kind: u32, out: *mut c_void) -> bool;
         pub(crate) fn AXIsProcessTrusted() -> bool;
         pub(crate) fn AXIsProcessTrustedWithOptions(options: Ref) -> bool;
         pub(crate) static kAXTrustedCheckOptionPrompt: Ref;
@@ -271,7 +307,7 @@ pub(crate) mod mac {
             // Window title via AX (we hold Accessibility); never via screen-recording APIs.
             let ax = Cf(unsafe { AXUIElementCreateApplication(app.processIdentifier()) });
             let title = attr(&ax, "AXFocusedWindow").and_then(|w| str_attr(&w, "AXTitle")).unwrap_or_default();
-            AppContext { exe, title, bundle_id }
+            AppContext { exe, title, bundle_id, ..Default::default() }
         })
     }
 
@@ -291,6 +327,32 @@ pub(crate) mod mac {
             return None;
         }
         autoreleasepool(|_| str_attr(&focused()?, "AXValue").map(|v| v.chars().take(MAX).collect()))
+    }
+
+    /// Up to `max` chars before the caret: AXValue cut at AXSelectedTextRange's start (UTF-16 units).
+    pub fn text_before_cursor(max: usize) -> Option<String> {
+        #[repr(C)]
+        struct CfRange {
+            location: isize,
+            _length: isize,
+        }
+        const AX_VALUE_CF_RANGE_TYPE: u32 = 4; // kAXValueCFRangeType
+        if focused_is_password() {
+            return None;
+        }
+        autoreleasepool(|_| {
+            let el = focused()?;
+            let value = str_attr(&el, "AXValue")?;
+            let range = attr(&el, "AXSelectedTextRange")?;
+            let mut r = CfRange { location: 0, _length: 0 };
+            if !unsafe { AXValueGetValue(range.0, AX_VALUE_CF_RANGE_TYPE, (&mut r as *mut CfRange).cast()) } {
+                return None;
+            }
+            let units: Vec<u16> = value.encode_utf16().take(r.location.max(0) as usize).collect();
+            let before = String::from_utf16_lossy(&units);
+            let n = before.chars().count();
+            Some(before.chars().skip(n.saturating_sub(max)).collect())
+        })
     }
 
     static LAST_PID: AtomicI32 = AtomicI32::new(0);
