@@ -40,7 +40,7 @@ Record findings and dates in phase-9.md Results.
 - [ ] Apple Developer ID certificate + notarisation API key (Phase 8): `APPLE_CERTIFICATE`, `APPLE_CERTIFICATE_PASSWORD`, `APPLE_SIGNING_IDENTITY`, `APPLE_API_ISSUER`, `APPLE_API_KEY` (+ the .p8).
 - [x] Tauri updater key generated (25 Oct 2026) at `%USERPROFILE%\.tauri\yappaflow-updater.key` (+ `.password`, `.pub`). Public key is in `tauri.conf.json`.
 - [ ] **Back up** `%USERPROFILE%\.tauri\yappaflow-updater.key` and `.key.password` offline (password manager / USB). Losing them means existing installs can never update again.
-- [ ] Add them as secrets in the `release` environment, so CI signs every release:
+- [x] Added as secrets in the `release` environment (25 Oct 2026), so CI signs every release:
   ```powershell
   Get-Content -Raw "$env:USERPROFILE\.tauri\yappaflow-updater.key" | gh secret set TAURI_SIGNING_PRIVATE_KEY --env release --repo PexefaBuilds/yappaflow
   Get-Content -Raw "$env:USERPROFILE\.tauri\yappaflow-updater.key.password" | gh secret set TAURI_SIGNING_PRIVATE_KEY_PASSWORD --env release --repo PexefaBuilds/yappaflow
