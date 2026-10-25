@@ -16,7 +16,7 @@ Updated 2026-10-25. `PLAN.md` §0 stays the product source of truth; this file i
 - **Release pipeline:**
   - `release.yml`: draft job → notices → Windows + macOS builds. These sign updater packages when the `TAURI_SIGNING_PRIVATE_KEY(_PASSWORD)` secrets exist (via `tauri.updater.conf.json`). The `checksums` job builds `latest.json` with `scripts/make_latest_json.py` (self-test `scripts/test_make_latest_json.py`) plus `SHA256SUMS`.
   - `updater-beta.yml` copies each published release's `latest.json` to the `updater-beta` prerelease (the Beta channel).
-  - v0.9.2 was signed by hand (`scripts/sign_release.md`). The CI secrets were added by the owner afterwards.
+  - v0.9.2 was signed by hand (`scripts/sign_release.md`). v0.9.3 is the first CI-signed release: its signatures for Windows and macOS (`.app.tar.gz`) name the key ID of the public key in `tauri.conf.json`. The macOS leg must build `--bundles app,dmg`, because dmg alone makes no updater package.
 
 ## Decisions and why
 - **Updates:**
@@ -24,7 +24,7 @@ Updated 2026-10-25. `PLAN.md` §0 stays the product source of truth; this file i
   - `latest.json` is built after both build legs finish, so they can't race.
   - Stable reads `releases/latest/download/latest.json` (skips prereleases); Beta reads `releases/download/updater-beta/latest.json`.
   - Updater key: `%USERPROFILE%\.tauri\yappaflow-updater.key` (+ `.password`, `.pub`). The public key is in `tauri.conf.json`. Losing the private key means installed copies can never update.
-- **Releasing:** don't cut a release with no app change. The next real release (v0.9.3) is the first CI-signed one and the first end-to-end update test.
+- **Releasing:** don't cut a release with no app change. v0.9.3 is the first CI-signed one and the first end-to-end update test.
 - **Installer folder:** NSIS appends `\Yappaflow` to the folder the user picks. Kept as is: safer uninstall, and no custom NSIS template to maintain.
 - **Rule 6 exceptions** (owner-approved, in CLAUDE.md): `lib.rs::elevate`, `llama_cpp.rs::tie_to_app`, `appicon.rs::set_taskbar_icon`.
 - **Command-edit Retry was dropped:** it lost the selection, and phase-5 says edits get no Retry.
@@ -41,10 +41,8 @@ Updated 2026-10-25. `PLAN.md` §0 stays the product source of truth; this file i
 None in flight. Working tree clean (`.claude/launch.json`, the vite preview config, is gitignored).
 
 ## Next steps (in order)
-1. **Next release (v0.9.3, with a real change):**
-   - Bump the version in `package.json`, `src-tauri/tauri.conf.json` and `src-tauri/Cargo.toml`, and add `docs/release-notes/v0.9.3.md`.
-   - Tag it, then check the draft has `.sig` files, `*.app.tar.gz` and `latest.json`. If not, sign by hand with `scripts/sign_release.md`.
-   - Publish, then confirm the installed 0.9.2 shows the update toast and updates. Also check that NSIS relaunches the app after the passive install, and that the macOS update works.
+1. **v0.9.3 (draft built and checked 25 Oct, tag on `2f1c444`, not published):**
+   - The owner publishes the draft, then confirm the installed 0.9.2 shows the update toast and updates. Also check that NSIS relaunches the app after the passive install, and that the macOS update works.
 2. **On-screen checks of v0.9.2:**
    - The taskbar icon matches the accent on all Windows versions (32 bpp `CreateIcon` alpha; `CreateIconIndirect` with a DIB section is the fallback).
    - About › Updates UI.
