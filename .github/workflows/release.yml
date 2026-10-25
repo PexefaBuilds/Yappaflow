@@ -94,7 +94,8 @@ jobs:
           # Unsigned beta: ad-hoc signed (tauri.macos.conf.json signingIdentity "-"), not notarised.
           - name: macos
             os: macos-14
-            args: --target universal-apple-darwin --bundles dmg
+          # `app` is needed for the signed updater package (.app.tar.gz); dmg alone makes none.
+            args: --target universal-apple-darwin --bundles app,dmg
     runs-on: ${{ matrix.os }}
     env:
       # llama-server sidecar for local cleanup (phase-7.md item 8), from the official llama.cpp
