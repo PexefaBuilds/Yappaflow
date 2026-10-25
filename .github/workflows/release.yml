@@ -94,7 +94,7 @@ jobs:
           # Unsigned beta: ad-hoc signed (tauri.macos.conf.json signingIdentity "-"), not notarised.
           - name: macos
             os: macos-14
-          # `app` is needed for the signed updater package (.app.tar.gz); dmg alone makes none.
+            # `app` is needed for the signed updater package (.app.tar.gz); dmg alone makes none.
             args: --target universal-apple-darwin --bundles app,dmg
     runs-on: ${{ matrix.os }}
     env:
