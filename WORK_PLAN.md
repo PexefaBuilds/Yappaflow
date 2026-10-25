@@ -41,8 +41,8 @@ Updated 2026-10-25. `PLAN.md` §0 stays the product source of truth; this file i
 None in flight. Working tree clean (`.claude/launch.json`, the vite preview config, is gitignored).
 
 ## Next steps (in order)
-1. **v0.9.3 (draft built and checked 25 Oct, tag on `2f1c444`, not published):**
-   - The owner publishes the draft, then confirm the installed 0.9.2 shows the update toast and updates. Also check that NSIS relaunches the app after the passive install, and that the macOS update works.
+1. **v0.9.3 (published 25 Oct, Latest; Stable and Beta manifests both serve it):**
+   - Confirm the installed 0.9.2 shows the update toast and updates. Also check that NSIS relaunches the app after the passive install, and that the macOS update works.
 2. **On-screen checks of v0.9.2:**
    - The taskbar icon matches the accent on all Windows versions (32 bpp `CreateIcon` alpha; `CreateIconIndirect` with a DIB section is the fallback).
    - About › Updates UI.
