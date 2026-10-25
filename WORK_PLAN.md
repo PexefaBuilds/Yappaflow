@@ -1,51 +1,81 @@
 # WORK_PLAN.md: live progress (read after CLAUDE.md)
 
-Updated 2026-10-24. `PLAN.md` §0 stays the product source of truth; this file is "where we are right now".
+Updated 2026-10-25. `PLAN.md` §0 stays the product source of truth; this file is "where we are right now".
 
-## Done (all on `main`; 141 Rust tests pass, `npm run build` passes; nothing acceptance-tested on screen)
-- **Phases 1–4** built: pipeline, cleanup + gate + app styles, pill/tray/toasts/settings/onboarding, Writing rules, dictionary + snippets + learn-from-corrections (`learn.rs`, UIA), Polishing/Paused pill states, pill text kept sharp (only `::before` morphs), pill 24 px above taskbar.
-- **Phase 5:** command mode (Ctrl+Win+Alt; fn+⌃ on Mac), selection grab via clipboard Snapshot + UIA selection check, never Ctrl+C in terminals, `CleanupProvider::edit()`, command prompt + 15-case eval (not run). Hands-free trigger setting `hands_free_double_tap` (default double-tap dictate, or its own shortcut).
-- **Phase 6 (app side):** per-user NSIS, Start with Windows, admin-mode relaunch, all-format clipboard restore (400 ms cap), rotating redacted log + `crash.log`, data controls. Typed line breaks = Shift+Enter.
-- **Phase 7:** cloud providers (OpenAI/Groq/Mistral/Custom URL presets, Deepgram, ElevenLabs, AssemblyAI, Gemini; cleanup Anthropic/Gemini/OpenRouter/Mistral), keys only over https or a validated custom URL, redirects off. Local: catalogue `resources/models.json` (HF-pinned + sha256), resumable downloader, hardware pick, llama-server sidecar (127.0.0.1, per-launch key, no proxy), `WhisperCppStt` behind feature `local-stt` (not buildable on this PC).
-- **Phase 8:** macOS port (CGEventTap, AX context, NSPasteboard, Keychain, perms onboarding, menu-bar icon, tauri-nspanel pill, migration v4 `bundle_id`). Builds, links, 127 tests pass on the Mac; never run with a GUI.
-- **Phase 9 groundwork:** README, PRIVACY, SECURITY, CONTRIBUTING, CODE_OF_CONDUCT, LICENSE (`<OWNER NAME>`), OFL, gitleaks, CI, draft-only Windows release workflow, `deny.toml`, `docs/RELEASE_CHECKLIST.md`.
-- **API usage estimate:** History page "Estimated API cost this month" + 12-month table (`usage.rs`, `resources/prices.json` from providers.md only, migration v5). Copy says Yappaflow is free.
-- **Local-models groundwork** (merged 24 Oct, reviewed + fixed): VRAM budget check, keep-loaded setting (`models/keep.rs`), "Use cloud once" toast, CI `local-engines` job, release steps that bundle a pinned llama-server (skipped while `LLAMA_TAG`/hashes are empty). Not done: pill "Warming up" state, low-priority start-up warm-up, free-VRAM check (uses dedicated VRAM).
-- **Polish** (merged 24 Oct): admin mode refused on standard accounts (stale setting cleared at startup), delete-all in one transaction that spares an in-flight dictation, About › Licences, issue/PR templates, cargo-about `THIRD_PARTY_NOTICES` job (none of the release/CI steps have run yet). Command-edit Retry was dropped (it lost the selection; phase-5 says no Retry for edits).
-- Identifier is `com.yappaflow.desktop`; `lib.rs` moves the old `com.yappaflow.app` roaming data folder once (done on the owner's PC).
+## Done (all on `main`, pushed; 144 Rust tests pass, clippy/fmt clean, `npm run build` passes; nothing acceptance-tested on screen)
+- **Phases 1–8 built:** pipeline, cleanup + gate + app styles, pill/tray/toasts/settings/onboarding, dictionary/snippets/learning, command mode, Phase 6 app side (per-user NSIS, autostart, admin relaunch, clipboard restore, logs, data controls), Phase 7 cloud + local providers, Phase 8 macOS port (builds and tests on the Mac, never run with a GUI). API cost estimate on History.
+- **Public:** https://github.com/PexefaBuilds/yappaflow (one squashed initial commit, noreply author; secret scanning, push protection, private vuln reporting, issue labels). Full local history only on local branch `pre-public-history` (never push).
+- **Releases** (unsigned NSIS `.exe` + universal ad-hoc-signed `.dmg` + `SHA256SUMS`):
+  - v0.9.0 (24 Oct): first public beta.
+  - v0.9.1 (25 Oct): onboarding window fits the screen (780 px, capped to work area); footer below content; providers in 2 columns; mic test auto-allowed via `WEBVIEW_ARGS` (`--use-fake-ui-for-media-stream`, identical on every window + `tauri.conf.json`, test enforces it).
+  - **v0.9.2 (25 Oct, Latest, installed on the owner's PC):**
+    - **Signed auto-updates** (`updater.rs`, tauri-plugin-updater 2.14): check 60 s after launch, then every 6 h. Auto-install on = background download, then a sticky "ready · Restart now" toast; off = "available · Update". It refuses while a dictation is active. Settings › About › Updates has the version, Check for updates, the auto-install toggle and a Stable/Beta channel.
+    - **Start with Windows** is the `start_with_windows` setting (default on), re-applied at every launch. Only `set_autostart` writes it.
+    - **Taskbar/Alt+Tab icon** follows the accent (`appicon.rs::set_taskbar_icon`, WM_SETICON ICON_BIG).
+- **Release pipeline:**
+  - `release.yml`: draft job → notices → Windows + macOS builds. These sign updater packages when the `TAURI_SIGNING_PRIVATE_KEY(_PASSWORD)` secrets exist (via `tauri.updater.conf.json`). The `checksums` job builds `latest.json` with `scripts/make_latest_json.py` (self-test `scripts/test_make_latest_json.py`) plus `SHA256SUMS`.
+  - `updater-beta.yml` copies each published release's `latest.json` to the `updater-beta` prerelease (the Beta channel).
+  - v0.9.2 was signed by hand (`scripts/sign_release.md`). The CI secrets were added by the owner afterwards.
 
 ## Decisions and why
-- rustfmt: `src-tauri/rustfmt.toml` (max_width 140, small heuristics Max). CI fmt + clippy (`-D warnings`) now block on Windows; the macOS leg stays non-blocking. The Mac has no clippy/rustfmt components (`cargo check` there is clean).
-- Parallel work = agents in git worktrees (`.claude/worktrees/`, gitignored); every branch gets a separate `opus-reviewer` pass before merge.
-- Cleanup gate skips the LLM unless needed (saves ~1.1 s); STT default `gpt-transcribe` (fastest in bench). Prompt changes need an eval re-run; `docs/prompts/*.md` and `providers/prompts/*.txt` must stay identical.
-- Hook rules: atomics + lock-free ring, never alloc/lock/log in `hook_proc` or the Mac tap callback.
-- Owner rule: **install nothing on the owner's PC** for local models; native local builds go in CI. Mac has rustup (`~/.cargo`) and Node 22 (`~/.local/node`, PATH in `~/.zprofile`), installed with the owner's OK; Mac files only under `~/ShahidPersonalProjects/Yappaflow/`.
-- Windows/Mac signing, updater key, Apple Developer ID, GitHub repo: owner only.
-- Never type or store API keys: the owner enters them in Settings › Models.
+- **Updates:**
+  - Updates never install without a click, and never mid-dictation (rule 3).
+  - `latest.json` is built after both build legs finish, so they can't race.
+  - Stable reads `releases/latest/download/latest.json` (skips prereleases); Beta reads `releases/download/updater-beta/latest.json`.
+  - Updater key: `%USERPROFILE%\.tauri\yappaflow-updater.key` (+ `.password`, `.pub`). The public key is in `tauri.conf.json`. Losing the private key means installed copies can never update.
+- **Releasing:** don't cut a release with no app change. The next real release (v0.9.3) is the first CI-signed one and the first end-to-end update test.
+- **Installer folder:** NSIS appends `\Yappaflow` to the folder the user picks. Kept as is: safer uninstall, and no custom NSIS template to maintain.
+- **Rule 6 exceptions** (owner-approved, in CLAUDE.md): `lib.rs::elevate`, `llama_cpp.rs::tie_to_app`, `appicon.rs::set_taskbar_icon`.
+- **Command-edit Retry was dropped:** it lost the selection, and phase-5 says edits get no Retry.
+- **Code style and CI:** rustfmt `max_width 140`. CI fmt + clippy `-D warnings` block on Windows; the macOS leg stays non-blocking.
+- **Engineering conventions:**
+  - Parallel work goes in git worktrees, and every branch gets an `opus-reviewer` pass before merge.
+  - Cleanup gate skips the LLM unless needed. Prompt changes need an eval re-run, and `docs/prompts/*.md` must stay identical to `providers/prompts/*.txt`.
+- **Owner rules:**
+  - Install nothing on the owner's PC for local models; native local builds go in CI.
+  - Never type or store API keys.
+  - Signing certificates and the Apple Developer ID are the owner's to handle.
 
 ## Current task
-None in flight. **v0.9.2 (25 Oct 2026): signed auto-updates** (`updater.rs`, About › Updates, Stable/Beta, `scripts/make_latest_json.py`, `updater-beta.yml`), Start with Windows default-on and restored at launch, taskbar icon follows the accent (`appicon.rs::set_taskbar_icon`). Updater key: `%USERPROFILE%\.tauri\yappaflow-updater.key` (+ .password, .pub); CI secrets added 25 Oct 2026, so releases from v0.9.3 sign themselves (first CI-signed release not yet seen); **owner must still back the key up offline**. **v0.9.1 released 25 Oct 2026** (onboarding fits the screen, Next below content, mic test auto-allowed via `WEBVIEW_ARGS`). **v0.9.0 public beta released 24 Oct 2026**: https://github.com/PexefaBuilds/yappaflow/releases/tag/v0.9.0 (unsigned `Yappaflow_0.9.0_x64-setup.exe` + universal ad-hoc-signed `.dmg`, `SHA256SUMS`). Repo is public under PexefaBuilds: one squashed commit (noreply author), secret scanning, push protection and private vulnerability reporting on, labels created. CI (incl. local-engines builds, gitleaks, cargo-deny) is green.
+None in flight. The working tree is clean apart from the untracked `.claude/` (local `launch.json` for the vite preview).
 
 ## Next steps (in order)
-1. Before filling the llama-server pins in `release.yml`: settle Phase 7 item 7 (CUDA DLL size/licence; the only Windows build bundled is CUDA, so check it runs without NVIDIA). Also open: `docs/providers.md` lacks the llama-server flags / `-ngl 0` fallback; macOS watchdog trusts PID liveness (PID reuse); create repo labels `bug`, `enhancement`, `provider` for the issue forms.
-2. Owner: on-screen acceptance tests for Phases 1–8 (lists in `docs/phases/phase-N.md`; paste results there). Evals 4.5/5.5 cost cents with the saved key.
-3. Owner: rotate the OpenAI key (old one was pasted in chat); add a Groq key; run `stt_bench` / `cleanup_eval` with `STT_PROVIDER`/`EVAL_PROVIDER` and pick defaults.
-4. Owner: remaining items in `docs/RELEASE_CHECKLIST.md` (trademark/domain searches, Windows + Apple Developer ID signing, updater key, a required reviewer on the `release` environment). Test builds on request: unsigned NSIS here, `.dmg` on the Mac.
+1. **Next release (v0.9.3, with a real change):**
+   - Bump the version in `package.json`, `src-tauri/tauri.conf.json` and `src-tauri/Cargo.toml`, and add `docs/release-notes/v0.9.3.md`.
+   - Tag it, then check the draft has `.sig` files, `*.app.tar.gz` and `latest.json`. If not, sign by hand with `scripts/sign_release.md`.
+   - Publish, then confirm the installed 0.9.2 shows the update toast and updates. Also check that NSIS relaunches the app after the passive install, and that the macOS update works.
+2. **On-screen checks of v0.9.2:**
+   - The taskbar icon matches the accent on all Windows versions (32 bpp `CreateIcon` alpha; `CreateIconIndirect` with a DIB section is the fallback).
+   - About › Updates UI.
+   - History offers Retry for a row whose process died mid-STT.
+3. **Phase 7 local-model leftovers:**
+   - Settle item 7 (CUDA DLL size/licence, and whether the CUDA build runs without NVIDIA) before filling the llama-server pins in `release.yml`.
+   - `docs/providers.md` is missing the llama-server flags and the `-ngl 0` fallback.
+   - The macOS watchdog trusts PID liveness, so PID reuse can fool it.
+   - Pill "Warming up" state.
+4. **Owner:** on-screen acceptance tests for Phases 1–8 (paste results into `docs/phases/phase-N.md`); rotate the OpenAI key; add a Groq key and run `stt_bench` / `cleanup_eval` to pick defaults.
+5. **Owner:** back up the updater key offline. Remaining `docs/RELEASE_CHECKLIST.md` items: trademark/domains, Windows + Apple Developer ID signing, a required reviewer on the `release` environment.
 
 ## Open questions for the owner
-- Default providers after benchmarks. Very wide settings pages: cap line length?
+- Default providers after the benchmarks.
+- Very wide settings pages: cap the line length?
+- Has the updater key been backed up offline?
 
 ## Gotchas
-- `cargo` isn't on PATH in new shells: Git Bash `export PATH="$PATH:$HOME/.cargo/bin"`. Owner's terminal is **PowerShell**: give PowerShell syntax (e.g. `Remove-Item -Recurse -Force`), not bash.
-- Python heredocs in Git Bash: don't add `< /dev/null` after `<<'EOF'` (it replaces the heredoc). Writing a script file to the scratchpad and running `python -I file.py` is reliable.
-- Claude Code's safety check blocks `rm -rf` on drive-root folders (e.g. `D:\x`); ask the owner.
-- `npm run tauri dev` auto-rebuilds on Rust edits; port 1420 must be free.
-- Every new `Settings` field needs a serde default; schema changes are new migration steps (last is v5).
-- `capabilities/default.json` must keep listing main, pill, onboarding, toast, tray.
-- Rule 6 has two owner-approved exceptions (see CLAUDE.md): `lib.rs::elevate`, `llama_cpp.rs::tie_to_app`.
-- Never launch an installer or the app from a Claude tool directly: Claude is an MSIX app, so Windows redirects AppData writes into its sandbox (`%LOCALAPPDATA%\Packages\Claude_*\LocalCache`). Start them with `explorer.exe <path>`.
-- Worktree `node_modules`: link with a junction to the main one; remove it with `cmd /c rmdir` (never `Remove-Item -Recurse`) before `git worktree remove`.
-- Typing mode sends Shift+Enter for newlines. Command mode: apps without UIA TextPattern still get Ctrl+C on an empty selection.
-- Local STT on Windows needs LLVM/libclang + `LIBCLANG_PATH`, CMake on PATH, and a short `CARGO_TARGET_DIR` (long worktree paths break MSBuild).
-- Unverified provider details are listed in `docs/providers.md` › Phase 7 build checks (AssemblyAI model ID, Mistral/ElevenLabs list encoding, Gemini thinking field).
-- The owner dictates messages: expect transcription slips; read for intent.
+- **Never launch an installer or the app from a Claude tool directly.**
+  - Claude is an MSIX app, so new `%LOCALAPPDATA%` writes go into `%LOCALAPPDATA%\Packages\Claude_*\LocalCache`, and the registry goes through an overlay. Deleted keys can look missing there.
+  - Start them with `explorer.exe <path>`. For a silent install, use an Explorer-launched `.cmd` running `setup.exe /S`.
+  - Read the real registry with `reg query` inside an Explorer-launched `.cmd`.
+- **`gh` logins are separate:** Claude's `gh` login lives in the sandbox; the owner's PowerShell has its own (`gh auth login`, done 25 Oct).
+- **GitHub secrets:** the permission classifier blocks Claude from setting them. The owner runs those commands.
+- **Owner's terminal is PowerShell:** give PowerShell syntax (`Start-Process`, not `start ""`).
+- **cargo PATH:** cargo isn't on PATH in new shells. In Git Bash: `export PATH="$PATH:$HOME/.cargo/bin"`.
+- **Chained shell commands:** in `a && b`, a failed `a` doesn't stop later `;` commands even with `set -e`. Check each step before tagging; a bad chain once tagged a release without its fixes.
+- **Python scripts:** write them to the scratchpad and run `python -I file.py`. Heredocs and `printf` with `\U` paths break in Git Bash.
+- **Settings and schema:** every new `Settings` field needs a serde default (struct-level `#[serde(default)]`). Schema changes are new migration steps (last is v5). `capabilities/default.json` must keep main, pill, onboarding, toast and tray.
+- **WebView args:** WebView2 windows share one environment. Any new window must use `crate::WEBVIEW_ARGS`, or window creation fails.
+- **Dev mode:** `npm run tauri dev` needs port 1420 free.
+- **Release asset name:** the macOS updater asset is `*.app.tar.gz`. Hand-made ones need `COPYFILE_DISABLE=1 tar`.
+- **Local STT on Windows** needs LLVM/libclang, CMake and a short `CARGO_TARGET_DIR`.
+- **Unverified provider details** are listed in `docs/providers.md` › Phase 7 build checks.
+- **The owner dictates messages:** expect transcription slips, and read for intent.
