@@ -15,6 +15,7 @@ mod learn;
 mod logging;
 mod models;
 mod onboarding;
+mod openai_costs;
 mod pill;
 mod pipeline;
 mod providers;
@@ -321,6 +322,7 @@ pub fn run() {
             commands::list_mics,
             commands::recent_dictations,
             commands::usage_estimate,
+            commands::openai_real_cost,
             commands::retry_dictation,
             commands::copy_text,
             commands::open_recordings_folder,

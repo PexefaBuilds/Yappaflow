@@ -1,5 +1,6 @@
 import { invoke } from "@tauri-apps/api/core";
-import { ctx, h, providerName } from "./common";
+import { isMac } from "../os";
+import { btn, ctx, h, nextId, providerName } from "./common";
 
 interface RowCost {
   created_at: number; duration_ms: number;
@@ -25,7 +26,8 @@ export function costPanel() {
   const oldNote = h("p", { className: "help note" });
   const el = h("div", { className: "card cost" }, line,
     h("details", {}, h("summary", { className: "help" }, "How is this worked out?"), how),
-    h("details", {}, h("summary", { className: "help" }, "Last 12 months"), months, oldNote, foot));
+    h("details", {}, h("summary", { className: "help" }, "Last 12 months"), months, oldNote, foot),
+    realSpend());
 
   async function load() {
     const now = new Date();
@@ -87,4 +89,39 @@ export function costPanel() {
   }
 
   return { el, load: () => load().catch((e) => { line.textContent = `Couldn't work out the estimate: ${e}`; }) };
+}
+
+/** Optional: OpenAI's real spend this month for the saved key's project, via an admin key. */
+function realSpend() {
+  const id = nextId("admin");
+  const input = h("input", { id, className: "input grow", type: "password", autocomplete: "off", spellcheck: false, placeholder: "sk-admin-…" });
+  const res = h("p", { className: "help", role: "status" });
+  const refresh = async () => {
+    const masked = await invoke<string>("provider_key_status", { provider: "openai_admin" }).catch(() => "");
+    input.value = "";
+    input.placeholder = masked ? `Saved: ${masked}` : "sk-admin-…";
+    if (!masked) { res.textContent = ""; return; }
+    res.textContent = "Asking OpenAI…";
+    const now = new Date();
+    try {
+      const r = await invoke<{ usd: number; project: string | null }>("openai_real_cost", { sinceMs: new Date(now.getFullYear(), now.getMonth(), 1).getTime() });
+      res.textContent = `Real OpenAI spend this month: $${r.usd.toFixed(2)} `
+        + (r.project ? `(project "${r.project}", all keys and devices)` : "(whole organisation: the saved OpenAI key's project wasn't found)");
+    } catch (e) { res.textContent = String(e); }
+  };
+  const store = async (v: string) => {
+    try { await invoke("set_provider_key", { provider: "openai_admin", key: v }); await refresh(); }
+    catch (e) { res.textContent = String(e); }
+  };
+  input.addEventListener("keydown", (e) => { if (e.key === "Enter" && input.value.trim()) void store(input.value.trim()); });
+  const details = h("details", {}, h("summary", { className: "help" }, "Real OpenAI spend (optional)"),
+    h("p", { className: "help note" }, "Paste an OpenAI Admin key (sk-admin-…, Organization › Admin keys; read-only is enough) to see what OpenAI actually billed this month "
+      + `for the project of your saved OpenAI key. Stored in ${isMac ? "your Mac's Keychain" : "Windows Credential Manager"}, sent only to OpenAI, used only when this panel opens.`),
+    h("label", { htmlFor: id, className: "lbl" }, "OpenAI admin key"),
+    h("div", { className: "actions" }, input,
+      btn("Save", "p", () => { if (input.value.trim()) void store(input.value.trim()); }),
+      btn("Remove", "g", () => void store(""))),
+    res);
+  details.addEventListener("toggle", () => { if (details.open) void refresh(); });
+  return details;
 }

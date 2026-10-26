@@ -20,7 +20,7 @@ fn account(provider: &str) -> String {
 
 /// Only these ids may become Credential Manager entry names.
 pub const KNOWN: &[&str] =
-    &["openai", "groq", "mistral", "deepgram", "elevenlabs", "assemblyai", "gemini", "anthropic", "openrouter", "custom"];
+    &["openai", "groq", "mistral", "deepgram", "elevenlabs", "assemblyai", "gemini", "anthropic", "openrouter", "custom", "openai_admin"];
 
 pub fn check(provider: &str) -> Result<(), String> {
     if KNOWN.contains(&provider) {

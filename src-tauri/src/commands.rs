@@ -171,3 +171,10 @@ pub fn open_recordings_folder(state: State<'_, Arc<AppState>>) -> Res<()> {
     let _ = dir;
     Ok(())
 }
+
+/// Optional real OpenAI spend since `since_ms`, using the admin key saved as "openai_admin".
+#[tauri::command]
+pub async fn openai_real_cost(state: State<'_, Arc<AppState>>, since_ms: i64) -> Res<crate::openai_costs::RealCost> {
+    let admin = secrets::provider_key("openai_admin").ok_or("No OpenAI admin key is saved.")?;
+    crate::openai_costs::since(&state.http, &admin, secrets::api_key().as_deref(), since_ms / 1000).await
+}
