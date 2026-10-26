@@ -70,6 +70,11 @@ body { display: flex; align-items: flex-end; justify-content: center; padding-bo
 .resume svg { width: calc(10 * var(--u)); height: calc(10 * var(--u)); }
 .resume:focus-visible { outline: 2px solid var(--text); outline-offset: -2px; border-radius: inherit; }
 .stop:focus-visible { outline: 2px solid var(--text); outline-offset: 2px; }
+/* Polishing: elapsed time + "Paste now" (insert the raw transcript without waiting for cleanup). */
+.pill.has-skip { padding-right: calc(8 * var(--u)); }
+.skip { all: unset; flex: none; cursor: pointer; height: calc(34 * var(--u)); padding: 0 calc(14 * var(--u)); border-radius: calc(999 * var(--u)); background: var(--accent); color: var(--on-accent); font-size: calc(14 * var(--u)); font-weight: 500; display: flex; align-items: center; }
+.skip:disabled { opacity: 0.6; cursor: default; }
+.skip:focus-visible { outline: 2px solid var(--text); outline-offset: 2px; }
 
 /* PillExtras 09 Command: --command (violet; coral when the accent is Violet) replaces the accent. */
 .pill.command::before { box-shadow: var(--pill-shadow), inset 0 0 0 1px color-mix(in srgb, var(--command) 35%, transparent); }

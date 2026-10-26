@@ -68,8 +68,9 @@ pub struct Settings {
     /// Local models: always | idle (unload after 15 min idle) | after_use. Default: always on a GPU build.
     pub keep_models_loaded: String,
     /// General › "Use text near the cursor": send up to 500 chars before the cursor to cleanup as
-    /// context. Off by default: that text goes to the cleanup provider. Never stored or logged.
-    pub cursor_context: bool,
+    /// context. On by default (owner, 26 Oct); never stored or logged. Renamed from
+    /// `cursor_context` (off by default in 0.9.4) so every install starts with it on once.
+    pub use_cursor_context: bool,
 }
 
 impl Default for Settings {
@@ -101,7 +102,7 @@ impl Default for Settings {
             admin_mode: false,
             start_with_windows: true,
             auto_update: true,
-            cursor_context: false,
+            use_cursor_context: true,
             update_channel: "stable".into(),
             llama_server_path: String::new(),
             keep_models_loaded: if crate::models::GPU_BUILD { "always" } else { "idle" }.into(),

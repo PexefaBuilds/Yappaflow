@@ -115,6 +115,14 @@ pub fn user_message(text: &str, ctx: &CleanupContext) -> String {
     )
 }
 
+/// Cleanup's time limit: 3 s, plus 1 s per 40 words, at most 12 s. Cloud models take 1-2 s for a
+/// short dictation and longer for long ones; the limit only catches a stuck request, and the
+/// pill's "Paste now" lets the user stop waiting sooner.
+pub fn timeout_for(text: &str) -> std::time::Duration {
+    let words = text.split_whitespace().count() as u64;
+    std::time::Duration::from_millis((3000 + words * 1000 / 40).min(12_000))
+}
+
 /// How much text before the cursor the cleanup sees (Settings › General › Use text near the cursor).
 pub const CURSOR_CHARS: usize = 500;
 
@@ -443,6 +451,14 @@ mod tests {
         assert_eq!(join_after("Hello", ", world"), ", world");
         assert_eq!(join_after("(", "see below"), "see below");
         assert_eq!(join_after("", "Hi."), "Hi.");
+    }
+
+    #[test]
+    fn timeout_grows_with_length_and_is_capped() {
+        use std::time::Duration;
+        assert_eq!(timeout_for("Let's meet Friday."), Duration::from_millis(3075));
+        assert_eq!(timeout_for(&"word ".repeat(90)), Duration::from_millis(5250));
+        assert_eq!(timeout_for(&"word ".repeat(2000)), Duration::from_secs(12));
     }
 
     #[test]

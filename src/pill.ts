@@ -10,7 +10,7 @@ type Status =
   | { state: "paused"; until_ms: number }
   | { state: "listening"; hands_free: boolean; command?: boolean }
   | { state: "rewriting"; instruction: string }
-  | { state: "done"; text: string; total_ms: number; outcome: Outcome }
+  | { state: "done"; text: string; total_ms: number; outcome: Outcome; cleanup_failed?: boolean; cleanup_skipped?: boolean }
   | { state: "error"; message: string };
 
 const BARS = 9;
@@ -103,10 +103,12 @@ function mmss(ms: number) {
 // Rust hides the window after these; hide the element too, so the next recording
 // grows from a dot instead of morphing out of the stale "Pasted" shape.
 const HIDE_AFTER: Record<string, number> = { done: 1200, empty: 1400, error: 5000 };
+const FAILED_HIDE_AFTER = 3000; // pill.rs keeps the window up as long
 
 function render(s: Status) {
   clearTimeout(hideTimer);
-  if (HIDE_AFTER[s.state]) hideTimer = window.setTimeout(() => (pill.hidden = true), HIDE_AFTER[s.state]);
+  const hideAfter = s.state === "done" && (s.cleanup_failed || s.cleanup_skipped) ? FAILED_HIDE_AFTER : HIDE_AFTER[s.state];
+  if (hideAfter) hideTimer = window.setTimeout(() => (pill.hidden = true), hideAfter);
   // CommandMode.dc.html: the spoken instruction above the pill while the edit runs.
   bubble.hidden = s.state !== "rewriting";
   if (s.state === "rewriting") bubble.textContent = `“${s.instruction.trim()}”`;
@@ -131,12 +133,29 @@ function render(s: Status) {
       timer = window.setInterval(() => (clock.textContent = mmss(Date.now() - t0)), 500);
       break;
     }
-    case "processing":
-    case "polishing": {
+    case "processing": {
       const track = el("div", "track");
       track.setAttribute("aria-hidden", "true");
       track.append(el("div", "sheen"));
-      show("", track, el("span", "label", s.state === "polishing" ? "Polishing" : "Transcribing"));
+      show("", track, el("span", "label", "Transcribing"));
+      break;
+    }
+    case "polishing": {
+      // How long cleanup is taking, and a way out: paste the raw transcript now.
+      const track = el("div", "track");
+      track.setAttribute("aria-hidden", "true");
+      track.append(el("div", "sheen"));
+      const t0 = Date.now();
+      const clock = el("span", "meta", "0.0 s");
+      const skip = el("button", "skip", "Paste now");
+      skip.type = "button";
+      skip.setAttribute("aria-label", "Paste now without cleanup");
+      skip.addEventListener("click", () => {
+        skip.disabled = true;
+        void invoke("pill_skip_cleanup");
+      });
+      show("has-skip", track, el("span", "label", "Polishing"), clock, skip);
+      timer = window.setInterval(() => (clock.textContent = `${((Date.now() - t0) / 1000).toFixed(1)} s`), 100);
       break;
     }
     case "rewriting": {
@@ -164,6 +183,11 @@ function render(s: Status) {
         '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
       if (s.outcome.kind === "left_on_clipboard") {
         show("has-tick fade", tick, el("span", "label strong", isMac ? "Copied · press ⌘V" : "Copied, press Ctrl+V"));
+      } else if (s.cleanup_failed || s.cleanup_skipped) {
+        // The raw transcript went in; say so, so a missing cleanup isn't a mystery.
+        const word = s.outcome.kind === "typed" ? "Typed" : "Pasted";
+        const why = s.cleanup_failed ? "cleanup failed" : "cleanup skipped";
+        show("fade", el("span", s.cleanup_failed ? "dot warn" : "dot muted"), el("span", "label strong", word), el("span", "meta", why));
       } else {
         const word = s.outcome.kind === "typed" ? "Typed" : "Pasted";
         show("has-tick fade", tick, el("span", "label strong", word), el("span", "meta", `${(s.total_ms / 1000).toFixed(2)} s`));

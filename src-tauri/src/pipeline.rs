@@ -31,6 +31,10 @@ pub enum CtlMsg {
     ProcessingDone(u64),
 }
 
+/// The pill's "Paste now" while Polishing: stop waiting for cleanup and insert the raw text.
+/// notify_waiters (not notify_one) so a late click can't skip the next dictation's cleanup.
+pub static SKIP_CLEANUP: tokio::sync::Notify = tokio::sync::Notify::const_new();
+
 #[derive(Serialize, Clone)]
 #[serde(tag = "state", rename_all = "snake_case")]
 pub enum Status {
@@ -55,6 +59,10 @@ pub enum Status {
         text: String,
         total_ms: u64,
         outcome: Outcome,
+        /// Cleanup errored or ran out of time, so the raw transcript was inserted.
+        cleanup_failed: bool,
+        /// The user pressed "Paste now" on the pill, so the raw transcript was inserted.
+        cleanup_skipped: bool,
     },
     /// Nothing audible was recorded; nothing sent.
     Empty,
@@ -206,7 +214,7 @@ impl Controller {
         tauri::async_runtime::spawn(async move { stt.prewarm().await });
         tauri::async_runtime::spawn(async move { clean.prewarm().await });
         // Read after the mic is running, so a slow UI Automation call can't cost the first words.
-        if s.cursor_context && !self.session.is_command() {
+        if s.use_cursor_context && !self.session.is_command() {
             if let (Some(ctx), Some(before)) = (self.ctx.as_mut(), context::text_before_cursor(cleanup::CURSOR_CHARS)) {
                 ctx.before_cursor = cleanup::cursor_tail(&before);
             }
@@ -306,7 +314,8 @@ async fn process(app: &AppHandle, state: &AppState, cap: Captured, ctx: AppConte
     let body = hit.as_ref().map_or(transcript.text.as_str(), |h| h.prefix.as_str());
 
     // ── Cleanup. Errors fall back to the raw text. ──
-    let cleanup = registry::build_cleanup(&s, &state.http);
+    // The limit grows with the dictation; the pill's "Paste now" skips the wait (SKIP_CLEANUP).
+    let cleanup = registry::build_cleanup_with_timeout(&s, &state.http, cleanup::timeout_for(body));
     let tone = cleanup::resolve_style(&state.db.style_rules(), &ctx.exe, &ctx.title, &ctx.bundle_id);
     // Code editors and terminals (Literal) never get the text near the cursor.
     let before_cursor = if tone == "literal" { String::new() } else { ctx.before_cursor.clone() };
@@ -327,19 +336,29 @@ async fn process(app: &AppHandle, state: &AppState, cap: Captured, ctx: AppConte
     let t1 = Instant::now();
     let skip =
         s.typing_style == "full" && s.custom_rules.is_empty() && !heard_sounds_like(&terms, body) && !cleanup::mid_sentence(&before_cursor);
+    let (mut cleanup_failed, mut cleanup_skipped) = (false, false);
     let cleaned = if body.trim().is_empty() {
         String::new()
     } else if skip && cleanup::should_skip(body) {
         body.to_string()
     } else {
+        let skipped = SKIP_CLEANUP.notified(); // registered before the pill can show its button
         emit_status(app, Status::Polishing);
-        match cleanup.clean(body, &cctx).await {
-            Ok(c) => {
-                let _ = state.db.set_cleanup_usage(row_id, &s.cleanup_provider, &s.cleanup_model, usage::clean_tokens(body, &cctx, &c));
-                c
-            }
-            Err(e) => {
-                log::warn!("cleanup failed, using raw transcript: {e:#}");
+        tokio::select! {
+            r = cleanup.clean(body, &cctx) => match r {
+                Ok(c) => {
+                    let _ = state.db.set_cleanup_usage(row_id, &s.cleanup_provider, &s.cleanup_model, usage::clean_tokens(body, &cctx, &c));
+                    c
+                }
+                Err(e) => {
+                    log::warn!("cleanup failed, using raw transcript: {e:#}");
+                    cleanup_failed = true;
+                    body.to_string()
+                }
+            },
+            _ = skipped => {
+                log::info!("cleanup skipped from the pill");
+                cleanup_skipped = true;
                 body.to_string()
             }
         }
@@ -394,7 +413,7 @@ async fn process(app: &AppHandle, state: &AppState, cap: Captured, ctx: AppConte
     if !matches!(outcome, Outcome::LeftOnClipboard(_)) {
         crate::learn::watch(app.clone(), final_text.clone());
     }
-    emit_status(app, Status::Done { text: final_text, total_ms: t.total_ms, outcome });
+    emit_status(app, Status::Done { text: final_text, total_ms: t.total_ms, outcome, cleanup_failed, cleanup_skipped });
     let _ = app.emit("dictation-updated", row_id);
 
     for p in state.db.take_old_audio(s.keep_recordings).unwrap_or_default() {
@@ -519,7 +538,7 @@ async fn process_command(app: &AppHandle, state: &AppState, cap: Captured, ctx: 
         t.insert_ms,
         selection.as_ref().map_or(0, |x| x.chars().count())
     );
-    emit_status(app, Status::Done { text: edited, total_ms: t.total_ms, outcome });
+    emit_status(app, Status::Done { text: edited, total_ms: t.total_ms, outcome, cleanup_failed: false, cleanup_skipped: false });
     if selection.is_some() && !left {
         crate::toast::replaced_selection(app);
     }

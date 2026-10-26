@@ -352,6 +352,7 @@ pub fn run() {
             learn::answer_term_suggestion,
             settings_cmds::read_audio,
             pill::pill_stop,
+            pill::pill_skip_cleanup,
             settings_cmds::set_hotkey_capture,
             settings_cmds::get_default_cleanup_rules,
             toast::toast_hide,

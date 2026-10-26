@@ -141,7 +141,12 @@ pub fn on_status(app: &AppHandle, s: &Status) {
     };
     match s {
         Status::Listening { hands_free, .. } => show(*hands_free),
-        Status::Processing | Status::Polishing | Status::Rewriting { .. } => show(false),
+        Status::Processing | Status::Rewriting { .. } => show(false),
+        Status::Polishing => show(true), // "Paste now" button
+        Status::Done { cleanup_failed: true, .. } | Status::Done { cleanup_skipped: true, .. } => {
+            show(false);
+            hide_after(app, gen, Duration::from_millis(3000));
+        }
         // The resting handle: click it to resume. Hides itself when the pause runs out.
         Status::Paused { until_ms } => {
             show(true);
@@ -164,6 +169,12 @@ pub fn on_status(app: &AppHandle, s: &Status) {
             let _ = w.hide();
         }
     }
+}
+
+/// "Paste now" while Polishing: insert the raw transcript without waiting for cleanup.
+#[tauri::command]
+pub fn pill_skip_cleanup() {
+    crate::pipeline::SKIP_CLEANUP.notify_waiters();
 }
 
 /// The hands-free stop button: same as tapping the hotkey again.
