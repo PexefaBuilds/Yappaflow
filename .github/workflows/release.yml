@@ -93,7 +93,8 @@ jobs:
           # `--features local-stt,metal` on the macOS leg.
           # Unsigned beta: ad-hoc signed (tauri.macos.conf.json signingIdentity "-"), not notarised.
           - name: macos
-            os: macos-14
+            os: macos-15
+            # macos-14 (arm64) had no capacity for v0.9.5 (3 attempts never got a runner).
             # `app` is needed for the signed updater package (.app.tar.gz); dmg alone makes none.
             args: --target universal-apple-darwin --bundles app,dmg
     runs-on: ${{ matrix.os }}
@@ -124,7 +125,7 @@ jobs:
 
       - uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec # stable
         with:
-          targets: ${{ matrix.os == 'macos-14' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
+          targets: ${{ matrix.os == 'macos-15' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
 
       - uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
         with:
