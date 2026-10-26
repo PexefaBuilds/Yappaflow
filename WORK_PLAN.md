@@ -56,7 +56,7 @@ Updated 2026-10-26. `PLAN.md` §0 stays the product source of truth; this file i
   - Signing certificates and the Apple Developer ID are the owner's to handle.
 
 ## Current task
-**Shipping v0.9.8** (tag pushed, draft release exists, CI run 40363138858 cancelled after notices).
+**v0.9.8 published 26 Oct** (all 7 assets signed and uploaded; `latest/download/latest.json` reports 0.9.8). Next: step 0's remaining items. Notes below kept for the next local release.
 - Mac: done. `Yappaflow_0.9.8_universal.dmg` + `.app.tar.gz` are on the Mac in `~/ShahidPersonalProjects/Yappaflow-rel/src-tauri/target/universal-apple-darwin/release/bundle/{dmg,macos}/` (a copy was scp'd to the session scratchpad, which won't survive).
 - Windows: built (20:59) with the CI notices: `src-tauri/target/release/bundle/nsis/Yappaflow_0.9.8_x64-setup.exe`. **No `.sig`**: `tauri build` wants `TAURI_SIGNING_PRIVATE_KEY` (the key text); `_PATH` only works for `tauri signer sign`, so the bundler errored after making the exe. Sign the exe by hand like the Mac package.
 - Then: sign the exe and the Mac `.app.tar.gz` on the PC (`npx tauri signer sign`, see `scripts/sign_release.md`), upload exe, exe.sig, dmg, app.tar.gz, app.tar.gz.sig to the v0.9.8 draft, run `python -I scripts/make_latest_json.py v0.9.8 <dir> PexefaBuilds/Yappaflow docs/release-notes/v0.9.8.md`, write `SHA256SUMS`, upload both, check the asset list, publish (`gh release edit v0.9.8 --draft=false --latest`). The owner already asked to ship it.
