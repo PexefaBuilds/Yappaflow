@@ -11,7 +11,7 @@ Updated 2026-10-26. `PLAN.md` §0 stays the product source of truth; this file i
   - v0.9.2 (25 Oct):
     - **Signed auto-updates** (`updater.rs`, tauri-plugin-updater 2.14): check 60 s after launch, then every 6 h. Auto-install on = background download, then a sticky "ready · Restart now" toast; off = "available · Update". It refuses while a dictation is active. Settings › About › Updates has the version, Check for updates, the auto-install toggle and a Stable/Beta channel.
     - **Start with Windows** is the `start_with_windows` setting (default on), re-applied at every launch. Only `set_autostart` writes it.
-    - **Taskbar/Alt+Tab icon** follows the accent (`appicon.rs::set_taskbar_icon`, WM_SETICON ICON_BIG).
+    - **Window icon** follows the accent (`appicon.rs::set_taskbar_icon`, WM_SETICON ICON_BIG). The taskbar button still stayed azure, because Windows draws it from the shortcut; that's fixed only from v0.9.5 (shortcut recolouring, below).
   - v0.9.3 (25 Oct): first CI-signed release; the owner's 0.9.2 auto-updated to it. v0.9.4 (25 Oct): the owner's PC auto-updated to it (0.9.3 → 0.9.4 seen working).
   - **v0.9.5 (26 Oct, Latest):** dynamic cleanup limit, Paste now, cleanup failed/skipped notices, cursor context on by default, accent taskbar/Dock icon. The owner hasn't installed it yet.
 - **macOS watchdog** (v0.9.3): llama-server is tied to the app with a pipe, not PID polling (PID reuse safe; unix test).
