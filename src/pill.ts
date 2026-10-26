@@ -102,7 +102,7 @@ function mmss(ms: number) {
 
 // Rust hides the window after these; hide the element too, so the next recording
 // grows from a dot instead of morphing out of the stale "Pasted" shape.
-const HIDE_AFTER: Record<string, number> = { done: 1200, empty: 1400, error: 5000 };
+const HIDE_AFTER: Record<string, number> = { done: 1200, cancelled: 1200, empty: 1400, error: 5000 };
 const FAILED_HIDE_AFTER = 3000; // pill.rs keeps the window up as long
 
 function render(s: Status) {
@@ -194,6 +194,9 @@ function render(s: Status) {
       }
       break;
     }
+    case "cancelled":
+      show("fade", el("span", "dot muted"), el("span", "label", "Dictation cancelled"));
+      break;
     case "empty":
       show("fade", el("span", "dot muted"), el("span", "label", "Didn't hear anything"));
       break;

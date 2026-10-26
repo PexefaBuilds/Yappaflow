@@ -173,7 +173,11 @@ pub fn on_status(app: &AppHandle, s: &Status) {
             show(false);
             hide_after(app, gen, Duration::from_millis(5000));
         }
-        Status::Idle | Status::Cancelled => {
+        Status::Cancelled => {
+            show(false);
+            hide_after(app, gen, Duration::from_millis(1200));
+        }
+        Status::Idle => {
             let _ = w.hide();
         }
     }
