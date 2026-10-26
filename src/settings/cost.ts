@@ -24,10 +24,12 @@ export function costPanel() {
   const foot = h("p", { className: "help note" });
   const how = h("p", { className: "help note" });
   const oldNote = h("p", { className: "help note" });
-  const el = h("div", { className: "card cost" }, line,
+  const real = h("p", { className: "lbl", role: "status", hidden: true });
+  const spend = realSpend(real);
+  const el = h("div", { className: "card cost" }, line, real,
     h("details", {}, h("summary", { className: "help" }, "How is this worked out?"), how),
     h("details", {}, h("summary", { className: "help" }, "Last 12 months"), months, oldNote, foot),
-    realSpend());
+    spend.el);
 
   async function load() {
     const now = new Date();
@@ -88,11 +90,11 @@ export function costPanel() {
     foot.textContent = `From this PC's History only (Yappaflow ${est.version}). Deleting all history resets these estimates.`;
   }
 
-  return { el, load: () => load().catch((e) => { line.textContent = `Couldn't work out the estimate: ${e}`; }) };
+  return { el, load: () => { void spend.refresh(); return load().catch((e) => { line.textContent = `Couldn't work out the estimate: ${e}`; }); } };
 }
 
 /** Optional: OpenAI's real spend this month for the saved key's project, via an admin key. */
-function realSpend() {
+function realSpend(headline: HTMLElement) {
   const id = nextId("admin");
   const input = h("input", { id, className: "input grow", type: "password", autocomplete: "off", spellcheck: false, placeholder: "sk-admin-…" });
   const res = h("p", { className: "help", role: "status" });
@@ -100,14 +102,16 @@ function realSpend() {
     const masked = await invoke<string>("provider_key_status", { provider: "openai_admin" }).catch(() => "");
     input.value = "";
     input.placeholder = masked ? `Saved: ${masked}` : "sk-admin-…";
+    headline.hidden = !masked;
     if (!masked) { res.textContent = ""; return; }
     res.textContent = "Asking OpenAI…";
+    headline.textContent = "Real OpenAI spend this month: …";
     const now = new Date();
     try {
       const r = await invoke<{ usd: number; project: string | null }>("openai_real_cost", { sinceMs: new Date(now.getFullYear(), now.getMonth(), 1).getTime() });
-      res.textContent = `Real OpenAI spend this month: $${r.usd.toFixed(2)} `
-        + (r.project ? `(project "${r.project}", all keys and devices)` : "(whole organisation: the saved OpenAI key's project wasn't found)");
-    } catch (e) { res.textContent = String(e); }
+      headline.textContent = `Real OpenAI spend this month: $${r.usd.toFixed(2)}`;
+      res.textContent = r.project ? `Real spend covers project "${r.project}": all its keys and devices.` : "Real spend covers the whole organisation: the saved OpenAI key's project wasn't found.";
+    } catch (e) { res.textContent = String(e); headline.hidden = true; }
   };
   const store = async (v: string) => {
     try { await invoke("set_provider_key", { provider: "openai_admin", key: v }); await refresh(); }
@@ -123,5 +127,5 @@ function realSpend() {
       btn("Remove", "g", () => void store(""))),
     res);
   details.addEventListener("toggle", () => { if (details.open) void refresh(); });
-  return details;
+  return { el: details, refresh };
 }
