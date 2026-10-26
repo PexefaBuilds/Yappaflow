@@ -6,7 +6,8 @@ import { tick } from "./sounds";
 
 type Outcome = { kind: "pasted" | "typed" } | { kind: "left_on_clipboard"; reason: string };
 type Status =
-  | { state: "idle" | "processing" | "polishing" | "empty" | "cancelled" }
+  | { state: "idle" | "processing" | "polishing" | "empty" }
+  | { state: "cancelled"; can_rerun: boolean }
   | { state: "paused"; until_ms: number }
   | { state: "listening"; hands_free: boolean; command?: boolean }
   | { state: "rewriting"; instruction: string }
@@ -104,10 +105,12 @@ function mmss(ms: number) {
 // grows from a dot instead of morphing out of the stale "Pasted" shape.
 const HIDE_AFTER: Record<string, number> = { done: 1200, cancelled: 1200, empty: 1400, error: 5000 };
 const FAILED_HIDE_AFTER = 3000; // pill.rs keeps the window up as long
+const RERUN_MS = 2500; // pill.rs: 2700 ms
 
 function render(s: Status) {
   clearTimeout(hideTimer);
-  const hideAfter = s.state === "done" && (s.cleanup_failed || s.cleanup_skipped) ? FAILED_HIDE_AFTER : HIDE_AFTER[s.state];
+  const hideAfter = s.state === "done" && (s.cleanup_failed || s.cleanup_skipped) ? FAILED_HIDE_AFTER
+    : s.state === "cancelled" && s.can_rerun ? RERUN_MS + 200 : HIDE_AFTER[s.state];
   if (hideAfter) hideTimer = window.setTimeout(() => (pill.hidden = true), hideAfter);
   // CommandMode.dc.html: the spoken instruction above the pill while the edit runs.
   bubble.hidden = s.state !== "rewriting";
@@ -194,9 +197,25 @@ function render(s: Status) {
       }
       break;
     }
-    case "cancelled":
-      show("fade", el("span", "dot muted"), el("span", "label", "Dictation cancelled"));
+    case "cancelled": {
+      if (!s.can_rerun) {
+        show("fade", el("span", "dot muted"), el("span", "label", "Dictation cancelled"));
+        break;
+      }
+      // A moment to change your mind: Rerun processes the cancelled recording after all.
+      const rerun = el("button", "skip", "Rerun");
+      rerun.type = "button";
+      rerun.setAttribute("aria-label", "Rerun the cancelled dictation");
+      rerun.addEventListener("click", () => {
+        rerun.disabled = true;
+        void invoke("pill_rerun");
+      });
+      const drain = el("span", "drain");
+      drain.setAttribute("aria-hidden", "true");
+      show("has-skip", el("span", "dot muted"), el("span", "label", "Dictation cancelled"), rerun, drain);
+      drain.animate([{ transform: "scaleX(1)" }, { transform: "scaleX(0)" }], { duration: RERUN_MS, easing: "linear", fill: "forwards" });
       break;
+    }
     case "empty":
       show("fade", el("span", "dot muted"), el("span", "label", "Didn't hear anything"));
       break;

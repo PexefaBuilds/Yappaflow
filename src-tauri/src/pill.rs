@@ -81,7 +81,11 @@ const W_WIDE: f64 = 440.0;
 static WIDE: AtomicBool = AtomicBool::new(false);
 
 fn width() -> f64 {
-    if WIDE.load(Ordering::SeqCst) { W_WIDE } else { W }
+    if WIDE.load(Ordering::SeqCst) {
+        W_WIDE
+    } else {
+        W
+    }
 }
 
 /// Grow or shrink the (transparent) window so the bubble or the wide pill fits; the pill stays put.
@@ -173,9 +177,10 @@ pub fn on_status(app: &AppHandle, s: &Status) {
             show(false);
             hide_after(app, gen, Duration::from_millis(5000));
         }
-        Status::Cancelled => {
-            show(false);
-            hide_after(app, gen, Duration::from_millis(1200));
+        // With Rerun: clickable, and up for the 2.5 s countdown.
+        Status::Cancelled { can_rerun } => {
+            show(*can_rerun);
+            hide_after(app, gen, Duration::from_millis(if *can_rerun { 2700 } else { 1200 }));
         }
         Status::Idle => {
             let _ = w.hide();
@@ -204,6 +209,14 @@ pub fn hide_learn(app: &AppHandle) {
         if let Some(w) = app.get_webview_window("pill") {
             let _ = w.hide();
         }
+    }
+}
+
+/// "Rerun" on the cancelled pill: process the recording that was just cancelled.
+#[tauri::command]
+pub fn pill_rerun(tx: tauri::State<'_, CtlTx>) {
+    if let Ok(tx) = tx.0.lock() {
+        let _ = tx.send(CtlMsg::Rerun);
     }
 }
 

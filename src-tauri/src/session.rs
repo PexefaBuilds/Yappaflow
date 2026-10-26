@@ -46,6 +46,8 @@ pub enum Input {
     CommandKey,
     Tick,
     ProcessingDone,
+    /// The pill's "Rerun" on a just-cancelled recording.
+    Rerun,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -59,6 +61,8 @@ pub enum Action {
     EnteredCommand,
     StopAndProcess,
     Cancel,
+    /// Process the recording that was just cancelled.
+    Rerun,
 }
 
 #[derive(Debug)]
@@ -119,6 +123,10 @@ impl Session {
             (State::Idle, I::CommandKey) => {
                 self.record(Mode::HandsFree, now, true);
                 A::StartRecording
+            }
+            (State::Idle, I::Rerun) => {
+                self.state = State::Processing;
+                A::Rerun
             }
             (State::Idle, _) => A::None,
 
@@ -218,6 +226,20 @@ impl Session {
             }
             (State::Processing, _) => A::None,
         }
+    }
+}
+
+#[cfg(test)]
+mod rerun_tests {
+    use super::*;
+    #[test]
+    fn rerun_only_from_idle() {
+        let mut s = Session::default();
+        let t = Instant::now();
+        assert_eq!(s.handle(Input::Rerun, t), Action::Rerun);
+        assert_eq!(s.handle(Input::Rerun, t), Action::None);
+        assert_eq!(s.handle(Input::ProcessingDone, t), Action::None);
+        assert_eq!(s.handle(Input::Rerun, t), Action::Rerun);
     }
 }
 

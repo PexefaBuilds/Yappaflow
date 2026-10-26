@@ -1,6 +1,6 @@
 [package]
 name = "yappaflow"
-version = "0.9.7"
+version = "0.9.8"
 description = "Hold-to-talk dictation for Windows"
 authors = ["Yappaflow contributors"]
 edition = "2021"

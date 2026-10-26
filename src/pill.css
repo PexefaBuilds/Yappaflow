@@ -77,7 +77,7 @@ body { display: flex; align-items: flex-end; justify-content: center; padding-bo
 .skip:focus-visible { outline: 2px solid var(--text); outline-offset: 2px; }
 
 /* "Adding <term> to dictionary": wider pill, a bar along the bottom drains as Undo runs out. */
-.pill.learn { max-width: 420px; overflow: hidden; }
+.pill.learn { max-width: 420px; }
 .pill.learn .term { font-weight: 500; }
 .pill .drain { position: absolute; left: calc(18 * var(--u)); right: calc(18 * var(--u)); bottom: calc(4 * var(--u)); height: calc(3 * var(--u)); border-radius: calc(999 * var(--u)); background: var(--accent); transform-origin: left center; }
 

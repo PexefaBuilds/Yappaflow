@@ -29,7 +29,12 @@ pub enum CtlMsg {
     /// The command-mode hotkey.
     Command,
     ProcessingDone(u64),
+    /// The pill's "Rerun" after a cancel.
+    Rerun,
 }
+
+/// How long a cancelled recording can still be rerun (the pill shows it for 2.5 s).
+const RERUN_WINDOW: Duration = Duration::from_secs(4);
 
 /// The pill's "Paste now" while Polishing: stop waiting for cleanup and insert the raw text.
 /// notify_waiters (not notify_one) so a late click can't skip the next dictation's cleanup.
@@ -66,7 +71,10 @@ pub enum Status {
     },
     /// Nothing audible was recorded; nothing sent.
     Empty,
-    Cancelled,
+    /// `can_rerun`: the audio was kept, so the pill offers Rerun for a moment.
+    Cancelled {
+        can_rerun: bool,
+    },
     /// `row_id`: the saved recording, so the UI can offer Retry.
     Error {
         message: String,
@@ -86,7 +94,7 @@ pub fn spawn(app: AppHandle, state: Arc<AppState>, tx: Sender<CtlMsg>, rx: Recei
         let _ = level_app.emit("level", peak);
     }))?;
     std::thread::Builder::new().name("controller".into()).spawn(move || {
-        let mut c = Controller { app, state, tx, rec, session: Session::default(), seq: 0, ctx: None, task: None };
+        let mut c = Controller { app, state, tx, rec, session: Session::default(), seq: 0, ctx: None, task: None, cancelled: None };
         c.run(rx);
     })?;
     Ok(())
@@ -102,6 +110,8 @@ struct Controller {
     seq: u64,
     ctx: Option<AppContext>,
     task: Option<JoinHandle<()>>,
+    /// The last cancelled recording, its context and mode, kept briefly for Rerun.
+    cancelled: Option<(Captured, AppContext, &'static str, Instant)>,
 }
 
 impl Controller {
@@ -126,6 +136,7 @@ impl Controller {
                     },
                     Instant::now(),
                 ),
+                Ok(CtlMsg::Rerun) => (Input::Rerun, Instant::now()),
                 Ok(CtlMsg::ProcessingDone(id)) => {
                     if id != self.seq {
                         continue;
@@ -160,44 +171,64 @@ impl Controller {
             }
             Action::EnteredHandsFree | Action::EnteredCommand => self.emit_listening(),
             Action::Cancel => {
-                self.rec.cancel();
+                // A user cancel while recording keeps the audio for a moment, so Rerun can use it.
+                let was_recording = self.task.is_none();
+                let kept = if quiet || !was_recording {
+                    self.rec.cancel();
+                    None
+                } else {
+                    self.rec.stop().filter(|c| !c.samples.is_empty())
+                };
                 if let Some(t) = self.task.take() {
                     t.abort();
                 }
                 self.seq += 1;
-                emit_status(&self.app, if quiet { Status::Idle } else { Status::Cancelled });
+                let can_rerun = kept.is_some();
+                self.cancelled = kept.map(|c| (c, self.ctx.take().unwrap_or_default(), mode, now));
+                emit_status(&self.app, if quiet { Status::Idle } else { Status::Cancelled { can_rerun } });
             }
+            Action::Rerun => match self.cancelled.take().filter(|k| now.duration_since(k.3) < RERUN_WINDOW) {
+                Some((cap, ctx, mode, _)) => self.process_captured(Some(cap), ctx, mode, now),
+                None => {
+                    self.session.reset();
+                }
+            },
             Action::StopAndProcess => {
                 let captured = self.rec.stop();
                 let ctx = self.ctx.take().unwrap_or_default();
-                self.seq += 1;
-                let id = self.seq;
-                let (app, state, tx) = (self.app.clone(), self.state.clone(), self.tx.clone());
-                emit_status(&app, Status::Processing);
-                self.task = Some(tauri::async_runtime::spawn(async move {
-                    // Sends ProcessingDone on every exit path (panic, abort included), so the
-                    // controller can never get stuck in Processing. Stale ids are ignored.
-                    let _done = DoneGuard(tx, id);
-                    match captured {
-                        Some(cap) => {
-                            let run = if mode == "command" {
-                                process_command(&app, &state, cap, ctx, now).await
-                            } else {
-                                process(&app, &state, cap, ctx, mode, now).await
-                            };
-                            if let Err(e) = run {
-                                log::error!("dictation failed: {e:#}");
-                                emit_status(&app, Status::Error { message: format!("{e:#}"), row_id: None });
-                            }
-                        }
-                        None => emit_status(&app, Status::Error { message: "No audio captured".into(), row_id: None }),
-                    }
-                }));
+                self.process_captured(captured, ctx, mode, now);
             }
         }
     }
 
+    fn process_captured(&mut self, captured: Option<Captured>, ctx: AppContext, mode: &'static str, now: Instant) {
+        self.seq += 1;
+        let id = self.seq;
+        let (app, state, tx) = (self.app.clone(), self.state.clone(), self.tx.clone());
+        emit_status(&app, Status::Processing);
+        self.task = Some(tauri::async_runtime::spawn(async move {
+            // Sends ProcessingDone on every exit path (panic, abort included), so the
+            // controller can never get stuck in Processing. Stale ids are ignored.
+            let _done = DoneGuard(tx, id);
+            match captured {
+                Some(cap) => {
+                    let run = if mode == "command" {
+                        process_command(&app, &state, cap, ctx, now).await
+                    } else {
+                        process(&app, &state, cap, ctx, mode, now).await
+                    };
+                    if let Err(e) = run {
+                        log::error!("dictation failed: {e:#}");
+                        emit_status(&app, Status::Error { message: format!("{e:#}"), row_id: None });
+                    }
+                }
+                None => emit_status(&app, Status::Error { message: "No audio captured".into(), row_id: None }),
+            }
+        }));
+    }
+
     fn start_recording(&mut self) {
+        self.cancelled = None;
         // Capture the target app first, before our UI could ever take focus.
         self.ctx = Some(context::foreground());
         let s = self.state.settings.read().unwrap().clone();
