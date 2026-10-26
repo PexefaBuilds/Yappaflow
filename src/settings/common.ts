@@ -5,7 +5,7 @@ export interface Settings {
   stt_provider: string; stt_model: string; cleanup_provider: string; cleanup_model: string;
   language: string; mic_device: string; insert_mode: InsertMode; restore_clipboard: boolean;
   restore_delay_ms: number; openai_base_url: string; keep_recordings: number;
-  silence_threshold_dbfs: number; accent: string; theme: string; sounds_enabled: boolean; typing_style: string; start_with_windows: boolean;
+  silence_threshold_dbfs: number; accent: string; theme: string; sounds_enabled: boolean; learn_corrections?: boolean; typing_style: string; start_with_windows: boolean;
   auto_update: boolean; update_channel: string;
   [extra: string]: unknown; // fields owned by other modules (hotkeys, groq…) round-trip untouched
 }

@@ -46,6 +46,8 @@ pub struct Settings {
     pub theme: String,
     /// Start/stop ticks (placeholder: the sounds themselves land later).
     pub sounds_enabled: bool,
+    /// Add names the user respells after a paste to the dictionary (with an Undo countdown).
+    pub learn_corrections: bool,
     /// First-run onboarding finished.
     pub onboarded: bool,
     /// How the user types by hand: full | light | none (shapes the cleanup prompt).
@@ -108,6 +110,7 @@ impl Default for Settings {
             keep_models_loaded: if crate::models::GPU_BUILD { "always" } else { "idle" }.into(),
             theme: "system".into(),
             sounds_enabled: true,
+            learn_corrections: true,
         }
     }
 }

@@ -1,13 +1,12 @@
 //! Learn from corrections: for 15 s after a paste, watch the focused text field. When words we
-//! inserted are replaced by similar-sounding ones, count it; the second time, offer to add the
-//! fixed spelling to the dictionary. Only our inserted words are compared; nothing read from the
-//! field is stored or logged.
+//! inserted are replaced by a similar-sounding name, the pill says "Adding <name> to dictionary"
+//! and adds it after a short countdown unless the user presses Undo. Only our inserted words are
+//! compared; nothing read from the field is stored or logged.
 
 use crate::snippets::levenshtein;
-use crate::toast::{self, Toast, ToastAction};
 use crate::AppState;
 use serde::Serialize;
-use std::collections::HashMap;
+use std::collections::HashSet;
 use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::{Arc, Mutex};
 use std::time::{Duration, Instant};
@@ -15,12 +14,16 @@ use tauri::{AppHandle, Manager};
 
 const WATCH: Duration = Duration::from_secs(15);
 const POLL: Duration = Duration::from_millis(500);
+/// Polls with no change before a correction counts as finished (the user stopped typing).
+const SETTLE_POLLS: u32 = 3;
+/// How long the pill offers Undo before the term is added.
+const UNDO_MS: u64 = 5000;
 
 /// A newer dictation stops the previous watcher.
 static GEN: AtomicU64 = AtomicU64::new(0);
-/// Fixed spelling (lower case) → (what we inserted, times corrected).
-/// shortcut: in memory only, so counts reset on restart; persist if users miss suggestions.
-static COUNTS: Mutex<Option<HashMap<String, (String, u32)>>> = Mutex::new(None);
+/// Terms (lower case) the user pressed Undo on; not offered again until restart.
+/// shortcut: in memory only; persist if re-offers after a restart annoy people.
+static SKIPPED: Mutex<Option<HashSet<String>>> = Mutex::new(None);
 static PENDING: Mutex<Option<Suggestion>> = Mutex::new(None);
 
 #[derive(Debug, Clone, PartialEq, Serialize)]
@@ -37,11 +40,17 @@ pub fn watch(app: AppHandle, inserted: String) {
         let Some(first) = crate::context::focused_text() else { return };
         let mut last = first;
         let mut found = None;
-        let t0 = Instant::now();
+        let (t0, mut still) = (Instant::now(), 0);
         while t0.elapsed() < WATCH && GEN.load(Ordering::SeqCst) == gen {
             std::thread::sleep(POLL);
             let Some(now) = crate::context::focused_text() else { continue };
-            if now != last {
+            if now == last {
+                still += 1;
+                if found.is_some() && still >= SETTLE_POLLS {
+                    break;
+                }
+            } else {
+                still = 0;
                 // Keep the latest: mid-typing "Kube" is superseded by the finished "Kubernetes".
                 if let Some(c) = correction(&inserted, &now) {
                     found = Some(c);
@@ -49,7 +58,7 @@ pub fn watch(app: AppHandle, inserted: String) {
                 last = now;
             }
         }
-        if let Some(c) = found {
+        if let Some(c) = found.filter(|_| GEN.load(Ordering::SeqCst) == gen) {
             record(&app, c);
         }
     });
@@ -57,31 +66,34 @@ pub fn watch(app: AppHandle, inserted: String) {
 
 fn record(app: &AppHandle, c: Suggestion) {
     let Some(state) = app.try_state::<Arc<AppState>>() else { return };
+    if !state.settings.read().unwrap().learn_corrections || !is_name(&c.term) {
+        return;
+    }
+    if SKIPPED.lock().unwrap().as_ref().is_some_and(|s| s.contains(&c.term.to_lowercase())) {
+        return;
+    }
     let known = state.db.list_terms().unwrap_or_default();
     if known.iter().any(|t| t.term.eq_ignore_ascii_case(&c.term)) {
         return;
     }
-    let count = {
-        let mut g = COUNTS.lock().unwrap();
-        let e = g.get_or_insert_with(HashMap::new).entry(c.term.to_lowercase()).or_insert((c.heard.clone(), 0));
-        e.0 = c.heard.clone();
-        e.1 += 1;
-        e.1
-    };
-    if count < 2 {
-        return;
-    }
     *PENDING.lock().unwrap() = Some(c.clone());
-    toast::show(
-        app,
-        Toast {
-            dot: "accent",
-            title: format!("Add {} to your dictionary?", c.term),
-            body: format!("You corrected \"{}\" to {} twice.", c.heard, c.term),
-            action: Some(ToastAction { label: "Add", kind: "add_term", arg: Some(c.term.clone()) }),
-            secondary: Some(ToastAction { label: "Not now", kind: "skip_term", arg: Some(c.term.clone()) }),
-        },
-    );
+    crate::pill::show_learn(app, &c.term, UNDO_MS);
+    let app = app.clone();
+    std::thread::spawn(move || {
+        std::thread::sleep(Duration::from_millis(UNDO_MS));
+        // Still pending (no Undo): add it.
+        if let Some(state) = app.try_state::<Arc<AppState>>() {
+            if let Err(e) = answer(&state, &c.term, true) {
+                log::warn!("couldn't add a learned term: {e}");
+            }
+        }
+    });
+}
+
+/// Names and uncommon words only: a capital or a digit somewhere ("Shahid", "iPhone", "GPT4"),
+/// so everyday words fixed by hand aren't learned.
+fn is_name(term: &str) -> bool {
+    term.chars().any(|c| c.is_uppercase() || c.is_ascii_digit())
 }
 
 #[tauri::command]
@@ -91,7 +103,14 @@ pub fn get_term_suggestion() -> Option<Suggestion> {
 
 /// "Add" stores the term as learned, with what we misheard as its "sounds like". Either answer clears it.
 #[tauri::command]
-pub fn answer_term_suggestion(state: tauri::State<'_, Arc<AppState>>, term: String, add: bool) -> Result<(), String> {
+pub fn answer_term_suggestion(app: AppHandle, state: tauri::State<'_, Arc<AppState>>, term: String, add: bool) -> Result<(), String> {
+    if !add {
+        crate::pill::hide_learn(&app);
+    }
+    answer(&state, &term, add)
+}
+
+fn answer(state: &AppState, term: &str, add: bool) -> Result<(), String> {
     let s = {
         let mut p = PENDING.lock().unwrap();
         // A newer suggestion replaced the one this answer is for: leave it alone.
@@ -103,8 +122,8 @@ pub fn answer_term_suggestion(state: tauri::State<'_, Arc<AppState>>, term: Stri
             }
         }
     };
-    if let Some(m) = COUNTS.lock().unwrap().as_mut() {
-        m.remove(&s.term.to_lowercase());
+    if !add {
+        SKIPPED.lock().unwrap().get_or_insert_with(HashSet::new).insert(s.term.to_lowercase());
     }
     if add {
         use crate::settings_cmds::clean_term;
@@ -244,6 +263,12 @@ mod tests {
         assert_eq!(correction("send it on Monday", "send it on monday"), None); // case only
         assert_eq!(correction("send the report to Dana today", "completely different text"), None);
         assert_eq!(correction("hello there", "hello there"), None);
+    }
+
+    #[test]
+    fn only_names_are_learned() {
+        assert!(is_name("Shahid") && is_name("iPhone") && is_name("GPT4"));
+        assert!(!is_name("receive"));
     }
 
     #[test]

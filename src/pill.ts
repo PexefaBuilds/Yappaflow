@@ -234,6 +234,29 @@ async function init() {
     wasListening = st === "listening" || (wasListening && (st === "processing" || st === "rewriting"));
     render(e.payload);
   });
+  // learn.rs: "Adding <term> to dictionary", a draining bar for the countdown, and Undo.
+  await listen<{ term: string; ms: number }>("learn", (e) => {
+    clearTimeout(hideTimer);
+    bubble.hidden = true;
+    const { term, ms } = e.payload;
+    const undo = el("button", "skip", "Undo");
+    undo.type = "button";
+    undo.setAttribute("aria-label", `Undo adding ${term} to the dictionary`);
+    const drain = el("span", "drain");
+    drain.setAttribute("aria-hidden", "true");
+    const name = el("strong", "term", term);
+    name.dir = "auto";
+    const label = el("span", "label trunc");
+    label.append("Adding ", name, " to dictionary");
+    undo.addEventListener("click", () => {
+      undo.disabled = true;
+      pill.hidden = true;
+      void invoke("answer_term_suggestion", { term, add: false }).catch(() => {});
+    });
+    show("has-skip learn", label, undo, drain);
+    drain.animate([{ transform: "scaleX(1)" }, { transform: "scaleX(0)" }], { duration: ms, easing: "linear", fill: "forwards" });
+    hideTimer = window.setTimeout(() => (pill.hidden = true), ms + 900);
+  });
   await listen<number>("level", (e) => {
     levels.shift();
     levels.push(Math.min(1, e.payload * 3));

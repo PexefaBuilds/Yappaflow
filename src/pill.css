@@ -76,6 +76,11 @@ body { display: flex; align-items: flex-end; justify-content: center; padding-bo
 .skip:disabled { opacity: 0.6; cursor: default; }
 .skip:focus-visible { outline: 2px solid var(--text); outline-offset: 2px; }
 
+/* "Adding <term> to dictionary": wider pill, a bar along the bottom drains as Undo runs out. */
+.pill.learn { max-width: 420px; overflow: hidden; }
+.pill.learn .term { font-weight: 500; }
+.pill .drain { position: absolute; left: calc(18 * var(--u)); right: calc(18 * var(--u)); bottom: calc(4 * var(--u)); height: calc(3 * var(--u)); border-radius: calc(999 * var(--u)); background: var(--accent); transform-origin: left center; }
+
 /* PillExtras 09 Command: --command (violet; coral when the accent is Violet) replaces the accent. */
 .pill.command::before { box-shadow: var(--pill-shadow), inset 0 0 0 1px color-mix(in srgb, var(--command) 35%, transparent); }
 .pill.command .bar, .pill.command .sheen, .pill.command .stop { background: var(--command); }

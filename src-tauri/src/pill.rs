@@ -76,14 +76,22 @@ fn mac_panel(w: &WebviewWindow) {
 /// Command mode shows the spoken instruction in a bubble above the pill (CommandMode.dc.html).
 const H_TALL: f64 = 150.0;
 static TALL: AtomicBool = AtomicBool::new(false);
+/// "Adding to dictionary" needs a wider window than the usual pill.
+const W_WIDE: f64 = 440.0;
+static WIDE: AtomicBool = AtomicBool::new(false);
 
-/// Grow or shrink the (transparent) window so the instruction bubble fits; the pill stays put.
-fn fit(app: &AppHandle, w: &WebviewWindow, tall: bool) {
-    if TALL.swap(tall, Ordering::SeqCst) == tall {
+fn width() -> f64 {
+    if WIDE.load(Ordering::SeqCst) { W_WIDE } else { W }
+}
+
+/// Grow or shrink the (transparent) window so the bubble or the wide pill fits; the pill stays put.
+fn fit(app: &AppHandle, w: &WebviewWindow, tall: bool, wide: bool) {
+    let same_tall = TALL.swap(tall, Ordering::SeqCst) == tall;
+    if WIDE.swap(wide, Ordering::SeqCst) == wide && same_tall {
         return;
     }
     let h = if tall { H_TALL } else { H };
-    let _ = w.set_size(tauri::LogicalSize::new(W, h));
+    let _ = w.set_size(tauri::LogicalSize::new(width(), h));
     if w.is_visible().unwrap_or(false) {
         place_sized(app, w, Some(h));
     }
@@ -105,8 +113,8 @@ fn place_sized(app: &AppHandle, w: &WebviewWindow, logical_h: Option<f64>) {
     let (wa, scale) = (m.work_area(), m.scale_factor());
     // Use the real window size (it can differ from W×H on scaled displays).
     let size = match logical_h {
-        Some(h) => tauri::PhysicalSize::new((W * scale) as u32, (h * scale) as u32),
-        None => w.outer_size().unwrap_or(tauri::PhysicalSize::new((W * scale) as u32, (H * scale) as u32)),
+        Some(h) => tauri::PhysicalSize::new((width() * scale) as u32, (h * scale) as u32),
+        None => w.outer_size().unwrap_or(tauri::PhysicalSize::new((width() * scale) as u32, (H * scale) as u32)),
     };
     let (ww, hh) = (size.width as i32, size.height as i32);
     let x = wa.position.x + (wa.size.width as i32 - ww) / 2;
@@ -130,7 +138,7 @@ fn hide_after(app: &AppHandle, gen: u64, d: Duration) {
 pub fn on_status(app: &AppHandle, s: &Status) {
     let gen = GEN.fetch_add(1, Ordering::SeqCst) + 1;
     let Some(w) = app.get_webview_window("pill") else { return };
-    fit(app, &w, matches!(s, Status::Rewriting { .. }));
+    fit(app, &w, matches!(s, Status::Rewriting { .. }), false);
     let show = |clickable: bool| {
         if !w.is_visible().unwrap_or(false) {
             place(app, &w);
@@ -166,6 +174,30 @@ pub fn on_status(app: &AppHandle, s: &Status) {
             hide_after(app, gen, Duration::from_millis(5000));
         }
         Status::Idle | Status::Cancelled => {
+            let _ = w.hide();
+        }
+    }
+}
+
+/// "Adding <term> to dictionary" with an Undo button for `ms`; the pill counts down, learn.rs commits.
+pub fn show_learn(app: &AppHandle, term: &str, ms: u64) {
+    use tauri::Emitter;
+    let gen = GEN.fetch_add(1, Ordering::SeqCst) + 1;
+    let Some(w) = app.get_webview_window("pill") else { return };
+    fit(app, &w, false, true);
+    if !w.is_visible().unwrap_or(false) {
+        place(app, &w);
+        let _ = w.show();
+    }
+    let _ = w.set_ignore_cursor_events(false);
+    let _ = app.emit_to("pill", "learn", serde_json::json!({ "term": term, "ms": ms }));
+    hide_after(app, gen, Duration::from_millis(ms + 900));
+}
+
+/// Hide the learn pill now (Undo), unless a dictation has taken the pill over since.
+pub fn hide_learn(app: &AppHandle) {
+    if WIDE.load(Ordering::SeqCst) {
+        if let Some(w) = app.get_webview_window("pill") {
             let _ = w.hide();
         }
     }
