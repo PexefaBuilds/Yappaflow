@@ -2,7 +2,7 @@
 
 Updated 2026-10-26. `PLAN.md` §0 stays the product source of truth; this file is "where we are right now".
 
-## Done (all on `main`, pushed; 155 Rust tests pass on Windows (Mac not re-run since 148); clippy/fmt clean, `npm run build` passes; nothing acceptance-tested on screen)
+## Done (all on `main`, pushed; 155 Rust tests pass on Windows (Mac not re-run since 148); clippy/fmt not re-run since v0.9.5, `npm run build` passes; nothing acceptance-tested on screen)
 - **Phases 1–8 built:** pipeline, cleanup + gate + app styles, pill/tray/toasts/settings/onboarding, dictionary/snippets/learning, command mode, Phase 6 app side (per-user NSIS, autostart, admin relaunch, clipboard restore, logs, data controls), Phase 7 cloud + local providers, Phase 8 macOS port (builds and tests on the Mac, never run with a GUI). API cost estimate on History.
 - **Public:** https://github.com/PexefaBuilds/Yappaflow (renamed to capital Y on 26 Oct; old lowercase URLs and the updater URL still work; one squashed initial commit, noreply author; secret scanning, push protection, private vuln reporting, issue labels). Full local history only on local branch `pre-public-history` (never push).
 - **Releases** (unsigned NSIS `.exe` + universal ad-hoc-signed `.dmg` + `SHA256SUMS`):
@@ -58,8 +58,8 @@ Updated 2026-10-26. `PLAN.md` §0 stays the product source of truth; this file i
 ## Current task
 **Shipping v0.9.8** (tag pushed, draft release exists, CI run 40363138858 cancelled after notices).
 - Mac: done. `Yappaflow_0.9.8_universal.dmg` + `.app.tar.gz` are on the Mac in `~/ShahidPersonalProjects/Yappaflow-rel/src-tauri/target/universal-apple-darwin/release/bundle/{dmg,macos}/` (a copy was scp'd to the session scratchpad, which won't survive).
-- Windows: `npx tauri build --bundles nsis --config src-tauri/tauri.updater.conf.json` was running with the signing env and the CI notices copied over `THIRD_PARTY_NOTICES.md` (restore it with `git checkout THIRD_PARTY_NOTICES.md` afterwards if it's still modified). Output: `src-tauri/target/release/bundle/nsis/Yappaflow_0.9.8_x64-setup.exe` (+ `.sig`).
-- Then: sign the Mac `.app.tar.gz` on the PC (`npx tauri signer sign`, see `scripts/sign_release.md`), upload exe, exe.sig, dmg, app.tar.gz, app.tar.gz.sig to the v0.9.8 draft, run `python -I scripts/make_latest_json.py v0.9.8 <dir> PexefaBuilds/Yappaflow docs/release-notes/v0.9.8.md`, write `SHA256SUMS`, upload both, check the asset list, publish (`gh release edit v0.9.8 --draft=false --latest`). The owner already asked to ship it.
+- Windows: built (20:59) with the CI notices: `src-tauri/target/release/bundle/nsis/Yappaflow_0.9.8_x64-setup.exe`. **No `.sig`**: `tauri build` wants `TAURI_SIGNING_PRIVATE_KEY` (the key text); `_PATH` only works for `tauri signer sign`, so the bundler errored after making the exe. Sign the exe by hand like the Mac package.
+- Then: sign the exe and the Mac `.app.tar.gz` on the PC (`npx tauri signer sign`, see `scripts/sign_release.md`), upload exe, exe.sig, dmg, app.tar.gz, app.tar.gz.sig to the v0.9.8 draft, run `python -I scripts/make_latest_json.py v0.9.8 <dir> PexefaBuilds/Yappaflow docs/release-notes/v0.9.8.md`, write `SHA256SUMS`, upload both, check the asset list, publish (`gh release edit v0.9.8 --draft=false --latest`). The owner already asked to ship it.
 
 ## Next steps (in order)
 0. **Finish v0.9.8** (Current task). Then the owner deletes the v0.9.7 draft and tag: `gh release delete v0.9.7 -R PexefaBuilds/Yappaflow --yes --cleanup-tag`. Then on screen: name pill + Undo, Cancel → Rerun (while recording and while transcribing), no leading space in Discord/Claude, the Mac dmg/update.
