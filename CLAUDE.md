@@ -15,8 +15,8 @@ Yappaflow is a hold-to-talk dictation app. Hold a hotkey, speak, release, and po
 - **Verified provider facts:** `docs/providers.md`. Check it before writing provider code; never guess model IDs or parameter names.
 
 ## Current status
-- Phases 1–8 are **built** and Phase 9 groundwork is done (144 unit tests pass on Windows; the Mac build links and passes its tests). **No acceptance test has been run on screen**, so no phase box is checked yet. Prompts live in `docs/prompts/*.md` + `src-tauri/src/providers/prompts/*.txt` (keep identical; re-run the eval after any change).
-- **Read `WORK_PLAN.md` next**: what's done, decisions, exact next steps, open questions, gotchas. Public repo: https://github.com/PexefaBuilds/yappaflow (`main`); v0.9.2 is the latest release and updates itself (signed, via `latest.json`).
+- Phases 1–8 are **built** and Phase 9 groundwork is done (152 unit tests pass on Windows, 148 on the Mac). **No acceptance test has been run on screen**, so no phase box is checked yet. Prompts live in `docs/prompts/*.md` + `src-tauri/src/providers/prompts/*.txt` (keep identical; re-run the eval after any change).
+- **Read `WORK_PLAN.md` next**: what's done, decisions, exact next steps, open questions, gotchas. Public repo: https://github.com/PexefaBuilds/yappaflow (`main`); v0.9.5 is the latest release; installed copies update themselves (signed in CI, via `latest.json`).
 - The next phase is set by the first unchecked box in `docs/phases/README.md`.
 
 ## Commands (Windows, PowerShell)
