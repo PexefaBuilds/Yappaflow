@@ -217,7 +217,11 @@ pub fn text_before_cursor(max: usize) -> Option<String> {
         let r = sel.GetElement(0).ok()?;
         r.MoveEndpointByRange(TextPatternRangeEndpoint_End, &r, TextPatternRangeEndpoint_Start).ok()?; // collapse to the caret
         r.MoveEndpointByUnit(TextPatternRangeEndpoint_Start, TextUnit_Character, -(max as i32)).ok()?;
-        Some(r.GetText(max as i32).ok()?.to_string())
+        let before = r.GetText(max as i32).ok()?.to_string();
+        // Chromium/Electron boxes (Discord, Claude) can report text from outside an empty field,
+        // which made us paste a leading space: keep it only if the field itself holds it.
+        let doc = tp.DocumentRange().ok()?.GetText(20_000).ok()?.to_string();
+        doc.contains(before.trim()).then_some(before).filter(|_| !doc.trim().is_empty())
     }
 }
 

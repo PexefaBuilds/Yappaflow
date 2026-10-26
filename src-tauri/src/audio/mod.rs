@@ -13,6 +13,7 @@ use std::sync::{Arc, Mutex};
 use std::time::{Duration, Instant};
 
 /// Raw capture result (native rate, mono).
+#[derive(Clone)]
 pub struct Captured {
     pub samples: Vec<f32>,
     pub sample_rate: u32,

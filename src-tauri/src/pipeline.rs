@@ -94,7 +94,7 @@ pub fn spawn(app: AppHandle, state: Arc<AppState>, tx: Sender<CtlMsg>, rx: Recei
         let _ = level_app.emit("level", peak);
     }))?;
     std::thread::Builder::new().name("controller".into()).spawn(move || {
-        let mut c = Controller { app, state, tx, rec, session: Session::default(), seq: 0, ctx: None, task: None, cancelled: None };
+        let mut c = Controller { app, state, tx, rec, session: Session::default(), seq: 0, ctx: None, task: None, cancelled: None, in_flight: None };
         c.run(rx);
     })?;
     Ok(())
@@ -112,6 +112,8 @@ struct Controller {
     task: Option<JoinHandle<()>>,
     /// The last cancelled recording, its context and mode, kept briefly for Rerun.
     cancelled: Option<(Captured, AppContext, &'static str, Instant)>,
+    /// A copy of the recording being processed, so a cancel mid-transcription can offer Rerun too.
+    in_flight: Option<(Captured, AppContext, &'static str)>,
 }
 
 impl Controller {
@@ -142,6 +144,7 @@ impl Controller {
                         continue;
                     }
                     self.task = None;
+                    self.in_flight = None;
                     (Input::ProcessingDone, Instant::now())
                 }
                 Err(RecvTimeoutError::Timeout) => (Input::Tick, Instant::now()),
@@ -171,20 +174,24 @@ impl Controller {
             }
             Action::EnteredHandsFree | Action::EnteredCommand => self.emit_listening(),
             Action::Cancel => {
-                // A user cancel while recording keeps the audio for a moment, so Rerun can use it.
-                let was_recording = self.task.is_none();
-                let kept = if quiet || !was_recording {
+                // A user cancel keeps the audio for a moment, so Rerun can use it: the live
+                // recording, or the copy of the one being transcribed.
+                let kept = if quiet {
                     self.rec.cancel();
                     None
+                } else if self.task.is_some() {
+                    self.in_flight.take()
                 } else {
-                    self.rec.stop().filter(|c| !c.samples.is_empty())
+                    let ctx = self.ctx.take().unwrap_or_default();
+                    self.rec.stop().filter(|c| !c.samples.is_empty()).map(|c| (c, ctx, mode))
                 };
                 if let Some(t) = self.task.take() {
                     t.abort();
                 }
+                self.in_flight = None;
                 self.seq += 1;
                 let can_rerun = kept.is_some();
-                self.cancelled = kept.map(|c| (c, self.ctx.take().unwrap_or_default(), mode, now));
+                self.cancelled = kept.map(|(c, ctx, mode)| (c, ctx, mode, now));
                 emit_status(&self.app, if quiet { Status::Idle } else { Status::Cancelled { can_rerun } });
             }
             Action::Rerun => match self.cancelled.take().filter(|k| now.duration_since(k.3) < RERUN_WINDOW) {
@@ -202,6 +209,7 @@ impl Controller {
     }
 
     fn process_captured(&mut self, captured: Option<Captured>, ctx: AppContext, mode: &'static str, now: Instant) {
+        self.in_flight = captured.as_ref().map(|c| (c.clone(), ctx.clone(), mode));
         self.seq += 1;
         let id = self.seq;
         let (app, state, tx) = (self.app.clone(), self.state.clone(), self.tx.clone());
